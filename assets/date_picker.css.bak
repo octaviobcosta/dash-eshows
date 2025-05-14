@@ -1,0 +1,221 @@
+/* =====================  Date Picker CSS — versão 2025‑04‑20  =====================
+   • Remove largura fixa do popup   →  elimina faixa branca à direita
+   • Título 100 % centralizado      →  padding simétrico 48 px
+   • Weekdays e dias alinhados      →  células 36 px, UL em grid
+   • Correção da sobreposição       →  ajuste de posicionamentos absolutos
+   Coloque em  assets/date_picker.css  (substitui a versão anterior).
+=============================================================================== */
+
+/* ---------------------------------------------------------------------------
+   WRAPPER EXTERNO (inputs) – sem mudanças relevantes
+--------------------------------------------------------------------------- */
+.date-picker-wrapper,
+.date-range-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 332px;
+    height: 40px;
+    background: #ffffff;
+    border: 1px solid #D1D1D1;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    color: #4A4A4A;
+    box-sizing: border-box;
+    position: relative;
+    overflow: visible;   /* permite que o calendário ultrapasse */
+}
+
+/* ---------------------------------------------------------------------------
+   INPUTS
+--------------------------------------------------------------------------- */
+.date-picker-input               { width: 100%; }
+.date-picker-input .DateRangePickerInput {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: none !important;
+    background: transparent;
+}
+.date-picker-input .DateInput {
+    width: 45%;
+    border: none !important;
+    background: transparent;
+    box-shadow: none;
+}
+.DateInput_input {
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    color: #4A4A4A;
+    padding: 0 !important;
+    height: 38px;
+    text-align: center;
+}
+.DateInput_input::placeholder    { color: #A0A0A0; opacity: 1; }
+
+.DateRangePickerInput_arrow {
+    color: #fc4f22 !important;
+    font-size: 1.1rem;
+    width: 10%;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   POP‑UP DO CALENDÁRIO – posicionamento melhorado
+--------------------------------------------------------------------------- */
+.date-picker-wrapper .DateRangePicker_picker {
+    position: absolute !important;
+    top: 42px !important;       /* Reduzido de 48px para subir o calendário */
+    left: 0 !important;
+    z-index: 1200;
+    
+    width: auto !important;     /* ➜ elimina faixa branca */
+    min-width: 0 !important;
+    transform: none !important;
+    padding: 0 !important;      /* remove padding interno default */
+}
+.DateRangePicker_picker:before,
+.DateRangePicker_picker:after { display: none !important; }
+
+/* ---------------------------------------------------------------------------
+   CABEÇALHO – setas + título perfeitamente centralizado
+--------------------------------------------------------------------------- */
+/* Não modificar posicionamento do container para manter estrutura */
+.DayPickerNavigation_container {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: auto;
+    padding: 0 12px;
+    height: 36px;
+}
+
+.DayPickerNavigation_button {
+    width: 36px;                 /* largura fixa p/ alinhar */
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;                /* Garantir que as setas fiquem acima */
+}
+
+/* Título do mês - centralizado na linha das setas */
+.CalendarMonth_caption {
+    text-align: center;
+    font-weight: 600;
+    margin: 0 !important;
+    padding: 12px 48px !important;
+    font-size: 16px;
+    line-height: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------------------------------------------------------------------------
+   WEEKDAY HEADER (Mo‑Su) - melhor alinhamento com grid de dias
+--------------------------------------------------------------------------- */
+.DayPicker_weekHeader {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+.DayPicker_weekHeader_ul {
+    display: grid !important;
+    grid-template-columns: repeat(7, 36px); /* 7 colunas iguais */
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.DayPicker_weekHeader_li {
+    list-style: none;
+    width: 36px !important;
+    height: 36px !important;
+    line-height: 36px !important;
+    text-align: center;
+    font-weight: 600;
+    color: #fc4f22;
+    font-size: 14px !important;
+}
+
+/* ---------------------------------------------------------------------------
+   GRID DE DIAS - ajustado para alinhar com cabeçalho
+--------------------------------------------------------------------------- */
+.CalendarDay {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 14px !important;
+    vertical-align: middle;
+    padding: 0 !important;
+    line-height: 36px !important;
+}
+
+.CalendarDay__selected,
+.CalendarDay__selected_span {
+    background: #fc4f22 !important;
+    border: 1px solid #fc4f22 !important;
+    color: #ffffff !important;
+}
+
+.CalendarDay:hover {
+    background: #fdb03d !important;
+    border: 1px solid #fdb03d !important;
+    color: #ffffff !important;
+    transition: all .2s ease;
+}
+
+/* Dias do calendário com margem ajustada e espaçamento correto */
+.CalendarMonth_table {
+    margin: 95px auto 20px !important; /* Ajustado para manter distância adequada */
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+/* Estilo para dias que não pertencem ao mês atual */
+.CalendarDay__outside {
+    opacity: 0.5 !important;
+    color: #A0A0A0 !important;
+}
+
+/* altura auto p/ não cortar */
+.CalendarMonth,
+.CalendarMonthGrid,
+.DayPicker_transitionContainer {
+    height: auto !important;
+    min-height: 300px !important;
+}
+
+/* caixa branca do calendário */
+.DayPicker,
+.DayPicker__withBorder {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background: #ffffff;
+    padding-bottom: 16px !important; /* Adiciona espaço inferior */
+}
+
+/* Garante que o layout não é quebrado em telas menores */
+@media screen and (max-width: 500px) {
+    .date-picker-wrapper .DateRangePicker_picker {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+    }
+}
+
+/* =====================  fim do arquivo  ===================== */

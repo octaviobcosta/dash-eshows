@@ -1,0 +1,16 @@
+﻿---
+description: Regras específicas do projeto DashGerencialNovo
+alwaysApply: true
+scope: project
+---
+
+1. Estrutura de pastas e módulos deve permanecer como está (`app/`, `kpis/`, etc.).  
+2. Código roda em **Python 3.12 + Dash/Plotly**: use só bibliotecas já presentes no projeto.  
+3. Quando alterar lógica de KPI, entregue a **def inteira** (ou o arquivo) conforme pedido, sem remover código fora do escopo.  
+4. Não crie arquivos nem pastas adicionais sem aprovação explícita.  
+5. Para JSONs de KPI, siga o formato chave-valor já usado (title, description, formula, variables, usage…).  
+6. Para queries Supabase, respeite os nomes de tabela e campos existentes; não mude schema via IA.  
+7. Em ajustes visuais, mantenha a paleta atual e a consistência dos componentes (cards mesmo tamanho, fundo areia).  
+8. Ao sugerir otimizações de performance, priorize mudanças pequenas e incrementais — nada que quebre o Dash.  
+9. Logs de debug devem permanecer no nível `INFO`; não introduzir prints soltos.  
+10. Nunca comentar ou remover código crítico sem discutir primeiro.  

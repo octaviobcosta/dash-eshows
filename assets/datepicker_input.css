@@ -1,0 +1,162 @@
+/* ================= Date‑Picker INPUT wrapper ================= */
+/* Seletores específicos para os IDs do DatePickerRange */
+#dashboard-date-range-picker,
+#dashboard-date-range-picker-compare,
+#kpi-date-range {
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    color: #262626;
+}
+
+.date-picker-wrapper {
+    display: flex;
+    align-items: center;
+    width: auto;
+    min-width: 300px;
+    max-width: 300px;
+    background: #ffffff;
+    border: 1px solid #D1D1D1;
+    border-radius: 6px;
+    padding: 0 12px;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    color: #262626;
+    box-sizing: border-box;
+}
+
+/* Estilo para labels do DatePickerRange */
+.date-picker-wrapper label,
+div:has(> .date-picker-wrapper) > label {
+    font-family: Inter, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #4A4A4A;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.date-picker-wrapper input {
+    width: auto;
+    text-align: center;
+    border: none;
+    background: transparent;
+    height: 38px;
+    padding: 0;
+}
+
+.date-picker-wrapper input::placeholder {
+    color: #A0A0A0;
+    opacity: 1;
+}
+
+/* Solução robusta para centralização vertical de todos elementos interativos */
+.date-picker-wrapper .DateRangePickerInput_arrow,
+.date-picker-wrapper .DateRangePickerInput_arrow_svg,
+.date-picker-wrapper .dash-date-picker-range__dash-input-group > span,
+.date-picker-wrapper .DateRangePickerInput_clearDates,
+.date-picker-wrapper .DateRangePickerInput_clearDates_svg,
+.date-picker-wrapper button,
+.date-picker-wrapper .DateInput_fang {
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: auto !important;
+}
+
+/* Ajuste específico para o botão X (clear dates) */
+.date-picker-wrapper .DateRangePickerInput_clearDates {
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    margin-right: 0 !important;
+}
+
+/* Força o alinhamento para qualquer svg dentro do wrapper */
+.date-picker-wrapper svg {
+    vertical-align: middle !important;
+    margin: auto !important;
+}
+
+/* remove a borda azul do Bootstrap quando focado */
+.date-picker-wrapper input:focus {
+    outline: none;
+    box-shadow: none !important;
+}
+
+/* Correção completa para wrappers aninhados */
+/* Primeiro, esconder todos os wrappers adicionais */
+.date-picker-wrapper > div:not(.DateInput_input):not(.DateInput):not(.DateRangePickerInput_arrow):not(.DateRangePickerInput_arrow_svg):not(.DateRangePicker_picker) {
+    border: none !important;
+    background-color: transparent !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Regras específicas para o DateRangePickerInput */
+.date-picker-wrapper .DateRangePickerInput,
+.date-picker-wrapper .SingleDatePickerInput {
+    border: none !important;
+    background: transparent !important;
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important; /* Assegura alinhamento vertical dos itens filhos */
+}
+
+/* Regras específicas para DateInput */
+.date-picker-wrapper .DateInput,
+.DateRangePickerInput .DateInput {
+    background-color: transparent !important;
+    width: 100% !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* Regras específicas para input dentro do DateInput */
+.date-picker-wrapper .DateInput_input,
+.DateRangePickerInput .DateInput_input,
+.SingleDatePickerInput .DateInput_input {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+/* Remover bordas e estilos de qualquer wrapper ou div dentro de date-picker-wrapper */
+.date-picker-wrapper div[class^="dash-"],
+.date-picker-wrapper > div > div {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Datas dentro do wrapper */
+.date-picker-wrapper .DateInput_input {
+    background: transparent !important;
+    font-size: 14px !important;
+    text-align: center !important;
+}
+
+/* Garantir que o calendário fique sempre acima de outros elementos */
+.SingleDatePicker_picker, 
+.DateRangePicker_picker,
+.DateRangePicker_picker__directionLeft, 
+.DateRangePicker_picker__directionRight,
+.DayPicker {
+    z-index: 9999 !important;
+}
+
+/* Garantir que o calendário não seja cortado */
+.DateRangePicker_picker, 
+.SingleDatePicker_picker {
+    position: absolute !important;
+}
+
+/* Corrigir posição do calendário */
+.DateRangePicker, 
+.SingleDatePicker {
+    position: relative !important;
+}
+/* ============================================================ */

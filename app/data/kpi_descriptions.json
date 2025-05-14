@@ -1,0 +1,670 @@
+{
+  "CMGR": {
+    "title": "CMGR (Compound Monthly Growth Rate)",
+    "description": "O CMGR (Compound Monthly Growth Rate), aplicado ao faturamento, é uma métrica que mede o crescimento composto médio mensal ao longo de um período de tempo. Ele é útil para avaliar a consistência do crescimento de receita de uma empresa em períodos mensais.",
+    "formula": "CMGR = \\left(\\frac{Receita_{final}}{Receita_{inicial}}\\right)^{\\frac{1}{n}} - 1",
+    "variables": {
+      "Receita final": "Faturamento no final do período analisado",
+      "Receita inicial": "Faturamento no início do período analisado",
+      "n": "Número de meses no período"
+    },
+    "usage": "O CMGR ajuda a identificar o ritmo médio de crescimento, suavizando flutuações mensais, e é útil para monitorar tendências e planejar projeções futuras.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Institucional",
+    "control_values": {
+      "critico": ["-Infinity", "-5"],
+      "ruim": ["-5", "0"],
+      "controle": ["0", "10"],
+      "bom": ["10", "20"],
+      "excelente": ["20", "Infinity"]
+    }
+  },
+  "Eficiência Comercial": {
+    "title": "LTV/CAC (Lifetime Value / Customer Acquisition Cost)",
+    "description": "Compara o valor líquido que cada cliente gera ao longo de seu ciclo de vida (LTV) com o custo de adquiri-lo (CAC). É um indicador essencial para entender a eficiência dos investimentos em marketing e vendas.",
+    "formula": "LTV/CAC = \\frac{LTV}{CAC}",
+    "variables": {
+      "LTV": "Valor líquido que um cliente gera durante todo o relacionamento com a empresa",
+      "CAC": "Custo total para adquirir esse cliente, incluindo marketing, vendas e onboarding"
+    },
+    "usage": "Verificar se o valor gerado por cliente cobre o custo de aquisição e orientar decisões sobre intensificar, manter ou reduzir investimentos em aquisição.",
+    "behavior": "Positivo",
+    "format": "decimal",
+    "responsible_area": "Comercial",
+    "control_values": {
+      "critico": ["-Infinity", "1.0"],
+      "ruim": ["1.0", "1.5"],
+      "controle": ["1.5", "2.5"],
+      "bom": ["2.5", "3.5"],
+      "excelente": ["3.5", "Infinity"]
+    }
+  },
+  "Receita por Pessoal": {
+    "title": "RPP (Receita Por Pessoal)",
+    "description": "O RPP mede quantos reais de receita líquida a empresa gera para cada real investido em custos de pessoal. É um indicador direto da eficiência do gasto com pessoas.",
+    "formula": "RPP = \\frac{Receita\\ Líquida}{Custo\\ Total\\ de\\ Pessoal}",
+    "variables": {
+      "Receita Líquida": "Faturamento após deduzir impostos, estornos e descontos do período analisado",
+      "Custo Total de Pessoal": "Somatório de salários, encargos, benefícios, bônus, férias, pró-labore, PJs e freelancers no mesmo período"
+    },
+    "usage": "Avaliar a cobertura da folha de pagamento e monitorar a produtividade do investimento em pessoal ao longo do tempo, destacando oportunidades de otimização ou necessidade de reforço de equipe.",
+    "behavior": "Positivo",
+    "format": "decimal",
+    "responsible_area": "Financeiro",
+    "control_values": {
+      "critico": ["-Infinity", "1.5"],
+      "ruim": ["1.5", "2.0"],
+      "controle": ["2.0", "2.5"],
+      "bom": ["2.5", "3.5"],
+      "excelente": ["3.5", "Infinity"]
+    }
+  },
+  "Lucratividade": {
+    "title": "Lucratividade",
+    "description": "A Lucratividade mostra quanto do faturamento da empresa realmente se transforma em lucro. Ou seja, ela indica a capacidade do negócio de gerar ganho financeiro depois de cobrir todos os seus custos. Com essa métrica, fica mais fácil entender se o modelo operacional é saudável e se o negócio consegue entregar bons resultados em relação ao que ele fatura.",
+    "formula": "Lucratividade = \\left(\\frac{Lucro_{Líquido}}{Faturamento_{Total}}\\right) \\times 100",
+    "variables": {
+      "Lucro Líquido": "Receita total menos todos os custos e despesas no período analisado",
+      "Faturamento Total": "Total da Receita no período"
+    },
+    "usage": "A Lucratividade ajuda a avaliar a saúde financeira da empresa, mostrando quanto sobra de cada unidade monetária faturada após pagar custos e despesas.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Institucional",
+    "control_values": {
+      "critico": ["-Infinity", "-5"],
+      "ruim": ["-5", "0"],
+      "controle": ["0", "10"],
+      "bom": ["10", "20"],
+      "excelente": ["20", "Infinity"]
+    }
+  },
+  "Net Revenue Retention": {
+    "title": "Net Revenue Retention (NRR)",
+    "description": "Avalia se a receita proveniente dos principais clientes (Top 5 grupos) está aumentando ao longo do tempo, mostrando se eles se tornam mais valiosos ou não para a Eshows.",
+    "formula": "NRR = \\frac{(Receita_{2024} - Receita_{2023})}{Receita_{2023}} \\times 100",
+    "variables": {
+      "Receita 2023": "Receita total dos grupos-alvo no ano anterior",
+      "Receita 2024": "Receita total desses mesmos grupos no ano atual"
+    },
+    "usage": "O NRR ajuda a entender se a base de clientes existente está se tornando mais valiosa ao longo do tempo.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Institucional",
+    "control_values": {
+      "critico": ["-Infinity", "-5"],
+      "ruim": ["-5", "0"],
+      "controle": ["0", "10"],
+      "bom": ["10", "20"],
+      "excelente": ["20", "Infinity"]
+    }
+  },
+  "EBITDA": {
+    "title": "EBITDA",
+    "description": "O EBITDA (Earnings Before Interest, Taxes, Depreciation and Amortization) representa o lucro da operação antes de descontar juros, impostos, depreciação e amortização.",
+    "formula": "EBITDA = \\frac{(Faturamento - NFs) - (Custos - Imposto)}{Receita_{Líquida}} \\times 100",
+    "variables": {
+      "Faturamento": "Receita bruta total do período",
+      "NFs": "Ajustes de notas fiscais emitidas",
+      "Custos": "Custos totais",
+      "Imposto": "Custo com Imposto",
+      "Receita Líquida": "Faturamento - NFs"
+    },
+    "usage": "O EBITDA ajuda a avaliar a eficiência operacional da empresa, excluindo efeitos financeiros e contábeis.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Financeiro",
+    "control_values": {
+      "critico": ["-Infinity", "-5"],
+      "ruim": ["-5", "0"],
+      "controle": ["0", "10"],
+      "bom": ["10", "20"],
+      "excelente": ["20", "Infinity"]
+    }
+  },
+  "Receita por Colaborador": {
+    "title": "Receita por Colaborador",
+    "description": "Mostra quanto, em média, cada colaborador contribui para a receita da empresa. É um indicador de produtividade da equipe.",
+    "formula": "RPC = \\frac{Faturamento}{Média_{de\\ Funcionários}}",
+    "variables": {
+      "Faturamento": "Somatório do faturamento no período considerado",
+      "Funcionários": "Número total de funcionários ativos (somado mês a mês), depois calculamos a média"
+    },
+    "usage": "A Receita por Colaborador é útil para avaliar a produtividade da equipe.",
+    "behavior": "Positivo",
+    "format": "monetary",
+    "responsible_area": "Institucional",
+    "control_values": {
+      "critico": ["-Infinity", "8333"],
+      "ruim": ["8333", "12500"],
+      "controle": ["12500", "16667"],
+      "bom": ["16667", "25000"],
+      "excelente": ["25000", "Infinity"]
+    }
+  },
+  "Inadimplência": {
+    "title": "Inadimplência",
+    "description": "Representa o valor total em aberto dos pagamentos não realizados pelos clientes em relação a todas as transações feitas na plataforma, indicando diretamente o nível de risco financeiro associado às operações da Eshows.",
+    "formula": "Inadimplência = \\frac{Valor_{Inadimplente}}{GMV} \\times 100",
+    "variables": {
+      "Valor Inadimplente": "Total não recebido no período devido a inadimplência",
+      "GMV": "Soma do total movimentado (GMV) do período analisado"
+    },
+    "usage": "Ajuda a entender o impacto da inadimplência na receita.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Financeiro",
+    "control_values": {
+      "critico": ["5", "Infinity"],
+      "ruim": ["3", "5"],
+      "controle": ["2", "3"],
+      "bom": ["1", "2"],
+      "excelente": ["-Infinity", "1"]
+    }
+  },
+  "Estabilidade": {
+    "title": "Estabilidade",
+    "description": "O **Índice de Estabilidade** consolida a **Disponibilidade do Sistema**, o **Tempo Médio entre Falhas**, o **Tempo Médio para Reparo** e a **Taxa de Erros**. Cada métrica é normalizada de 0 a 100, ponderada pelo seu peso e somada, resultando em um valor percentual que indica quão próxima a operação está do idealEm resumo, ele mede o quanto a plataforma está estável, disponível e funcionando corretamente, ajudando a identificar falhas e o tempo gasto para solucioná-las.",
+    "formula": "Índice\\ de\\ Estabilidade = (Uptime\\% \\times 0.4) + (MTBF\\% \\times 0.2) + (MTTR\\% \\times 0.2) + (Taxa_{de\\ Erros}\\% \\times 0.2)",
+    "variables": {
+      "Uptime": "Porcentagem do tempo em que o sistema esteve disponível",
+      "MTBF": "Tempo médio entre falhas",
+      "MTTR": "Tempo médio para reparo",
+      "Taxa de Erros": "Porcentagem de funções com erro"
+    },
+    "usage": "Ajuda a entender a confiabilidade do sistema.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Produto",
+    "control_values": {
+      "critico": ["-Infinity", "50"],
+      "ruim": ["50", "65"],
+      "controle": ["65", "75"],
+      "bom": ["75", "90"],
+      "excelente": ["90", "Infinity"]
+    }
+  },
+  "Nível de Serviço": {
+    "title": "Nível de Serviço da Eshows",
+    "description": "Mede a porcentagem de shows executados sem ocorrências.",
+    "formula": "Nível\\ de\\ Serviço(\\%) = \\left(1 - \\frac{Ocorrências\\ Totais}{Total\\ de\\ Shows\\ Agendados}\\right) \\times 100",
+    "variables": {
+      "Ocorrências Totais": "Quantidade total de ocorrências registradas",
+      "Total de Shows Agendados": "Número total de shows agendados"
+    },
+    "usage": "Avaliar a qualidade da execução dos shows.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["-Infinity", "85"],
+      "ruim": ["85", "90"],
+      "controle": ["90", "95"],
+      "bom": ["95", "98"],
+      "excelente": ["98", "Infinity"]
+    }
+  },
+  "Churn": {
+    "title": "Churn (%) de Estabelecimentos",
+    "description": "O Churn mede quantos estabelecimentos deixaram de usar a plataforma da Eshows em um determinado período. É uma taxa calculada pelo número de clientes perdidos, e não pelo valor financeiro envolvido. Um Churn alto indica que muitos clientes estão saindo, enquanto um baixo significa maior retenção e fidelidade à plataforma.",
+    "formula": "Churn \\% = \\frac{Estabelecimentos\\ Perdidos}{Estabelecimentos\\ Ativos\\ no\\ Período} \\times 100",
+    "variables": {
+      "Estabelecimentos Perdidos": "Número total de estabelecimentos que deixaram a plataforma",
+      "Estabelecimentos Ativos no Período": "Estabelecimentos que realizaram ao menos um show no período"
+    },
+    "usage": "Avaliar a retenção e a saúde da base de clientes.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["7", "Infinity"],
+      "ruim": ["5", "7"],
+      "controle": ["3", "5"],
+      "bom": ["2", "3"],
+      "excelente": ["-Infinity", "2"]
+    }
+  },
+  "Churn %": {
+    "title": "Churn (%) de Estabelecimentos",
+    "description": "O Churn mede quantos estabelecimentos deixaram de usar a plataforma da Eshows em um determinado período. É uma taxa calculada pelo número de clientes perdidos, e não pelo valor financeiro envolvido. Um Churn alto indica que muitos clientes estão saindo, enquanto um baixo significa maior retenção e fidelidade à plataforma.",
+    "formula": "Churn \\% = \\frac{Estabelecimentos\\ Perdidos}{Estabelecimentos\\ Ativos\\ no\\ Período} \\times 100",
+    "variables": {
+      "Estabelecimentos Perdidos": "Número total de estabelecimentos que deixaram a plataforma",
+      "Estabelecimentos Ativos no Período": "Estabelecimentos que realizaram ao menos um show no período"
+    },
+    "usage": "Avaliar a retenção e a saúde da base de clientes.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["7", "Infinity"],
+      "ruim": ["5", "7"],
+      "controle": ["3", "5"],
+      "bom": ["2", "3"],
+      "excelente": ["-Infinity", "2"]
+    }
+  },
+  "Turn Over": {
+    "title": "Turn Over",
+    "description": "Indica o percentual de colaboradores que deixam a empresa em determinado período. Quanto menor esse indicador, maior a retenção e estabilidade da equipe.",
+    "formula": "Turn\\ Over(\\%) = \\frac{Desligamentos}{Funcionários\\ Iniciais} \\times 100",
+    "variables": {
+      "Desligamentos": "Número total de funcionários que saíram no período",
+      "Funcionários Iniciais": "Número de funcionários no início do período"
+    },
+    "usage": "Avaliar a rotatividade da equipe.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Jurídico & Pessoas",
+    "control_values": {
+      "critico": ["15", "Infinity"],
+      "ruim": ["10", "15"],
+      "controle": ["5", "10"],
+      "bom": ["2", "5"],
+      "excelente": ["-Infinity", "2"]
+    }
+  },
+  "Palcos Vazios": {
+    "title": "Palcos Vazios",
+    "description": "Mede quantos shows agendados não ocorreram nem foram substituídos.",
+    "formula": "Palcos\\ Vazios = \\text{Soma total de shows não realizados e não substituídos}",
+    "variables": {
+      "Palcos Vazios": "Quantidade total de shows não realizados sem substituição."
+    },
+    "usage": "Monitorar falhas na execução da programação.",
+    "behavior": "Negativo",
+    "format": "number",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["5", "Infinity"],
+      "ruim": ["3", "5"],
+      "controle": ["1", "3"],
+      "bom": ["0", "1"],
+      "excelente": ["-Infinity", "0"]
+    }
+  },
+  "Perdas Operacionais": {
+    "title": "Perdas Operacionais",
+    "description": "Mede a porcentagem do faturamento comprometida por despesas originadas de erros operacionais.",
+    "formula": "Perdas\\ Operacionais(\\%) = \\frac{Despesas\\ Operacionais\\ Não\\ Planejadas}{Faturamento} \\times 100",
+    "variables": {
+      "Despesas Operacionais Não Planejadas": "Valor total das despesas devido a falhas operacionais",
+      "Faturamento": "Receita total no período"
+    },
+    "usage": "Avaliar a eficiência operacional e o impacto financeiro de falhas.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["1", "Infinity"],
+      "ruim": ["0.75", "1"],
+      "controle": ["0.30", "0.75"],
+      "bom": ["0.15", "0.30"],
+      "excelente": ["-Infinity", "0.15"]
+    }
+  },
+  "Crescimento Sustentável": {
+      "title": "Crescimento Sustentável",
+      "description": "Mede se a empresa está **ganhando eficiência no resultado operacional**. O indicador compara a variação percentual do faturamento com a variação percentual dos custos no mesmo intervalo de tempo.\n\n* • **Resultado > 0 %**  →  a receita cresce (ou os custos caem) num ritmo maior do que o aumento dos custos (ou a queda da receita).\n* • **Resultado < 0 %**  →  os custos estão crescendo mais rápido que a receita — ou até subindo enquanto a receita cai — sinalizando perda de eficiência.",
+      "formula": "\\text{Crescimento Sustentavel}(\\%) = (\\Delta\\%\\text{Faturamento}) - (\\Delta\\%\\text{Custos})",
+      "variables": {
+        "Faturamento (ano-1)": "Receita total no período comparativo do ano anterior",
+        "Faturamento (ano atual)": "Receita total no período analisado",
+        "Custos (ano-1)": "Custos totais no período comparativo do ano anterior",
+        "Custos (ano atual)": "Custos totais no período analisado"
+      },
+      "usage": "Use para saber se o crescimento de receita está sustentando — ou superando — o aumento de custos. Também mostra cenários em que a receita estagna, mas a redução de despesas mantém o resultado positivo.",
+      "behavior": "Positivo",
+      "format": "percentual",
+      "responsible_area": "Institucional",
+      "control_values": {
+        "critico":  ["-Infinity", "-10"],
+        "ruim":      ["-10", "0"],
+        "controle":  ["0", "5"],
+        "bom":       ["5", "10"],
+        "excelente": ["10", "Infinity"]
+      }
+  },
+  "Churn em Valor": {
+    "title": "Churn em Valor (%)",
+    "description": "Mostra a porcentagem de receita mensal recorrente perdida porque clientes (casas) deixaram de realizar shows. Compara o run-rate perdido no período com o faturamento total do mesmo período.",
+    "formula": "Churn\\% = \\frac{\\text{Valor perdido no periodo}}{\\text{Faturamento no periodo}} \\times 100",
+    "variables": {
+      "Valor perdido no período": "Soma da média mensal de faturamento dos clientes que churnaram dentro do intervalo analisado",
+      "Faturamento no período": "Receita total (todas as casas) no mesmo intervalo"
+    },
+    "usage": "Acompanhar quanta receita mensal está saindo da base para priorizar ações de retenção ou renegociação.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Customer Success",
+    "control_values": {
+      "critico": ["10.0", "Infinity"],
+      "ruim": ["5.0", "10.0"],
+      "controle": ["3.0", "5.0"],
+      "bom": ["1.0", "3.0"],
+      "excelente": ["-Infinity", "1.0"]
+    }
+  },
+  "Perfis Completos": {
+    "title": "Perfis Completos",
+    "description": "Mede a porcentagem de perfis de projetos artísticos totalmente preenchidos.",
+    "formula": "\\text{Perfis Completos}(\\%) = \\frac{Base_{Acumulada\\ Completa}}{Base_{Acumulada\\ Total}} \\times 100",
+    "variables": {
+      "Base Acumulada Completa": "Número total de perfis totalmente preenchidos",
+      "Base Acumulada Total": "Número total de perfis registrados"
+    },
+    "usage": "Avaliar a qualidade da base de perfis, incentivando o preenchimento completo.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Produto",
+    "control_values": {
+      "critico": ["-Infinity", "20"],
+      "ruim": ["20", "30"],
+      "controle": ["30", "45"],
+      "bom": ["45", "60"],
+      "excelente": ["60", "Infinity"]
+    }
+  },
+  "Take Rate": {
+    "title": "Take Rate",
+    "description": "Take Rate é o percentual médio de comissão que a Eshows recebe sobre o valor total dos shows transacionados pela plataforma. Ele indica diretamente a eficiência da empresa em monetizar cada operação realizada. Quanto maior o Take Rate, maior a receita gerada por cada transação.",
+    "formula": "\\text{Take Rate}(\\%) = \\frac{Comissão_{Total}}{GMV} \\times 100",
+    "variables": {
+      "Comissão Total": "Valor total de comissões no período",
+      "GMV": "Valor total transacionado no período"
+    },
+    "usage": "Avaliar a eficácia do modelo de negócios em converter valor transacionado em receita.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Comercial",
+    "control_values": {
+      "critico": ["-Infinity", "4"],
+      "ruim": ["4", "6"],
+      "controle": ["6", "10"],
+      "bom": ["10", "15"],
+      "excelente": ["15", "Infinity"]
+    }
+  },
+  "Autonomia do Usuário": {
+    "title": "Autonomia do Usuário",
+    "description": "Mede a porcentagem de shows lançados pelos clientes sem intervenção da equipe interna.",
+    "formula": "\\text{Autonomia do Usuário}(\\%) = \\frac{Propostas_{Lançadas\\ Usuários}}{Propostas_{Lançadas\\ Usuários} + Propostas_{Lançadas\\ Internas}} \\times 100",
+    "variables": {
+      "Propostas Lançadas Usuários": "Número de propostas criadas pelos clientes",
+      "Propostas Lançadas Internas": "Número de propostas criadas pela equipe interna"
+    },
+    "usage": "Avaliar o nível de independência dos usuários na plataforma.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Produto",
+    "control_values": {
+      "critico": ["-Infinity", "20"],
+      "ruim": ["20", "30"],
+      "controle": ["30", "45"],
+      "bom": ["45", "60"],
+      "excelente": ["60", "Infinity"]
+    }
+  },
+  "NPS Artistas": {
+    "title": "NPS Artistas",
+    "description": "Avalia o nível de confiança dos artistas na Eshows, medindo a disposição deles em recomendar a plataforma para outros artistas.",
+    "formula": "\\text{NPS Artistas}(\\%) = \\text{Média de NPS dos Artistas} \\times 100",
+    "variables": {
+      "NPS Artistas": "Notas de satisfação dos artistas (entre -1 e 1)"
+    },
+    "usage": "Avaliar a satisfação dos artistas e orientar melhorias.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Produto",
+    "control_values": {
+      "critico": ["-Infinity", "0"],
+      "ruim": ["0", "30"],
+      "controle": ["30", "50"],
+      "bom": ["50", "70"],
+      "excelente": ["70", "Infinity"]
+    }
+  },
+  "NPS Equipe": {
+    "title": "NPS Equipe",
+    "description": "Mede a satisfação interna da equipe da Eshows.",
+    "formula": "\\text{NPS Equipe}(\\%) = \\text{Média de NPS da Equipe} \\times 100",
+    "variables": {
+      "NPS Interno": "Notas de satisfação internas, entre -1 e 1"
+    },
+    "usage": "Avaliar o clima interno e a satisfação dos colaboradores.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Jurídico & Pessoas",
+    "control_values": {
+      "critico": ["-Infinity", "0"],
+      "ruim": ["0", "30"],
+      "controle": ["30", "50"],
+      "bom": ["50", "70"],
+      "excelente": ["70", "Infinity"]
+    }
+  },
+  "Conformidade Jurídica": {
+    "title": "Conformidade Jurídica",
+    "description": "Mede a porcentagem de casas ativas com contratos formalizados.",
+    "formula": "\\text{Conformidade Jurídica}(\\%) = \\frac{Casas_{Contrato}}{Casas_{Ativas}} \\times 100",
+    "variables": {
+      "Casas Contrato": "Número de casas ativas com contrato firmado",
+      "Casas Ativas": "Número total de casas ativas"
+    },
+    "usage": "Avaliar o nível de formalização jurídica com os clientes.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Jurídico & Pessoas",
+    "control_values": {
+      "critico": ["-Infinity", "50"],
+      "ruim": ["50", "70"],
+      "controle": ["70", "80"],
+      "bom": ["80", "95"],
+      "excelente": ["95", "Infinity"]
+    }
+  },
+  "Eficiência de Atendimento": {
+    "title": "Eficiência de Atendimento",
+    "description": "Mede a rapidez e eficácia da equipe ao atender demandas dos clientes, considerando o tempo do primeiro contato e o tempo para resolver totalmente as solicitações, comparando com as metas internas estabelecidas.",
+    "formula": "\\text{Eficiência de Atendimento}(\\%) = \\left(\\frac{Meta_{TP}}{TP_{Médio}}\\right) \\times Peso_{TP} + \\left(\\frac{Meta_{TR}}{TR_{Médio}}\\right) \\times Peso_{TR}",
+    "variables": {
+      "Tempo Resposta": "Tempo médio até o primeiro contato",
+      "Tempo Resolução": "Tempo médio para resolver o problema"
+    },
+    "usage": "Identificar se o atendimento cumpre as metas definidas.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico": ["-Infinity", "50"],
+      "ruim": ["50", "70"],
+      "controle": ["70", "80"],
+      "bom": ["80", "90"],
+      "excelente": ["90", "Infinity"]
+    }
+  },
+  "Inadimplência Real": {
+    "title": "Inadimplência Real",
+    "description": "Esse KPI mostra o valor total dos cachês antecipados pela Eshows aos artistas, mas que ainda não foram reembolsados pelos clientes contratantes. É um indicador essencial para monitorar o risco financeiro associado à operação de adiantamento.",
+    "formula": "\\text{Inadimplência Real}(\\%) = \\frac{Inadimplencia}{Faturamento} \\times 100",
+    "variables": {
+      "Inadimplencia": "Valor total dos cachês antecipados não recebidos no período",
+      "Faturamento": "Total do faturamento da Eshows no período"
+    },
+    "usage": "Avaliar o impacto da inadimplência sobre a receita.",
+    "behavior": "Negativo",
+    "format": "percent",
+    "responsible_area": "Financeiro",
+    "control_values": {
+      "critico": ["5", "Infinity"],
+      "ruim": ["3", "5"],
+      "controle": ["2", "3"],
+      "bom": ["1", "2"],
+      "excelente": ["-Infinity", "1"]
+    }
+  },
+  "Sucesso da Implantação": {
+    "title": "Sucesso da Implantação",
+    "description": "Mede quantas novas casas em implantação se tornam ativas.",
+    "formula": "\\text{Sucesso da Implantação}(\\%) = \\frac{Novos\\ Clientes}{Casas\\ Implantação} \\times 100",
+    "variables": {
+      "Novos Clientes": "Número de novos clientes que se tornaram ativos",
+      "Casas Implantação": "Número de casas em implantação"
+    },
+    "usage": "Avaliar a eficiência do onboarding e da implantação.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Comercial",
+    "control_values": {
+      "critico": ["-Infinity", "30"],
+      "ruim": ["30", "50"],
+      "controle": ["50", "70"],
+      "bom": ["70", "90"],
+      "excelente": ["90", "Infinity"]
+    }
+  },
+  "Roll 6M Growth": {
+    "title": "Rolling 6-Month Revenue Growth",
+    "description": "Mede a taxa de crescimento da receita nos últimos 6 meses em comparação aos 6 meses imediatamente anteriores, ajudando a suavizar picos ou vales sazonais de curto prazo.",
+    "formula": "Roll\\ 6M\\ Growth = \\frac{(Receita_{6mAtuais} - Receita_{6mPassados})}{Receita_{6mPassados}} \\times 100",
+    "variables": {
+      "Receita 6m Atuais": "Soma de toda a receita gerada nos últimos 6 meses",
+      "Receita 6m Passados": "Soma da receita nos 6 meses imediatamente anteriores ao período atual"
+    },
+    "usage": "Ajuda a entender se a empresa mantém crescimento consistente em uma janela de 6 meses, mitigando efeitos de sazonalidade mensal.",
+    "behavior": "Positivo",
+    "format": "percent",
+    "responsible_area": "Institucional",
+    "control_values": {
+      "critico": ["-Infinity", "-10"],
+      "ruim": ["-10", "0"],
+      "controle": ["0", "10"],
+      "bom": ["10", "20"],
+      "excelente": ["20", "Infinity"]
+    }
+  },
+  "Score Médio do Show": {
+      "title": "Score Médio do Show",
+      "description": "Indica a nota média (0 – 5) atribuída aos shows avaliados na plataforma. O KPI mostra o quão satisfatórias são as apresentações segundo quem as avaliou, permitindo acompanhar a qualidade percebida e priorizar melhorias quando o score cai.",
+      "formula": "Score\\_Medio = \\frac{\\sum_i \\text{Nota}_i}{N_{\\text{avaliados}}}",
+      "variables": {
+        "Soma das Avaliações": "Somatório de todas as notas registradas no período",
+        "Total de Shows Avaliados": "Quantidade de shows que efetivamente receberam nota",
+        "Score Médio": "Resultado da divisão entre a soma das notas e o total de shows avaliados"
+      },
+      "usage": "Acompanha a percepção de qualidade das apresentações. Quedas sucessivas podem indicar problemas na curadoria, logística ou performance.",
+      "behavior": "Positivo",
+      "format": "number",
+      "responsible_area": "Operações",
+      "control_values": {
+        "critico":   ["-Infinity", "2.5"],
+        "ruim":      ["2.5", "3"],
+        "controle":  ["3", "3.5"],
+        "bom":       ["3.5", "4.2"],
+        "excelente": ["4.2", "Infinity"]
+      }
+    },
+
+  "GMV": {
+    "title": "GMV",
+    "description": "Valor total transacionado na plataforma Eshows (soma dos valores de todos os shows realizados).",
+    "format": "monetario"
+  },
+  "NumShows": {
+    "title": "Número de Shows",
+    "description": "Quantidade de shows transacionados pela Eshows no período.",
+    "format": "numero"
+  },
+  "TicketMedio": {
+    "title": "Ticket Médio",
+    "description": "Ticket médio das contratações realizadas via Eshows.",
+    "format": "monetario"
+  },
+  "Cidades": {
+    "title": "Cidades Atendidas",
+    "description": "Número de cidades em que a Eshows está presente (com pelo menos um show realizado).",
+    "format": "numero"
+  },
+  "Faturamento": {
+    "title": "Faturamento Eshows",
+    "description": "Receita efetiva da Eshows, pois operamos como um marketplace e ficamos com parte do valor transacionado.",
+    "format": "monetario"
+  },
+  "TakeRateGMV": {
+    "title": "Take Rate (GMV)",
+    "description": "Taxa de comissão que a Eshows obtém sobre o volume transacionado total (GMV).",
+    "format": "percent"
+  },
+  "CustosTotais": {
+    "title": "Custos Totais",
+    "description": "Soma de todos os custos da Eshows no período.",
+    "format": "monetario"
+  },
+  "LucroLiquido": {
+    "title": "Lucro Líquido",
+    "description": "Lucro líquido da Eshows após descontos de todos os custos.",
+    "format": "monetario"
+  },
+  "NovosPalcos": {
+    "title": "Novos Palcos",
+    "description": "Número de novos clientes (casas) que fizeram seu primeiro show pela Eshows.",
+    "format": "numero"
+  },
+  "FaturamentoNovosPalcos": {
+    "title": "Faturamento Novos Palcos",
+    "description": "Receita gerada pela Eshows especificamente a partir desses novos clientes (novos palcos).",
+    "format": "monetario"
+  },
+  "LifetimeMedio": {
+    "title": "Lifetime Médio (Novos Palcos)",
+    "description": "Tempo médio de atividade de um novo cliente (novo palco) desde seu primeiro show.",
+    "format": "texto"
+  },
+  "ChurnNovosPalcos": {
+    "title": "Churn de Novos Palcos",
+    "description": "Quantidade de novos clientes perdidos (que deixaram de contratar shows).",
+    "format": "numero"
+  },
+  "FatKA": {
+    "title": "Faturamento (Key Accounts)",
+    "description": "Faturamento da Eshows proveniente dos clientes-chave (Top 5 grupos em faturamento).",
+    "format": "monetario"
+  },
+  "NovosPalcosKA": {
+    "title": "Novos Palcos (Key Accounts)",
+    "description": "Número de novos palcos que pertencem aos grupos-chave (Top 5).",
+    "format": "numero"
+  },
+  "TakeRateKA": {
+    "title": "Take Rate (Key Accounts)",
+    "description": "Taxa de comissão da Eshows apenas sobre o volume transacionado pelos grupos-chave.",
+    "format": "percent"
+  },
+  "ChurnKA": {
+    "title": "Churn (Key Accounts)",
+    "description": "Quantidade de casas perdidas dentro dos grupos-chave (Top 5).",
+    "format": "numero"
+  },
+  "PalcosAtivos": {
+    "title": "Palcos Ativos",
+    "description": "Número de clientes que realizaram pelo menos um show no período.",
+    "format": "numero"
+  },
+  "Ocorrencias": {
+    "title": "Ocorrências",
+    "description": "Ocorrências diversas como atrasos, duplicidades ou conflitos relacionados aos shows.",
+    "format": "numero"
+  },
+  "PalcosVazios": {
+    "title": "Palcos Vazios",
+    "description": "Falhas graves onde um palco estava agendado mas, na prática, ficou sem show.",
+    "format": "numero"
+  },
+  "ErrosOperacionais": {
+    "title": "Erros Operacionais",
+    "description": "Volume financeiro resultante de erros da equipe ou problemas de tecnologia (e.g. reembolsos).",
+    "format": "monetario"
+  }
+}
+
