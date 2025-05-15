@@ -30,9 +30,10 @@ from .data_manager import (
     get_df_pessoas,
     get_df_inadimplencia,
     get_df_metas,
+    get_df_custosabertos,          # NOVO
     dedup,
 )
-from .column_mapping import rename_columns
+from .column_mapping import rename_columns, SUPPLIER_TO_SETOR
 
 # ─────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger("modulobase")
@@ -48,6 +49,7 @@ _df_ocorrencias_cache:       pd.DataFrame | None = None
 _inad_casas_cache:           pd.DataFrame | None = None
 _inad_artistas_cache:        pd.DataFrame | None = None
 _df_metas_cache:             pd.DataFrame | None = None
+_df_custosabertos_cache:     pd.DataFrame | None = None          # NOVO
 
 # ╭───────────────────────────  helpers  ─────────────────────────────╮
 def _slug(text: str) -> str:
@@ -56,22 +58,16 @@ def _slug(text: str) -> str:
 
 
 def otimizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    • int64/float64 → int32/float32
-    • object → category se a cardinalidade for baixa (< 50 %)
-    """
     if df.empty:
         return df
 
     df2 = df.copy()
 
-    # números
     for col in df2.select_dtypes(include="int64").columns:
         df2[col] = pd.to_numeric(df2[col], downcast="integer")
     for col in df2.select_dtypes(include="float64").columns:
         df2[col] = pd.to_numeric(df2[col], downcast="float")
 
-    # strings
     for col in df2.select_dtypes(include="object").columns:
         try:
             nunq = df2[col].nunique(dropna=False)
@@ -80,6 +76,30 @@ def otimizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
         except TypeError:
             pass
     return df2
+
+# ╭──────────────────  SANITIZE Custos Abertos  ──────────────────────╮
+def sanitize_custosabertos_df(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    • Converte data_competencia / data_vencimento para datetime
+    • Adiciona coluna Setor via SUPPLIER_TO_SETOR
+    • Valor já em centavos (int64)
+    """
+    df = dedup(df_raw.copy())
+
+    # datas
+    for col in ("data_competencia", "data_vencimento"):
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors="coerce")
+
+    # numérico
+    if "valor" in df.columns:
+        df["valor"] = pd.to_numeric(df["valor"], errors="coerce").fillna(0).astype("Int64")
+
+    # setor
+    if "fornecedor" in df.columns:
+        df["Setor"] = df["fornecedor"].map(SUPPLIER_TO_SETOR).fillna("Indefinido")
+
+    return otimizar_tipos(df.reset_index(drop=True))
 
 # ╭──────────────────────  SANITIZE BaseEshows  ──────────────────────╮
 def sanitize_eshows_df(df_raw: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -447,3 +467,20 @@ def carregar_metas() -> pd.DataFrame:
     if _df_metas_cache is None:
         _df_metas_cache = dedup(get_df_metas())
     return _df_metas_cache
+
+# ╭──────────────────────  loader Custos Abertos  ────────────────────╮
+def carregar_custosabertos(force_reload: bool = False) -> pd.DataFrame:
+    global _df_custosabertos_cache
+    if _df_custosabertos_cache is not None and not force_reload:
+        return _df_custosabertos_cache
+
+    df_raw = get_df_custosabertos()
+    if df_raw.empty:
+        logger.warning("[custosabertos] Supabase retornou vazio.")
+        _df_custosabertos_cache = pd.DataFrame()
+        return _df_custosabertos_cache
+
+    _df_custosabertos_cache = sanitize_custosabertos_df(df_raw)
+    logger.info("[modulobase] CustosAbertos carregado: %s",
+                _df_custosabertos_cache.shape)
+    return _df_custosabertos_cache

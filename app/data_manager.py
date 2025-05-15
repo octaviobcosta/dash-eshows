@@ -1,15 +1,3 @@
-"""
-data_manager.py  –  Supabase + cache em memória + cache Parquet
----------------------------------------------------------------
-• Mensagens de log simplificadas:
-      carregando baseeshows…
-      carregando base2…
-      carregando pessoas…
-• Cache em disco: _cache_parquet\*.parquet  (ZSTD, expira em 12 h)
-• API pública:
-      get_df_eshows / get_df_base2 / …   +  reset_all_data(clear_disk=False)
-"""
-
 from __future__ import annotations
 
 import datetime as _dt
@@ -30,14 +18,14 @@ logging.basicConfig(
     format="%(asctime)s – %(name)s – %(levelname)s – %(message)s",
 )
 logger = logging.getLogger("data_manager")
-logging.getLogger("httpx").setLevel(logging.WARNING)      # silencia spam
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("supabase_py").setLevel(logging.WARNING)
 
 # ───────────────────────  cache em Parquet  ────────────────────────
 CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
 CACHE_DIR.mkdir(exist_ok=True)
 
-CACHE_EXPIRY_HOURS: int | None = 12          # None ⇒ nunca expira
+CACHE_EXPIRY_HOURS: int | None = 12
 
 def _cache_path(table: str) -> Path:
     return CACHE_DIR / f"{table.lower()}.parquet"
@@ -68,7 +56,7 @@ def _save_parquet(table: str, df: pd.DataFrame) -> None:
         pass
 
 # ────────────────────────  Supabase client  ────────────────────────
-supa = None          # lazily-instantiated singleton
+supa = None  # lazily-instantiated singleton
 
 def _init_supabase():
     global supa
@@ -98,14 +86,12 @@ supa = _init_supabase()
 _cache: Dict[str, pd.DataFrame] = {}
 
 def dedup(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove colunas duplicadas mantendo a 1.ª ocorrência."""
     if not df.empty and df.columns.duplicated().any():
         df = df.loc[:, ~df.columns.duplicated(keep="first")]
     return df
 
 # ────────────────────────  download + limpeza  ─────────────────────
 def _fetch(table: str) -> pd.DataFrame:
-    """Baixa tudo paginado do Supabase + rename + divide_cents."""
     if supa is None:
         return pd.DataFrame()
 
@@ -114,7 +100,7 @@ def _fetch(table: str) -> pd.DataFrame:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
             q = supa.table(table).select("*")
-            if table.lower() == "baseeshows":           # corte de data opcional
+            if table.lower() == "baseeshows":
                 q = q.gte("Data", "2022-01-01")
             resp = q.range(start, end).execute()
         except APIError as err:
@@ -125,7 +111,7 @@ def _fetch(table: str) -> pd.DataFrame:
         if not data:
             break
         pages.append(pd.DataFrame(data))
-        if len(data) < STEP:    # última página
+        if len(data) < STEP:
             break
         page += 1
 
@@ -144,24 +130,18 @@ def _fetch(table: str) -> pd.DataFrame:
 
 # ───────────────────────  cache RAM + Parquet  ─────────────────────
 def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
-    """API interna usada pelos loaders de modulobase."""
     table = table.lower()
-
-    # mensagem amigável
     logger.info("carregando %s…", table)
 
-    # RAM
     if not force_reload and table in _cache:
         return _cache[table]
 
-    # Parquet em disco
     if not force_reload:
         if (df_disk := _load_parquet(table)) is not None:
             _cache[table] = df_disk
             logger.info("[%s] carregado do Parquet (%s linhas)", table, len(df_disk))
             return df_disk
 
-    # download Supabase
     df_live = _fetch(table)
     _cache[table] = df_live
     _save_parquet(table, df_live)
@@ -174,9 +154,9 @@ def get_df_ocorrencias()   -> pd.DataFrame:                      return _get("oc
 def get_df_pessoas()       -> pd.DataFrame:                      return _get("pessoas")
 def get_df_metas()         -> pd.DataFrame:                      return _get("metas")
 def get_df_inadimplencia() -> Tuple[pd.DataFrame, pd.DataFrame]: return _get("boletocasas"), _get("boletoartistas")
+def get_df_custosabertos() -> pd.DataFrame:                      return _get("custosabertos")  # NOVO
 
 def reset_all_data(clear_disk: bool = False):
-    """Limpa cache em memória e, opcionalmente, apaga os Parquets."""
     _cache.clear()
     if clear_disk:
         for p in CACHE_DIR.glob("*.parquet"):

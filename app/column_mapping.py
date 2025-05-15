@@ -166,15 +166,41 @@ _PESSOAS: Dict[str, str] = {
 _METAS: Dict[str, str] = {}
 
 # ────────────────────────────────────────────────────────────
+# 6) CUSTOSABERTOS  –  nova tabela (custos em aberto)
+# ────────────────────────────────────────────────────────────
+_CUSTOSABERTOS: Dict[str, str] = {
+    # snake_case originais
+    "id_custo":          "Id Custo",
+    "grupo_geral":       "Grupo Geral",
+    "nivel_1":           "Nivel 1",
+    "nivel_2":           "Nivel 2",
+    "fornecedor":        "Fornecedor",
+    "valor":             "Valor",
+    "pagamento":         "Pagamento",
+    "data_competencia":  "Data Competencia",
+    "data_vencimento":   "Data Vencimento",
+    # variações Title Case / camel / espaços (se surgirem)
+    "Id_Custo":          "Id Custo",
+    "Grupo Geral":       "Grupo Geral",
+    "Nivel 1":           "Nivel 1",
+    "Nivel 2":           "Nivel 2",
+    "Valor":             "Valor",
+    "Data Competencia":  "Data Competencia",
+    "Data Vencimento":   "Data Vencimento",
+}
+
+
+# ────────────────────────────────────────────────────────────
 # Dicionário principal
 # ────────────────────────────────────────────────────────────
 MAPPING: Dict[str, Dict[str, str]] = {
-    "baseeshows": _BASEESHOWS,
-    "base2":      _BASE2,
-    "boletocasas": _CASAS,
+    "baseeshows":     _BASEESHOWS,
+    "base2":          _BASE2,
+    "boletocasas":    _CASAS,
     "boletoartistas": _ARTISTAS,
-    "pessoas": _PESSOAS,
-    "metas": _METAS,
+    "pessoas":        _PESSOAS,
+    "metas":          _METAS,
+    "custosabertos":  _CUSTOSABERTOS,   # ← NOVO
 }
 
 # ────────────────────────────────────────────────────────────
@@ -209,8 +235,82 @@ CENTS_MAPPING: Dict[str, List[str]] = {
         "Valor_Bruto",      # nome original
         "Valor Bruto",      # <- adicionar
     ],
+    "custosabertos": [
+        "valor", "Valor",   # ← NOVO
+    ],
 }
 
+# ────────────────────────────────────────────────────────────
+# 7) SUPPLIER → SETOR  (mapeamento solicitado)
+# ────────────────────────────────────────────────────────────
+SUPPLIER_TO_SETOR: Dict[str, str] = {
+    # — Equipe —
+    "Kaio Geglio": "Tecnologia",
+    "João Vitor Bueno": "Operações",
+    "Octavio Costa": "Executivo",
+    "Thiago de Mello": "Comercial",
+    "Daniel Kumanaya": "Tecnologia",
+    "FABLAB INOVACAO E SOLUCOES": "Operações",
+    "Fabio Pereira": "Produto",
+    "Gabriel Cunha": "Financeiro",
+    "Laiz Iervolino": "Operações",
+    "TEMPUS FUGIT PARTICIPACOES LTDA": "Geral",
+    "Felipe Freitas": "Jurídico e Pessoas",
+    "Giovanne Mascaro": "Produto",
+    "Giovanna Lemos Conversano": "Operações",
+    "Roberta Garcia": "Operações",
+    "Sabrina Clemente": "Tecnologia",
+    "Tiago Silveira Pompeo de Pina": "Comercial",
+    "Gustavo dos Santos Gomes": "Tecnologia",
+    "Alekine Nepomuceno": "Operações",
+    "Henrique de Melo Silva": "Financeiro",
+    "Vitor Bolzan Coelho": "Comercial",
+    "Bárbara Fidêncio": "Operações",
+    "Nicolas Caichiolo Santos": "Operações",
+    "Paulo Gomes": "Operações",
+    "RECEITA FEDERAL": "Geral",
+    "Lucas Trajano da Silva": "Operações",
+    "Vinícius Gabriel": "Tecnologia",
+    "Evair Moreno Roberto": "Operações",
+    "Guilherme Fernandes Leite": "Financeiro",
+    "Italo Kendy Morino Edagi": "Jurídico e Pessoas",
+    "Kauã Pereira Mendonça e silva": "Tecnologia",
+    "Lucas Vicente Sousa Barbosa": "Tecnologia",
+    "Priscila Anacleto": "Executivo",
+    "GymPass": "Jurídico e Pessoas",
+    "Luisa Fonseca Resende Camerini": "Marketing",
+    "FGTS": "Operações",
+    "Flash Tecnologia e Instituição de Pagamento LTDA": "Geral",
+    "AWS": "Tecnologia",
+    "HUBSPOT": "Comercial",
+    "INOVABLUE SISTEMAS E SUPORTE LTDA": "Geral",
+    "TRANSFEERA INSTITUIÇÃO DE PAGAMENTOS S.A": "Financeiro",
+    "GOOGLE GSUITE": "Geral",
+    "Picchat": "Operações",
+    "KAMINO INSTITUICAO DE PAGAMENTO LTDA": "Financeiro",
+    "TELEFONICA BRASIL S/A": "Operações",
+    "MONDAYCOM": "Operações",
+    "Lexio Tecnologia Ltda": "Jurídico e Pessoas",
+    "ADOBE": "Marketing",
+    "LINKEDIN": "Jurídico e Pessoas",
+    "DOCKER, INC.": "Tecnologia",
+    "REPLIT, INC.": "Tecnologia",
+    "Paulo Cunha": "Investidor Externo",
+    "Marcia Costa": "Investidor Externo",
+    "Suellen Nerone": "Investidor Externo",
+    "Maria Claudia Gomes": "Investidor Externo",
+    "Karine Nerone": "Investidor Externo",
+    "ASAAS": "Financeiro",
+    "ITAU": "Financeiro",
+    "PREFEITURA DE SÃO PAULO": "Geral",
+    "CSLL": "Operações",
+    "MACRO CONTABILIDADE E CONSULTORIA LTDA": "Geral",
+    "MY MUSIC": "Operações",
+    "Priscila Anacleto Rodrigues": "Executivo",
+    "Fábio Pereira": "Produto",
+    "GOOGLE AD": "Marketing",
+    # fornecedores sem classificação ficam de fora → resultarão em NaN
+}
 
 # ────────────────────────────────────────────────────────────
 # Funções utilitárias
