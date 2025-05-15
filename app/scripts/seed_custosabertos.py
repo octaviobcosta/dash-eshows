@@ -1,41 +1,58 @@
 #!/usr/bin/env python
 """
-Carrega app/custosabertos.csv e insere em lote na tabela Supabase.
-Execute apenas uma vez (ou ajuste lógica upsert se quiser rodar sempre).
+Seed da tabela `custosabertos`.
+
+• Lê app/custosabertos.csv (já em centavos, sem coluna descrição)
+• Faz upsert em lotes na Supabase, usando id_custo como chave
+• Seguro para rodar mais de uma vez (não duplica)
+
+Execute:
+    python app/scripts/seed_custosabertos.py
 """
 
 from pathlib import Path
+import os
 import pandas as pd
 from supabase import create_client
 
-# --- Configs ---------------------------------------------------------------
-URL = "https://yrvtmgrqxhqltckpfizn.supabase.co"
-KEY = (
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-    "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlydnRtZ3JxeGhxbHRja3BmaXpuIiwicm9sZSI6"
-    "InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTY4NjEzMSwiZXhwIjoyMDYxMjYyMTMxfQ."
-    "M-oOVld1XwaZ2r2RDqeHVSrMpHb1pwYLqUYEJ041VJg"
+# ──────────────────────────────────────────────────────────────
+# 1) Configurações
+# ──────────────────────────────────────────────────────────────
+URL = os.getenv("SUPABASE_URL", "https://yrvtmgrqxhqltckpfizn.supabase.co")
+KEY = os.getenv(
+    "SUPABASE_KEY",
+    (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+        "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlydnRtZ3JxeGhxbHRja3BmaXpuIiwicm9sZSI6"
+        "InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTY4NjEzMSwiZXhwIjoyMDYxMjYyMTMxfQ."
+        "M-oOVld1XwaZ2r2RDqeHVSrMpHb1pwYLqUYEJ041VJg"
+    ),
 )
-CSV_PATH = Path(__file__).resolve().parent.parent / "app" / "custosabertos.csv"
-TABLE = "custosabertos"
-BATCH = 100  # tamanho do lote
+TABLE_NAME = "custosabertos"
+BATCH_SIZE = 100
 
-# --- Supabase client --------------------------------------------------------
-client = create_client(URL, KEY)
+# Caminho do CSV (um nível acima de app/scripts)
+CSV_PATH = Path(__file__).resolve().parents[1] / "custosabertos.csv"
 
-# --- Ler CSV ---------------------------------------------------------------
+# ──────────────────────────────────────────────────────────────
+# 2) Ler CSV
+# ──────────────────────────────────────────────────────────────
+if not CSV_PATH.exists():
+    raise FileNotFoundError(f"Arquivo não encontrado: {CSV_PATH}")
+
 df = pd.read_csv(CSV_PATH)
 records = df.to_dict("records")
 total = len(records)
-print(f"Lendo {total} linhas de {CSV_PATH.name}…")
+print(f"🔹 Lidas {total} linhas de {CSV_PATH.relative_to(Path.cwd())}")
 
-# --- Inserir em lotes -------------------------------------------------------
-for start in range(0, total, BATCH):
-    end = start + BATCH
-    batch = records[start:end]
-    resp = client.table(TABLE).insert(batch).execute()
-    if resp.error:
-        raise RuntimeError(resp.error.message)
-    print(f"✓ Inseridos {end if end < total else total}/{total}")
+# ──────────────────────────────────────────────────────────────
+# 3) Conectar na Supabase
+# ──────────────────────────────────────────────────────────────
+client = create_client(URL, KEY)
 
-print("🎉  Importação concluída com sucesso!")
+# ──────────────────────────────────────────────────────────────
+# 4) Upsert em lotes
+# ──────────────────────────────────────────────────────────────
+for start in range(0, total, BATCH_SIZE):
+    batch = records[start : start + BATCH_SIZE]
+    resp = client.table(TABLE_NAME).upsert(batch, on_conflict="id_custo")  # evita duplic
