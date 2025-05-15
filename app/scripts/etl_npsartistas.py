@@ -20,8 +20,8 @@ import pandas as pd
 
 # ────────── paths ──────────
 BASE_DIR  = Path(__file__).resolve().parents[1]         # …/dash-eshows/app
-SRC_XLSX  = BASE_DIR / "npsartistas.xlsx"
-DST_CSV   = BASE_DIR / "npsartistas.csv"
+SRC_XLSX = BASE_DIR / "data" / "xlsx" / "npsartistas.xlsx"
+DST_CSV  = BASE_DIR / "data" / "csv"  / "npsartistas.csv"
 
 # ────────── leitura ─────────
 df = pd.read_excel(SRC_XLSX, dtype=str)

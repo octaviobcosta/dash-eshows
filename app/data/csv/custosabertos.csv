@@ -1,0 +1,619 @@
+id_custo,grupo_geral,nivel_1,nivel_2,fornecedor,valor,pagamento,data_competencia,data_vencimento
+106108,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kaio Geglio,11250,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106069,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,João Vitor Bueno,10500,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+116953,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Octavio Costa,10000,Pago,2025-01-31 00:00:00,2025-01-31 00:00:00
+116956,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Thiago de Mello,10000,Pago,2025-01-31 00:00:00,2025-01-31 00:00:00
+106063,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Daniel Kumanaya,9000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+105620,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,FABLAB INOVACAO E SOLUCOES,844077,Pago,2025-01-27 00:00:00,2025-01-27 00:00:00
+106064,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Fabio Pereira,8000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+116950,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Gabriel Cunha,7500,Pago,2025-01-31 00:00:00,2025-01-31 00:00:00
+106142,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Laiz Iervolino,6000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+113254,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,TEMPUS FUGIT PARTICIPACOES LTDA ,516224,Pago,2025-01-30 00:00:00,2025-03-28 00:00:00
+106090,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,5000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106067,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Giovanne Mascaro,4500,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106066,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Giovanna Lemos Conversano,4000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106082,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Roberta Garcia,4000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106084,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Sabrina Clemente,4000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106086,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Tiago Silveira Pompeo de Pina,4000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106112,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Gustavo dos Santos Gomes,3250,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106058,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Alekine Nepomuceno,3000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106096,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,3000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106149,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vitor Bolzan Coelho,2800,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106060,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,2600,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106078,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Nicolas Caichiolo Santos,2500,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106080,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Paulo Gomes,2500,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+116951,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,2500,Pago,2025-01-31 00:00:00,2025-01-31 00:00:00
+112387,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,RECEITA FEDERAL ,234747,Pago,2025-01-30 00:00:00,2025-02-20 00:00:00
+106071,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Trajano da Silva,2000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106088,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vinícius Gabriel,2000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106151,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Evair Moreno Roberto,2000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106094,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Guilherme Fernandes Leite,1800,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106098,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Italo Kendy Morino Edagi,1800,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106099,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kauã Pereira Mendonça e silva,1800,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106076,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Vicente Sousa Barbosa,1700,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+102628,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,1600,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+100351,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,1500,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+110354,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Tiago Silveira Pompeo de Pina,13125,Pago,2025-01-30 00:00:00,2025-02-14 00:00:00
+105759,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,GymPass,1097,Pago,2025-01-27 00:00:00,2025-01-27 00:00:00
+106102,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,106577,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106074,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Luisa Fonseca Resende Camerini ,1000,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+110256,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,900,Pago,2025-01-30 00:00:00,2025-02-14 00:00:00
+110220,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Giovanna Lemos Conversano,79192,Pago,2025-01-30 00:00:00,2025-02-14 00:00:00
+112162,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FABLAB INOVACAO E SOLUCOES,680,Pago,2025-01-19 00:00:00,2025-02-19 00:00:00
+106104,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Comissão e Gorjeta,Priscila Anacleto,67221,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+112362,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,50235,Pago,2025-01-30 00:00:00,2025-02-20 00:00:00
+101170,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,500,Pago,2025-01-10 00:00:00,2025-01-10 00:00:00
+110219,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Laiz Iervolino,42426,Pago,2025-01-30 00:00:00,2025-02-14 00:00:00
+105266,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,400,Pago,2025-01-24 00:00:00,2025-01-24 00:00:00
+100466,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,250,Pago,2025-01-08 00:00:00,2025-01-08 00:00:00
+112394,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FGTS,216,Pago,2025-01-30 00:00:00,2025-02-20 00:00:00
+102695,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kauã Pereira Mendonça e silva,141,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+102728,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FABLAB INOVACAO E SOLUCOES,11666,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+106147,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Estacionamento,Laiz Iervolino,11279,Pago,2025-01-30 00:00:00,2025-01-29 00:00:00
+101009,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,Flash Tecnologia e Instituição de Pagamento LTDA,109,Pago,2025-01-08 00:00:00,2025-01-09 00:00:00
+102631,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,100,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+102633,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,100,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+104676,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,100,Pago,2025-01-22 00:00:00,2025-01-22 00:00:00
+104679,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,100,Pago,2025-01-22 00:00:00,2025-01-22 00:00:00
+106225,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,100,Pago,2025-01-29 00:00:00,2025-01-29 00:00:00
+112337,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,8302,Pago,2025-01-30 00:00:00,2025-02-20 00:00:00
+106148,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Estacionamento,João Vitor Bueno,8143,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+102718,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Segurança do Trabalho,LGSO LTDA,50,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+100349,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Alekine Nepomuceno,40,Pago,2025-01-06 00:00:00,2025-01-06 00:00:00
+107557,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,AWS,837416,Pago,2025-01-30 00:00:00,2025-02-05 00:00:00
+107685,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,HUBSPOT,290682,Pago,2025-01-30 00:00:00,2025-02-05 00:00:00
+102716,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,INOVABLUE SISTEMAS E SUPORTE LTDA,2500,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+109226,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,TRANSFEERA INSTITUIÇÃO DE PAGAMENTOS S.A,2136,Pago,2025-01-30 00:00:00,2025-02-10 00:00:00
+107629,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,198649,Pago,2025-01-06 00:00:00,2025-02-05 00:00:00
+102712,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Picchat,169512,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+107652,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,VERCEL INC.,148967,Pago,2025-01-16 00:00:00,2025-02-05 00:00:00
+107663,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,KAMINO INSTITUICAO DE PAGAMENTO LTDA,1000,Pago,2025-01-22 00:00:00,2025-02-05 00:00:00
+107653,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,650 INDUSTRIES (EXPO),97531,Pago,2025-01-19 00:00:00,2025-02-05 00:00:00
+105614,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,87322,Pago,2025-01-27 00:00:00,2025-01-27 00:00:00
+107649,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,MONDAYCOM,525,Pago,2025-01-09 00:00:00,2025-02-05 00:00:00
+101011,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,Salvy Ltda,50058,Pago,2025-01-09 00:00:00,2025-01-09 00:00:00
+107622,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais, Lexio Tecnologia Ltda,465,Pago,2025-01-01 00:00:00,2025-02-05 00:00:00
+107639,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,ADOBE,275,Pago,2025-01-07 00:00:00,2025-02-05 00:00:00
+107662,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,LINKEDIN,210,Pago,2025-01-21 00:00:00,2025-02-05 00:00:00
+107684,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,HUBSPOT,9825,Pago,2025-01-30 00:00:00,2025-02-05 00:00:00
+100274,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Bcompliance,9177,Pago,2025-01-06 00:00:00,2025-01-06 00:00:00
+107681,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,LINKEDIN,8999,Pago,2025-01-27 00:00:00,2025-02-05 00:00:00
+103662,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,TELEFONICA BRASIL S/A,8137,Pago,2025-01-17 00:00:00,2025-01-17 00:00:00
+107664,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,CNPJWS-BRONZE,69,Pago,2025-01-25 00:00:00,2025-02-05 00:00:00
+107623,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,MAKE.COM,6845,Pago,2025-01-06 00:00:00,2025-02-05 00:00:00
+107682,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"DOCKER, INC.",6805,Pago,2025-01-27 00:00:00,2025-02-05 00:00:00
+107636,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,6714,Pago,2025-01-06 00:00:00,2025-02-05 00:00:00
+107650,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,VERCEL INC.,5035,Pago,2025-01-16 00:00:00,2025-02-05 00:00:00
+107638,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"REPLIT, INC.",4492,Pago,2025-01-07 00:00:00,2025-02-05 00:00:00
+107655,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,650 INDUSTRIES (EXPO),3297,Pago,2025-01-19 00:00:00,2025-02-05 00:00:00
+105617,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,2132,Pago,2025-01-27 00:00:00,2025-01-27 00:00:00
+107631,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,MAKE.COM,231,Pago,2025-01-06 00:00:00,2025-02-05 00:00:00
+107666,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"DOCKER, INC.",23,Pago,2025-01-27 00:00:00,2025-02-05 00:00:00
+107646,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"REPLIT, INC.",152,Pago,2025-01-07 00:00:00,2025-02-05 00:00:00
+100360,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Paulo Cunha,6000,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100358,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Marcia Costa,5055,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100361,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Suellen Nerone,32625,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100362,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Felipe Freitas,2400,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100357,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Maria Claudia Gomes,1500,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100356,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Karine Nerone,750,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+100359,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Fabio Pereira,300,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+106933,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,12635,Pago,2025-01-30 00:00:00,2025-01-30 00:00:00
+106918,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,12039,Pago,2025-01-09 00:00:00,2025-01-09 00:00:00
+106914,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10947,Pago,2025-01-03 00:00:00,2025-01-03 00:00:00
+106928,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10844,Pago,2025-01-23 00:00:00,2025-01-23 00:00:00
+106920,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10747,Pago,2025-01-13 00:00:00,2025-01-13 00:00:00
+106923,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10248,Pago,2025-01-16 00:00:00,2025-01-16 00:00:00
+106921,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9354,Pago,2025-01-14 00:00:00,2025-01-14 00:00:00
+106926,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9353,Pago,2025-01-21 00:00:00,2025-01-21 00:00:00
+106916,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,8559,Pago,2025-01-07 00:00:00,2025-01-07 00:00:00
+106927,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,7362,Pago,2025-01-22 00:00:00,2025-01-22 00:00:00
+106931,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,7362,Pago,2025-01-28 00:00:00,2025-01-28 00:00:00
+106922,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,6667,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+106930,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,6367,Pago,2025-01-27 00:00:00,2025-01-27 00:00:00
+106917,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5668,Pago,2025-01-08 00:00:00,2025-01-08 00:00:00
+106925,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4875,Pago,2025-01-20 00:00:00,2025-01-20 00:00:00
+106929,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4576,Pago,2025-01-24 00:00:00,2025-01-24 00:00:00
+106932,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4177,Pago,2025-01-29 00:00:00,2025-01-29 00:00:00
+106913,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4077,Pago,2025-01-02 00:00:00,2025-01-02 00:00:00
+106924,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,378,Pago,2025-01-17 00:00:00,2025-01-17 00:00:00
+106919,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3683,Pago,2025-01-10 00:00:00,2025-01-10 00:00:00
+106934,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,1492,Pago,2025-01-31 00:00:00,2025-01-31 00:00:00
+106915,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,994,Pago,2025-01-06 00:00:00,2025-01-06 00:00:00
+106935,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ITAU,55,Pago,2025-01-03 00:00:00,2025-01-03 00:00:00
+109225,c1_Impostos,Impostos e Taxas,ISS,PREFEITURA DE SÃO PAULO,1871178,Pago,2025-01-30 00:00:00,2025-02-10 00:00:00
+105872,c1_Impostos,Impostos e Taxas,CSLL - Contribuição Social,CSLL,3949,Pago,2025-01-28 00:00:00,2025-01-28 00:00:00
+3100,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,Flash Tecnologia e Instituição de Pagamento LTDA,13940,Pago,2025-01-01 00:00:00,2025-01-01 00:00:00
+3103,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,FABLAB INOVACAO E SOLUCOES,2268,Pago,2025-01-02 00:00:00,2025-01-02 00:00:00
+117033,c2_Custos_de_Ocupacao,Ocupação,Despesas Prediais - Aluguel,TEMPUS FUGIT PARTICIPACOES LTDA ,1321777,Pago,2025-01-30 00:00:00,2025-04-10 00:00:00
+100251,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Contábil,MACRO CONTABILIDADE E CONSULTORIA LTDA,494432,Pago,2025-01-06 00:00:00,2025-01-06 00:00:00
+109817,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria de Projetos,MY MUSIC,27194,Pago,2025-01-30 00:00:00,2025-02-12 00:00:00
+3102,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,FABLAB INOVACAO E SOLUCOES,51497,Pago,2025-01-02 00:00:00,2025-01-02 00:00:00
+2981,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Priscila Anacleto Rodrigues,432,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2975,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Trajano da Silva,400,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2980,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Paulo Gomes,3936,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2984,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Tiago Silveira Pompeo de Pina,376,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2969,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Henrique de Melo Silva,330,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2963,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Evair Moreno Roberto,320,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2977,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Luisa Fonseca Resende Camerini ,2904,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2961,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Bárbara Fidêncio,200,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2964,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Fábio Pereira,200,Pago,2025-01-03 00:00:00,2025-01-01 00:00:00
+2967,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Guilherme Fernandes Leite,200,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2971,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,João Vitor Bueno,200,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2972,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kaio Geglio,200,Pago,2025-01-03 00:00:00,2025-01-01 00:00:00
+2974,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Laiz Iervolino,200,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2978,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Nicolas Caichiolo Santos,200,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2986,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vitor Bolzan Coelho,200,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2982,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Roberta Garcia,198,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2966,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Giovanne Mascaro,160,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2973,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kauã Pereira Mendonça e silva,1302,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2965,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Giovanna Lemos Conversano,120,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2983,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Sabrina Clemente,1088,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2985,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vinícius Gabriel,968,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2962,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Daniel Kumanaya,824,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+2976,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Vicente Sousa Barbosa,80,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2968,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Gustavo dos Santos Gomes,80,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2960,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Alekine Nepomuceno,60,Pago,2024-12-27 00:00:00,2025-01-01 00:00:00
+2970,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Italo Kendy Morino Edagi,552,Pago,2024-12-30 00:00:00,2025-01-01 00:00:00
+3242,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,Devolução Nota Fiscal,,750,Pago,2025-01-23 00:00:00,2025-01-23 00:00:00
+3207,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,Comissão Externos,,120,Pago,2025-01-09 00:00:00,2025-01-09 00:00:00
+3238,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,Reembolso Artista,,7787,Pago,2025-01-29 00:00:00,2025-01-29 00:00:00
+3237,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,Reembolso Artista,,5391,Pago,2025-01-28 00:00:00,2025-01-28 00:00:00
+115524,c6_Despesas_com_Clientes,Visitas a Clientes,Estacionamento em Clientes,AUTOPOSTOPANAMBY,180,Pago,2025-01-31 00:00:00,2025-03-05 00:00:00
+115522,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,UNUMRECORDS,8206,Pago,2025-01-31 00:00:00,2025-03-05 00:00:00
+107641,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,SAN TELMO GASTROBAR,5989,Pago,2025-01-07 00:00:00,2025-02-05 00:00:00
+115523,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,JAPA DEK BAR,23,Pago,2025-01-31 00:00:00,2025-03-05 00:00:00
+107643,c6_Despesas_com_Clientes,Visitas a Clientes,Estacionamento em Clientes,ED COM GAMA OFFICES,21,Pago,2025-01-07 00:00:00,2025-02-05 00:00:00
+115525,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,CONVENIENCIA,1449,Pago,2025-01-31 00:00:00,2025-03-05 00:00:00
+103664,c9_Despesas_Financeiras,Endividamento,Processo Judicial,DARE - SP,1851,Pago,2025-01-17 00:00:00,2025-01-17 00:00:00
+102707,c2_Custos_de_Ocupacao,Manutenção, Manutenção de Equipamentos,Lucas Vicente Sousa Barbosa,180,Pago,2025-01-15 00:00:00,2025-01-15 00:00:00
+104674,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,Priscila Anacleto,11212,Pago,2025-01-22 00:00:00,2025-01-22 00:00:00
+105751,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,Flash Tecnologia e Instituição de Pagamento LTDA,12052,Pago,2025-02-01 00:00:00,2025-01-27 00:00:00
+114734,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kaio Geglio,11250,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114663,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,João Vitor Bueno,10500,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+118429,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Octavio Costa,10000,Pago,2025-02-28 00:00:00,2025-03-13 00:00:00
+118431,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Thiago de Mello,10000,Pago,2025-02-28 00:00:00,2025-03-13 00:00:00
+114676,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Daniel Kumanaya,9000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114509,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,FABLAB INOVACAO E SOLUCOES,871119,Pago,2025-02-28 00:00:00,2025-02-27 00:00:00
+114696,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Fabio Pereira,8000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+118432,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Gabriel Cunha,7500,Pago,2025-02-28 00:00:00,2025-03-13 00:00:00
+118908,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,TEMPUS FUGIT PARTICIPACOES LTDA ,7244,Pago,2025-02-28 00:00:00,2025-04-16 00:00:00
+114731,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Laiz Iervolino,6000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114794,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,5000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114650,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Giovanne Mascaro,4500,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+107523,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Rescisão,Roberta Garcia,4000,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+114673,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Sabrina Clemente,4000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114726,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Tiago Silveira Pompeo de Pina,4000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114724,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Gustavo dos Santos Gomes,3250,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114661,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Alekine Nepomuceno,3000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114782,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,3000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114732,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vitor Bolzan Coelho,2800,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114722,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,2600,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114671,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Nicolas Caichiolo Santos,2500,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114708,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Paulo Gomes,2500,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+118434,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,2500,Pago,2025-02-28 00:00:00,2025-03-13 00:00:00
+119712,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,RECEITA FEDERAL ,234747,Pago,2025-02-28 00:00:00,2025-03-20 00:00:00
+105749,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,FABLAB INOVACAO E SOLUCOES,2016,Pago,2025-02-01 00:00:00,2025-01-27 00:00:00
+114665,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Trajano da Silva,2000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114667,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Evair Moreno Roberto,2000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114693,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vinícius Gabriel,2000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114736,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Guilherme Fernandes Leite,1800,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114738,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Kauã Pereira Mendonça e silva,1800,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+110428,c3_Despesas_com_Pessoal_Interno,Mão de obra,Adiantamento Quinzenal,Priscila Anacleto,1700,Pago,2025-02-14 00:00:00,2025-02-14 00:00:00
+114691,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Vicente Sousa Barbosa,1700,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114538,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,GymPass,1097,Pago,2025-02-27 00:00:00,2025-02-27 00:00:00
+114728,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Luisa Fonseca Resende Camerini ,1000,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+114741,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,96577,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+118300,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Laiz Iervolino,89408,Pago,2025-02-28 00:00:00,2025-03-14 00:00:00
+112408,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,FABLAB INOVACAO E SOLUCOES,7767,Pago,2025-02-20 00:00:00,2025-02-20 00:00:00
+118391,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,720,Pago,2025-02-28 00:00:00,2025-03-14 00:00:00
+118924,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FABLAB INOVACAO E SOLUCOES,70702,Pago,2025-02-28 00:00:00,2025-03-18 00:00:00
+114742,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Comissão e Gorjeta,Priscila Anacleto,67221,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+105622,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,FABLAB INOVACAO E SOLUCOES,53814,Pago,2025-02-01 00:00:00,2025-01-27 00:00:00
+106106,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Priscila Anacleto,468,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+118389,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Tiago Silveira Pompeo de Pina,4375,Pago,2025-02-28 00:00:00,2025-03-14 00:00:00
+109815,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Rescisão,Italo Kendy Morino Edagi,420,Pago,2025-02-12 00:00:00,2025-02-12 00:00:00
+106072,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Trajano da Silva,408,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+110443,c3_Despesas_com_Pessoal_Interno,Mão de obra,Adiantamento Quinzenal,Henrique de Melo Silva,400,Pago,2025-02-14 00:00:00,2025-02-14 00:00:00
+106087,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Tiago Silveira Pompeo de Pina,384,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106097,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Henrique de Melo Silva,384,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106152,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Evair Moreno Roberto,3264,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106081,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Paulo Gomes,3012,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106100,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kauã Pereira Mendonça e silva,2712,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106075,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Luisa Fonseca Resende Camerini ,2448,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106083,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Roberta Garcia,2292,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+118001,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FGTS,216,Pago,2025-02-28 00:00:00,2025-03-20 00:00:00
+106059,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Alekine Nepomuceno,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106061,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Bárbara Fidêncio,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106065,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Fabio Pereira,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106070,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,João Vitor Bueno,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106079,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Nicolas Caichiolo Santos,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106095,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Guilherme Fernandes Leite,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106109,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kaio Geglio,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106143,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Laiz Iervolino,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106150,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vitor Bolzan Coelho,208,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+113891,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,200,Pago,2025-02-26 00:00:00,2025-02-26 00:00:00
+106068,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Giovanne Mascaro,1664,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+106085,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Sabrina Clemente,1132,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+108049,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,Flash Tecnologia e Instituição de Pagamento LTDA,109,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+107519,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,100,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107521,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,100,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+109810,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,100,Pago,2025-02-12 00:00:00,2025-02-12 00:00:00
+109811,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,100,Pago,2025-02-12 00:00:00,2025-02-12 00:00:00
+112163,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,100,Pago,2025-02-19 00:00:00,2025-02-19 00:00:00
+112164,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,100,Pago,2025-02-19 00:00:00,2025-02-19 00:00:00
+113890,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,100,Pago,2025-02-26 00:00:00,2025-02-26 00:00:00
+106089,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vinícius Gabriel,984,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+107950,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,FABLAB INOVACAO E SOLUCOES,888,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+106062,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Daniel Kumanaya,866,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+119713,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,8302,Pago,2025-02-28 00:00:00,2025-03-20 00:00:00
+106077,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Vicente Sousa Barbosa,636,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+108036,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Segurança do Trabalho,LGSO LTDA,50,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+106113,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Gustavo dos Santos Gomes,416,Pago,2025-02-01 00:00:00,2025-02-01 00:00:00
+116245,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,AWS,747853,Pago,2025-02-28 00:00:00,2025-03-06 00:00:00
+122554,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,HUBSPOT,298616,Pago,2025-02-28 00:00:00,2025-04-04 00:00:00
+110456,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,INOVABLUE SISTEMAS E SUPORTE LTDA,2500,Pago,2025-02-14 00:00:00,2025-02-14 00:00:00
+115468,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,216769,Pago,2025-02-01 00:00:00,2025-03-05 00:00:00
+116685,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,TRANSFEERA INSTITUIÇÃO DE PAGAMENTOS S.A,2076,Pago,2025-02-28 00:00:00,2025-03-10 00:00:00
+108075,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Picchat,187682,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+115496,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,VERCEL INC.,14426,Pago,2025-02-16 00:00:00,2025-03-05 00:00:00
+115505,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,KAMINO INSTITUICAO DE PAGAMENTO LTDA,1000,Pago,2025-02-22 00:00:00,2025-03-05 00:00:00
+114535,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,87322,Pago,2025-02-27 00:00:00,2025-02-27 00:00:00
+115499,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,650 INDUSTRIES (EXPO),69266,Pago,2025-02-19 00:00:00,2025-03-05 00:00:00
+116320,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,MONDAYCOM,525,,2025-02-28 00:00:00,2025-03-11 00:00:00
+108057,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,Salvy Ltda,51216,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+115469,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais, Lexio Tecnologia Ltda,465,Pago,2025-02-06 00:00:00,2025-03-05 00:00:00
+115471,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,LINKEDIN,160,Pago,2025-02-08 00:00:00,2025-03-05 00:00:00
+115517,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,LINKEDIN,8999,Pago,2025-02-27 00:00:00,2025-03-05 00:00:00
+106563,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Bcompliance,899,Pago,2025-02-01 00:00:00,2025-01-31 00:00:00
+111147,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,TELEFONICA BRASIL S/A,8137,Pago,2025-02-17 00:00:00,2025-02-17 00:00:00
+115472,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"DOCKER, INC.",6902,Pago,2025-02-11 00:00:00,2025-03-05 00:00:00
+115507,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,CNPJWS-BRONZE,69,Pago,2025-02-25 00:00:00,2025-03-05 00:00:00
+115470,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"REPLIT, INC.",4396,Pago,2025-02-07 00:00:00,2025-03-05 00:00:00
+114536,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,2132,Pago,2025-02-27 00:00:00,2025-02-27 00:00:00
+115466,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE AD,749,Pago,2025-02-01 00:00:00,2025-03-05 00:00:00
+107581,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Paulo Cunha,6000,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107586,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Marcia Costa,5055,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107579,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Suellen Nerone,2985,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107574,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Felipe Freitas,2400,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107587,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Maria Claudia Gomes,1500,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+107589,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Karine Nerone,750,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+108018,c9_Despesas_Financeiras,Despesas Financeiras,Empréstimos Bancários - Despesas Financeiras,Henrique de Melo Silva,700,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+107584,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Fabio Pereira,300,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+125266,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,13628,Pago,2025-02-11 00:00:00,2025-02-11 00:00:00
+125281,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,11939,Pago,2025-02-20 00:00:00,2025-02-20 00:00:00
+125293,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10944,Pago,2025-02-28 00:00:00,2025-02-28 00:00:00
+125268,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,985,Pago,2025-02-12 00:00:00,2025-02-12 00:00:00
+125262,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9452,Pago,2025-02-07 00:00:00,2025-02-07 00:00:00
+125277,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,8954,Pago,2025-02-18 00:00:00,2025-02-18 00:00:00
+125287,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,8258,Pago,2025-02-25 00:00:00,2025-02-25 00:00:00
+125285,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,8157,Pago,2025-02-24 00:00:00,2025-02-24 00:00:00
+125257,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,7959,Pago,2025-02-04 00:00:00,2025-02-04 00:00:00
+125270,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,7561,Pago,2025-02-13 00:00:00,2025-02-13 00:00:00
+125289,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5769,Pago,2025-02-26 00:00:00,2025-02-26 00:00:00
+125256,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5372,Pago,2025-02-03 00:00:00,2025-02-03 00:00:00
+125275,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4376,Pago,2025-02-17 00:00:00,2025-02-17 00:00:00
+125279,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3782,Pago,2025-02-19 00:00:00,2025-02-19 00:00:00
+125283,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3782,Pago,2025-02-21 00:00:00,2025-02-21 00:00:00
+125264,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3582,Pago,2025-02-10 00:00:00,2025-02-10 00:00:00
+125258,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3182,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+125260,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,2685,Pago,2025-02-06 00:00:00,2025-02-06 00:00:00
+125291,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,2685,Pago,2025-02-27 00:00:00,2025-02-27 00:00:00
+125272,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,1691,Pago,2025-02-14 00:00:00,2025-02-14 00:00:00
+116684,c1_Impostos,Impostos e Taxas,ISS,PREFEITURA DE SÃO PAULO,1697055,Pago,2025-02-28 00:00:00,2025-03-10 00:00:00
+117043,c2_Custos_de_Ocupacao,Ocupação,Despesas Prediais - Aluguel,TEMPUS FUGIT PARTICIPACOES LTDA ,1241872,Pago,2025-02-28 00:00:00,2025-04-16 00:00:00
+106556,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Contábil,MACRO CONTABILIDADE E CONSULTORIA LTDA,519449,Pago,2025-02-01 00:00:00,2025-01-31 00:00:00
+117942,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria de Projetos,MY MUSIC,23416,Pago,2025-02-28 00:00:00,2025-03-12 00:00:00
+115495,c6_Despesas_com_Clientes,Visitas a Clientes,Combustível,AUTOPOSTOPANAMBY,180,Pago,2025-02-14 00:00:00,2025-03-05 00:00:00
+115515,c6_Despesas_com_Clientes,Visitas a Clientes,Estacionamento em Clientes,BERLINF*AUTO POSTO POR,170,Pago,2025-02-26 00:00:00,2025-03-05 00:00:00
+115491,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,CHURRASCARIA TREVISAN,80,Pago,2025-02-14 00:00:00,2025-03-05 00:00:00
+115501,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,NAREIA BUTANTA,7887,Pago,2025-02-20 00:00:00,2025-03-05 00:00:00
+115504,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,7094,Pago,2025-02-20 00:00:00,2025-03-05 00:00:00
+115486,c6_Despesas_com_Clientes,Visitas a Clientes,Combustível,AUTOPOSTOPANAMBY,60,Pago,2025-02-12 00:00:00,2025-03-05 00:00:00
+115498,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,BAR POICA RUSS,579,Pago,2025-02-18 00:00:00,2025-03-05 00:00:00
+115520,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,SAOPAULOGRILLBAR,50,Pago,2025-02-27 00:00:00,2025-03-05 00:00:00
+115521,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,4195,Pago,2025-02-27 00:00:00,2025-03-05 00:00:00
+115490,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,NECTAR ORIGINAL F,40,Pago,2025-02-12 00:00:00,2025-03-05 00:00:00
+115510,c6_Despesas_com_Clientes,Visitas a Clientes,Estacionamento em Clientes,ESTACIONAMENTO SPACE P,24,Pago,2025-02-25 00:00:00,2025-03-05 00:00:00
+115488,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,MHBATTISTINI,20,Pago,2025-02-12 00:00:00,2025-03-05 00:00:00
+115494,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,BAR VOGA,4,Pago,2025-02-14 00:00:00,2025-03-05 00:00:00
+115497,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,MERCADO LIVRE E/OU SITE,40889,Pago,2025-02-17 00:00:00,2025-03-05 00:00:00
+113146,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,Priscila Anacleto,359,Pago,2025-02-24 00:00:00,2025-02-24 00:00:00
+119475,c5_Problemas_Operacionais,Problemas Operacionais,Pagamento de Cachê,Marcus Paretto (artista),28297,Pago,2025-02-05 00:00:00,2025-02-05 00:00:00
+119473,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Contratante,CB Niterói,64,Pago,2025-02-27 00:00:00,2025-02-27 00:00:00
+3243,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,,,21504,Pago,2025-02-19 00:00:00,2025-02-19 00:00:00
+3244,c5_Despesas_Operacionais_com_Shows,Problemas Operacionais com Shows,,,100,Pago,2025-02-21 00:00:00,2025-02-21 00:00:00
+113357,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,Flash Tecnologia e Instituição de Pagamento LTDA,11411,Pago,2025-03-01 00:00:00,2025-02-25 00:00:00
+121010,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kaio Geglio,11250,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120842,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,João Vitor Bueno,10500,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+122002,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Octavio Costa,10000,Pago,2025-03-31 00:00:00,2025-04-02 00:00:00
+122003,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Thiago de Mello,10000,Pago,2025-03-31 00:00:00,2025-04-02 00:00:00
+120814,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Daniel Kumanaya,9000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120459,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,FABLAB INOVACAO E SOLUCOES,855685,Pago,2025-03-25 00:00:00,2025-03-25 00:00:00
+120819,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Fabio Pereira,8000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+122004,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Gabriel Cunha,7500,Pago,2025-03-31 00:00:00,2025-04-02 00:00:00
+120850,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Laiz Iervolino,6000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+125349,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,TEMPUS FUGIT PARTICIPACOES LTDA ,586914,Pago,2025-03-31 00:00:00,2025-05-13 00:00:00
+120821,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,5000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120822,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Giovanne Mascaro,4500,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120992,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Sabrina Clemente,4000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+121001,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Tiago Silveira Pompeo de Pina,4000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120827,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Gustavo dos Santos Gomes,3250,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120435,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,3150,Pago,2025-03-28 00:00:00,2025-03-25 00:00:00
+120809,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Alekine Nepomuceno,3000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+121007,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vitor Bolzan Coelho,2800,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+114511,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,FABLAB INOVACAO E SOLUCOES,2640,Pago,2025-03-01 00:00:00,2025-02-27 00:00:00
+120861,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Nicolas Caichiolo Santos,2500,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120978,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Paulo Gomes,2500,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+122005,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,2500,Pago,2025-03-31 00:00:00,2025-04-02 00:00:00
+120812,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,2450,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+125033,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,RECEITA FEDERAL ,234747,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+120817,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Evair Moreno Roberto,2000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120853,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Trajano da Silva,2000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+121004,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vinícius Gabriel,2000,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120824,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Guilherme Fernandes Leite,1800,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120840,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Kauã Pereira Mendonça e silva,1800,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+118392,c3_Despesas_com_Pessoal_Interno,Mão de obra,Adiantamento Quinzenal,Priscila Anacleto,1700,Pago,2025-03-14 00:00:00,2025-03-14 00:00:00
+120856,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Vicente Sousa Barbosa,1700,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+125086,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Laiz Iervolino,128655,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+121031,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,GymPass,1097,Pago,2025-03-27 00:00:00,2025-03-27 00:00:00
+120983,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,96577,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+120984,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Comissão e Gorjeta,Priscila Anacleto,87221,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+118925,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,FABLAB INOVACAO E SOLUCOES,83214,Pago,2025-03-18 00:00:00,2025-03-18 00:00:00
+125045,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,FABLAB INOVACAO E SOLUCOES,80442,Pago,2025-03-31 00:00:00,2025-04-15 00:00:00
+125081,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,780,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+125038,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FABLAB INOVACAO E SOLUCOES,6935,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+114510,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,FABLAB INOVACAO E SOLUCOES,51213,Pago,2025-03-01 00:00:00,2025-02-27 00:00:00
+116544,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,500,Pago,2025-03-07 00:00:00,2025-03-07 00:00:00
+114743,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Priscila Anacleto,4275,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+119417,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,400,Pago,2025-03-19 00:00:00,2025-03-19 00:00:00
+114666,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Trajano da Silva,3875,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114710,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Paulo Gomes,38152,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114727,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Tiago Silveira Pompeo de Pina,3648,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114792,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Henrique de Melo Silva,3211,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+115550,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,300,Pago,2025-03-05 00:00:00,2025-03-05 00:00:00
+115554,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,300,Pago,2025-03-05 00:00:00,2025-03-05 00:00:00
+117943,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,300,Pago,2025-03-12 00:00:00,2025-03-12 00:00:00
+114669,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Evair Moreno Roberto,2856,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114730,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Luisa Fonseca Resende Camerini ,2706,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+125960,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,25738,Pago,2025-03-31 00:00:00,2025-04-16 00:00:00
+125035,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FGTS,216,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+114662,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Alekine Nepomuceno,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114664,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,João Vitor Bueno,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114672,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Nicolas Caichiolo Santos,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114697,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Fabio Pereira,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114723,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Bárbara Fidêncio,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114733,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vitor Bolzan Coelho,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114735,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kaio Geglio,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114737,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Guilherme Fernandes Leite,1976,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114802,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Laiz Iervolino,1768,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+115551,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,150,Pago,2025-03-05 00:00:00,2025-03-05 00:00:00
+115579,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,150,Pago,2025-03-05 00:00:00,2025-03-05 00:00:00
+117997,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,150,Pago,2025-03-12 00:00:00,2025-03-12 00:00:00
+119724,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,150,Pago,2025-03-20 00:00:00,2025-03-20 00:00:00
+119725,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,150,Pago,2025-03-20 00:00:00,2025-03-20 00:00:00
+119746,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,150,Pago,2025-03-20 00:00:00,2025-03-20 00:00:00
+120611,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,150,Pago,2025-03-26 00:00:00,2025-03-26 00:00:00
+120645,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,150,Pago,2025-03-26 00:00:00,2025-03-26 00:00:00
+114652,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Giovanne Mascaro,1456,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114739,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kauã Pereira Mendonça e silva,12375,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+116286,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Contribuições Sindicais,LGSO LTDA,11666,Pago,2025-03-06 00:00:00,2025-03-07 00:00:00
+116337,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,Flash Tecnologia e Instituição de Pagamento LTDA,109,Pago,2025-03-07 00:00:00,2025-03-07 00:00:00
+125046,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,8302,Pago,2025-03-31 00:00:00,2025-04-16 00:00:00
+114675,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Sabrina Clemente,828,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114695,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vinícius Gabriel,738,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114689,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Daniel Kumanaya,63,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114692,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Vicente Sousa Barbosa,612,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+114725,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Gustavo dos Santos Gomes,416,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+121915,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,AWS,777188,Pago,2025-03-31 00:00:00,2025-04-02 00:00:00
+122568,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,HUBSPOT,294748,Pago,2025-03-30 00:00:00,2025-04-04 00:00:00
+118883,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,INOVABLUE SISTEMAS E SUPORTE LTDA,2500,Pago,2025-03-18 00:00:00,2025-03-18 00:00:00
+124303,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,TRANSFEERA INSTITUIÇÃO DE PAGAMENTOS S.A,21035,Pago,2025-03-31 00:00:00,2025-04-09 00:00:00
+122555,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,204096,Pago,2025-03-01 00:00:00,2025-04-04 00:00:00
+117998,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Comunicação e Marketing,Picchat,187682,Pago,2025-03-12 00:00:00,2025-03-12 00:00:00
+122565,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,KAMINO INSTITUICAO DE PAGAMENTO LTDA,1000,Pago,2025-03-22 00:00:00,2025-04-04 00:00:00
+121027,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,87322,Pago,2025-03-27 00:00:00,2025-03-27 00:00:00
+122564,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,650 INDUSTRIES (EXPO),61088,Pago,2025-03-19 00:00:00,2025-04-04 00:00:00
+116324,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,MONDAYCOM,525,,2025-03-11 00:00:00,2025-03-11 00:00:00
+116288,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,Salvy Ltda,5083,Pago,2025-03-06 00:00:00,2025-03-07 00:00:00
+122556,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais, Lexio Tecnologia Ltda,465,Pago,2025-03-01 00:00:00,2025-04-04 00:00:00
+122563,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,VERCEL INC.,41011,Pago,2025-03-16 00:00:00,2025-04-04 00:00:00
+114843,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Bcompliance,899,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+118850,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,8162,Pago,2025-03-17 00:00:00,2025-03-17 00:00:00
+122561,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"DOCKER, INC.",6916,Pago,2025-03-11 00:00:00,2025-04-04 00:00:00
+122566,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,CNPJWS-BRONZE,69,Pago,2025-03-25 00:00:00,2025-04-04 00:00:00
+116317,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,PONTOTEL,4527,Pago,2025-03-06 00:00:00,2025-03-07 00:00:00
+122560,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"REPLIT, INC.",44,Pago,2025-03-06 00:00:00,2025-04-04 00:00:00
+121028,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,2132,Pago,2025-03-27 00:00:00,2025-03-27 00:00:00
+116053,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Paulo Cunha,6000,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116050,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Marcia Costa,5055,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116054,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Suellen Nerone,2985,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116055,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Felipe Freitas,2400,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116049,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Maria Claudia Gomes,1500,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116048,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Karine Nerone,750,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+116051,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Fabio Pereira,300,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+125288,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,17012,Pago,2025-03-25 00:00:00,2025-03-25 00:00:00
+125261,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,16017,Pago,2025-03-06 00:00:00,2025-03-06 00:00:00
+125271,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,12636,Pago,2025-03-13 00:00:00,2025-03-13 00:00:00
+125284,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10748,Pago,2025-03-21 00:00:00,2025-03-21 00:00:00
+125267,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10641,Pago,2025-03-11 00:00:00,2025-03-11 00:00:00
+125278,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9651,Pago,2025-03-18 00:00:00,2025-03-18 00:00:00
+125294,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9057,Pago,2025-03-28 00:00:00,2025-03-28 00:00:00
+125269,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,8458,Pago,2025-03-12 00:00:00,2025-03-12 00:00:00
+125276,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,6963,Pago,2025-03-17 00:00:00,2025-03-17 00:00:00
+125290,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5173,Pago,2025-03-26 00:00:00,2025-03-26 00:00:00
+125265,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5076,Pago,2025-03-10 00:00:00,2025-03-10 00:00:00
+125286,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4971,Pago,2025-03-24 00:00:00,2025-03-24 00:00:00
+125259,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4675,Pago,2025-03-05 00:00:00,2025-03-05 00:00:00
+125282,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3879,Pago,2025-03-20 00:00:00,2025-03-20 00:00:00
+125292,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,358,Pago,2025-03-27 00:00:00,2025-03-27 00:00:00
+125280,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3281,Pago,2025-03-19 00:00:00,2025-03-19 00:00:00
+125263,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,2785,Pago,2025-03-07 00:00:00,2025-03-07 00:00:00
+125295,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,1789,Pago,2025-03-31 00:00:00,2025-03-31 00:00:00
+125273,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,1691,Pago,2025-03-14 00:00:00,2025-03-14 00:00:00
+125274,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,298,Pago,2025-03-15 00:00:00,2025-03-15 00:00:00
+124234,c1_Impostos,Impostos e Taxas,ISS,PREFEITURA DE SÃO PAULO,1832533,Pago,2025-03-31 00:00:00,2025-04-09 00:00:00
+125347,c2_Custos_de_Ocupacao,Ocupação,Despesas Prediais - Aluguel,TEMPUS FUGIT PARTICIPACOES LTDA ,1181572,Pago,2025-03-31 00:00:00,2025-05-13 00:00:00
+114841,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Contábil,MACRO CONTABILIDADE E CONSULTORIA LTDA,519449,Pago,2025-03-01 00:00:00,2025-02-28 00:00:00
+125064,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria de Projetos,MY MUSIC,275065,Pago,2025-03-31 00:00:00,2025-04-14 00:00:00
+120476,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Jurídica,MINISTERIO DA FAZENDA,50,Pago,2025-03-26 00:00:00,2025-03-26 00:00:00
+119016,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Jurídica,Priscila Anacleto,3663,Pago,2025-03-18 00:00:00,2025-03-18 00:00:00
+116276,c6_Despesas_com_Clientes,Visitas a Clientes,Pedagio,Tiago Silveira Pompeo de Pina,105,Pago,2025-03-12 00:00:00,2025-03-12 00:00:00
+122557,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,9522,Pago,2025-03-05 00:00:00,2025-04-04 00:00:00
+122559,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,5716,Pago,2025-03-05 00:00:00,2025-04-04 00:00:00
+122562,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,5265,Pago,2025-03-12 00:00:00,2025-04-04 00:00:00
+116264,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista,Bruno Enrico A. Javaroni,100,Pago,2025-03-06 00:00:00,2025-03-07 00:00:00
+120266,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista,Carolina de Oliveira Brochado (artista),60,Pago,2025-03-21 00:00:00,2025-03-21 00:00:00
+120267,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista, DJ Cadu ,3536,Pago,2025-03-24 00:00:00,2025-03-24 00:00:00
+116281,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,Priscila Anacleto,11898,Pago,2025-03-06 00:00:00,2025-03-07 00:00:00
+118516,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,Priscila Anacleto,38,Pago,2025-03-14 00:00:00,2025-03-14 00:00:00
+127732,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Kaio Geglio,11250,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127729,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,João Vitor Bueno,10500,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128095,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Octavio Costa,10000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128097,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Thiago de Mello,10000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+120457,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,Flash Tecnologia e Instituição de Pagamento LTDA,9750,Pago,2025-04-01 00:00:00,2025-03-27 00:00:00
+127722,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Daniel Kumanaya,9000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127708,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,FABLAB INOVACAO E SOLUCOES,855685,Pago,2025-04-29 00:00:00,2025-04-29 00:00:00
+127724,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Fabio Pereira,8000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128098,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Gabriel Cunha,7500,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128912,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,TEMPUS FUGIT PARTICIPACOES LTDA ,6500,,2025-04-30 00:00:00,2025-05-30 00:00:00
+127973,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Laiz Iervolino,6000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128041,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Felipe Freitas,5000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127725,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Giovanne Mascaro,4500,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127740,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Sabrina Clemente,4000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127736,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Nicolas Caichiolo Santos,3500,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127427,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,3440,Pago,2025-04-30 00:00:00,2025-04-25 00:00:00
+127727,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Gustavo dos Santos Gomes,3250,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127720,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Alekine Nepomuceno,3000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127721,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,3000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127738,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Paulo Gomes,3000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127744,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vitor Bolzan Coelho,2800,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128099,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Pró-Labore,Felipe Freitas,2500,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128899,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,RECEITA FEDERAL ,2500,,2025-04-30 00:00:00,2025-05-20 00:00:00
+120464,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Alimentação Funcionário,FABLAB INOVACAO E SOLUCOES,2340,Pago,2025-04-01 00:00:00,2025-04-01 00:00:00
+127625,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Trajano da Silva,2000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127741,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Vinícius Gabriel,2000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128063,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Evair Moreno Roberto,2000,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127748,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Guilherme Fernandes Leite,1800,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127749,c3_Despesas_com_Pessoal_Interno,Mão de obra,Bolsa Estágio,Kauã Pereira Mendonça e silva,1800,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+125066,c3_Despesas_com_Pessoal_Interno,Mão de obra,Adiantamento Quinzenal,Priscila Anacleto,1750,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+127734,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Lucas Vicente Sousa Barbosa,1700,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128913,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Laiz Iervolino,128655,,2025-04-30 00:00:00,2025-05-15 00:00:00
+128143,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,GymPass,1097,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+127751,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Salário,Priscila Anacleto,96577,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128903,c3_Despesas_com_Pessoal_Interno,Mão de obra,INSS,FABLAB INOVACAO E SOLUCOES,900,,2025-04-30 00:00:00,2025-05-20 00:00:00
+127754,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO CLT - Comissão e Gorjeta,Priscila Anacleto,87221,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128914,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,780,,2025-04-30 00:00:00,2025-05-15 00:00:00
+128902,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FABLAB INOVACAO E SOLUCOES,700,,2025-04-30 00:00:00,2025-05-20 00:00:00
+126471,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,600,Pago,2025-04-17 00:00:00,2025-04-17 00:00:00
+120460,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,FABLAB INOVACAO E SOLUCOES,55869,Pago,2025-04-01 00:00:00,2025-03-25 00:00:00
+126813,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,510,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+121984,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Henrique de Melo Silva,500,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+120987,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Priscila Anacleto,450,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+126801,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,450,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+120854,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Trajano da Silva,408,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120980,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Paulo Gomes,4016,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120818,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Evair Moreno Roberto,3468,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120438,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Henrique de Melo Silva,338,Pago,2025-04-01 00:00:00,2025-03-25 00:00:00
+126803,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,330,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+124206,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,300,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+128070,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,300,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128901,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,300,,2025-04-30 00:00:00,2025-05-20 00:00:00
+128898,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO FGTS,FGTS,216,,2025-04-30 00:00:00,2025-05-20 00:00:00
+120810,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Alekine Nepomuceno,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120813,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Bárbara Fidêncio,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120820,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Fabio Pereira,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120825,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Guilherme Fernandes Leite,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120859,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,João Vitor Bueno,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120863,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Nicolas Caichiolo Santos,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+121008,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vitor Bolzan Coelho,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+121011,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kaio Geglio,208,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120851,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Laiz Iervolino,1872,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+126805,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,João Vitor Bueno,180,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+120823,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Giovanne Mascaro,1768,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+121946,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,150,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+121947,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Vitor Bolzan Coelho,150,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+124207,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Contribuições Sindicais,Vitor Bolzan Coelho,150,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+125829,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Laiz Iervolino,150,Pago,2025-04-16 00:00:00,2025-04-16 00:00:00
+125830,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Nicolas Caichiolo Santos,150,Pago,2025-04-16 00:00:00,2025-04-16 00:00:00
+125834,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Lucas Trajano da Silva,150,Pago,2025-04-16 00:00:00,2025-04-16 00:00:00
+128071,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Comissão e Gorjeta,Evair Moreno Roberto,150,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+120815,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Daniel Kumanaya,147,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120995,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Sabrina Clemente,138,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120841,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Kauã Pereira Mendonça e silva,135,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+121005,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Vinícius Gabriel,123,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+125077,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Segurança do Trabalho,LGSO LTDA,11666,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+124213,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Gratificação / Benefícios,Flash Tecnologia e Instituição de Pagamento LTDA,109,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+120828,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Gustavo dos Santos Gomes,102,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+120858,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Vale Transporte,Lucas Vicente Sousa Barbosa,102,Pago,2025-04-01 00:00:00,2025-03-28 00:00:00
+126472,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO PJ Fixo,Bárbara Fidêncio,100,Pago,2025-04-17 00:00:00,2025-04-17 00:00:00
+128900,c3_Despesas_com_Pessoal_Interno,Mão de obra,IRRF,RECEITA FEDERAL ,90,,2025-04-30 00:00:00,2025-05-20 00:00:00
+125076,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Segurança do Trabalho,LGSO LTDA,50,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+125050,c3_Despesas_com_Pessoal_Interno,Mão de obra,MDO Contribuições Sindicais,FABLAB INOVACAO E SOLUCOES,35,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+129278,c1_Impostos,Impostos e Taxas,IRPJ - Imposto de Renda,RECEITA FEDERAL ,4346667,,2025-04-30 00:00:00,2025-05-20 00:00:00
+128907,c1_Impostos,Impostos e Taxas,ISS,PREFEITURA DE SÃO PAULO,1755154,Pago,2025-04-30 00:00:00,2025-05-09 00:00:00
+126684,c1_Impostos,Impostos e Taxas,IRPJ - Imposto de Renda,TRIBUNAL REGIONAL FEDERAL DA 3ª REGIÃO,6426,Pago,2025-04-22 00:00:00,2025-04-22 00:00:00
+128126,c1_Impostos,Impostos e Taxas,CSLL - Contribuição Social,RECEITA FEDERAL ,4271,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128825,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,AWS,757736,Pago,2025-04-30 00:00:00,2025-05-05 00:00:00
+125070,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,INOVABLUE SISTEMAS E SUPORTE LTDA,2500,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+128886,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,TRANSFEERA INSTITUIÇÃO DE PAGAMENTOS S.A,22045,Pago,2025-04-30 00:00:00,2025-05-05 00:00:00
+128835,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,20163,Pago,2025-04-01 00:00:00,2025-05-05 00:00:00
+124465,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Picchat,187682,Pago,2025-04-10 00:00:00,2025-04-10 00:00:00
+128862,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Financeiros,KAMINO INSTITUICAO DE PAGAMENTO LTDA,1000,Pago,2025-04-22 00:00:00,2025-05-05 00:00:00
+126814,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,87322,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+128860,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,650 INDUSTRIES (EXPO),63191,Pago,2025-04-19 00:00:00,2025-05-05 00:00:00
+128836,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais, Lexio Tecnologia Ltda,465,Pago,2025-04-01 00:00:00,2025-05-05 00:00:00
+124216,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,Salvy Ltda,46203,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+128859,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,VERCEL INC.,44603,Pago,2025-04-16 00:00:00,2025-05-05 00:00:00
+121445,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,Bcompliance,899,Pago,2025-04-01 00:00:00,2025-04-01 00:00:00
+125071,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,TELEFONICA BRASIL S/A,8162,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+128846,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"DOCKER, INC.",7058,Pago,2025-04-11 00:00:00,2025-05-05 00:00:00
+128870,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,CNPJWS-BRONZE,69,Pago,2025-04-25 00:00:00,2025-05-05 00:00:00
+128833,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE GSUITE,6815,Pago,2025-04-01 00:00:00,2025-05-05 00:00:00
+128839,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,"REPLIT, INC.",426,Pago,2025-04-06 00:00:00,2025-05-05 00:00:00
+126815,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Internet,TELEFONICA BRASIL S/A,2132,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+125972,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Telefone,Priscila Anacleto,13,Pago,2025-04-16 00:00:00,2025-04-16 00:00:00
+128838,c7_Despesas_com_Softwares_e_Licencas,Informática e TI,Sistemas Gerais - Operacionais,GOOGLE AD,326,Pago,2025-04-01 00:00:00,2025-05-05 00:00:00
+122008,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Paulo Cunha,6000,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122010,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Marcia Costa,5055,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122007,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Suellen Nerone,2985,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122006,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Felipe Freitas,2400,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122011,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Maria Claudia Gomes,1500,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122012,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Karine Nerone,750,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+122009,c9_Despesas_Financeiras,Despesas Financeiras,Juros / Multa,Fabio Pereira,300,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+128673,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,19003,Pago,2025-04-22 00:00:00,2025-04-22 00:00:00
+128665,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,12635,Pago,2025-04-08 00:00:00,2025-04-08 00:00:00
+128670,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,12537,Pago,2025-04-15 00:00:00,2025-04-15 00:00:00
+128667,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,11144,Pago,2025-04-10 00:00:00,2025-04-10 00:00:00
+128662,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10744,Pago,2025-04-03 00:00:00,2025-04-03 00:00:00
+128660,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,10447,Pago,2025-04-01 00:00:00,2025-04-01 00:00:00
+128674,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9552,Pago,2025-04-23 00:00:00,2025-04-23 00:00:00
+128678,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,9452,Pago,2025-04-29 00:00:00,2025-04-29 00:00:00
+128675,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,7064,Pago,2025-04-24 00:00:00,2025-04-24 00:00:00
+128666,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,6364,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+128677,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,6168,Pago,2025-04-28 00:00:00,2025-04-28 00:00:00
+128676,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5672,Pago,2025-04-25 00:00:00,2025-04-25 00:00:00
+128671,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,5471,Pago,2025-04-16 00:00:00,2025-04-16 00:00:00
+128661,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,537,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+128668,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4678,Pago,2025-04-11 00:00:00,2025-04-11 00:00:00
+128679,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,4178,Pago,2025-04-30 00:00:00,2025-04-30 00:00:00
+128664,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,3182,Pago,2025-04-07 00:00:00,2025-04-07 00:00:00
+128669,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,2685,Pago,2025-04-14 00:00:00,2025-04-14 00:00:00
+128672,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,2288,Pago,2025-04-17 00:00:00,2025-04-17 00:00:00
+128663,c9_Despesas_Financeiras,Despesas Financeiras,Tarifas Bancárias,ASAAS,1392,Pago,2025-04-04 00:00:00,2025-04-04 00:00:00
+128705,c2_Custos_de_Ocupacao,Ocupação,Despesas Prediais - Aluguel,TEMPUS FUGIT PARTICIPACOES LTDA ,13000,,2025-04-30 00:00:00,2025-05-30 00:00:00
+121444,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Contábil,MACRO CONTABILIDADE E CONSULTORIA LTDA,519449,Pago,2025-04-01 00:00:00,2025-04-01 00:00:00
+128910,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria de Projetos,MY MUSIC,260195,Pago,2025-04-30 00:00:00,2025-05-09 00:00:00
+123940,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviços Terceirizados,Rogerio Dourado da Silva ,350,Pago,2025-04-07 00:00:00,2025-04-07 00:00:00
+125082,c4_Despesas_com_Pessoal_Terceirizado,Serviço de Terceiros,Serviço de Terceiros - Assessoria Jurídica,Custas Judiciais,11238,,2025-04-11 00:00:00,2025-04-11 00:00:00
+121942,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,SOLEDADE MOTA LEMES,540,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+125341,c2_Custos_de_Ocupacao,Utilidades,Equipamento de Escritório,Marcos Vinicius Rodrigues Ferreira ,240,Pago,2025-04-15 00:00:00,2025-04-15 00:00:00
+128865,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,KALUNGA,2346,Pago,2025-04-24 00:00:00,2025-05-05 00:00:00
+121944,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,SOLEDADE MOTA LEMES,220,Pago,2025-04-02 00:00:00,2025-04-02 00:00:00
+124208,c2_Custos_de_Ocupacao,Utilidades,Material de Escritório,Priscila Anacleto,9518,Pago,2025-04-09 00:00:00,2025-04-09 00:00:00
+122618,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista,Vanessa Spencer Leao De Alencar (Artista),300,Pago,2025-04-04 00:00:00,2025-04-04 00:00:00
+122619,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista,Good Vibrations Ltda,300,Pago,2025-04-03 00:00:00,2025-04-03 00:00:00
+125079,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista, Luciano Silva Fontes (Artista),300,Pago,2025-04-11 00:00:00,2025-04-11 00:00:00
+121451,c5_Problemas_Operacionais,Problemas Operacionais,Reembolso Artista,Sylvio Korytowski (artista),250,Pago,2025-04-01 00:00:00,2025-04-01 00:00:00
+125392,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,Bárbara Fidêncio,10471,Pago,2025-04-15 00:00:00,2025-04-15 00:00:00
+128834,c6_Despesas_com_Clientes,Visitas a Clientes,Taxi / Uber,TRANSPORTE TAXI OU APLICATIVO - UBER/LALAMOVE/99 E DEMAIS,2002,Pago,2025-04-01 00:00:00,2025-05-05 00:00:00
+128843,c6_Despesas_com_Clientes,Visitas a Clientes,Alimentação em Clientes,IFOOD. COM AGENCIA DE RESTAURANTES ONLINE S.A ,595,Pago,2025-04-07 00:00:00,2025-05-05 00:00:00

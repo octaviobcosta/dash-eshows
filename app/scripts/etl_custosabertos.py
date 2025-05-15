@@ -8,8 +8,8 @@ from pathlib import Path
 import pandas as pd
 
 # --- Configs -----------------------------------------------------------------
-SRC_XLSX = Path(__file__).resolve().parent / ".." / "custosabertos.xlsx"
-DST_CSV  = Path(__file__).resolve().parent / ".." / "custosabertos.csv"
+SRC_XLSX = Path(__file__).resolve().parents[1] / "data" / "xlsx" / "custosabertos.xlsx"
+DST_CSV  = Path(__file__).resolve().parents[1] / "data" / "csv"  / "custosabertos.csv"
 
 # --- 1) Ler planilha ----------------------------------------------------------
 df = pd.read_excel(SRC_XLSX, dtype=str)
