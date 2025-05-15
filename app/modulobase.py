@@ -32,6 +32,7 @@ from .data_manager import (
     get_df_metas,
     get_df_custosabertos,          # NOVO
     dedup,
+    get_df_npsartistas,            # NOVO
 )
 from .column_mapping import rename_columns, SUPPLIER_TO_SETOR
 
@@ -50,6 +51,7 @@ _inad_casas_cache:           pd.DataFrame | None = None
 _inad_artistas_cache:        pd.DataFrame | None = None
 _df_metas_cache:             pd.DataFrame | None = None
 _df_custosabertos_cache:     pd.DataFrame | None = None          # NOVO
+_df_npsartistas_cache:       pd.DataFrame | None = None          # NOVO
 
 # ╭───────────────────────────  helpers  ─────────────────────────────╮
 def _slug(text: str) -> str:
@@ -76,6 +78,23 @@ def otimizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
         except TypeError:
             pass
     return df2
+
+# ──────────────────  SANITIZE NPS Artistas  ───────────────────────
+def sanitize_npsartistas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    • Converte Data → datetime
+    • Garante tipos numéricos inteiros nas colunas NPS/CSAT
+    """
+    df = rename_columns(dedup(df_raw), "npsartistas").copy()
+
+    if "Data" in df.columns:
+        df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.date
+
+    for col in ("NPS Eshows", "CSAT Eshows", "CSAT Operador 1", "CSAT Operador 2"):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int16", errors="ignore")
+
+    return otimizar_tipos(df.reset_index(drop=True))
 
 # ╭──────────────────  SANITIZE Custos Abertos  ──────────────────────╮
 def sanitize_custosabertos_df(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -484,3 +503,20 @@ def carregar_custosabertos(force_reload: bool = False) -> pd.DataFrame:
     logger.info("[modulobase] CustosAbertos carregado: %s",
                 _df_custosabertos_cache.shape)
     return _df_custosabertos_cache
+
+# ───────────────────── loader NPS Artistas ────────────────────────
+def carregar_npsartistas(force_reload: bool = False) -> pd.DataFrame:
+    global _df_npsartistas_cache
+    if _df_npsartistas_cache is not None and not force_reload:
+        return _df_npsartistas_cache
+
+    df_raw = get_df_npsartistas()
+    if df_raw.empty:
+        logger.warning("[npsartistas] Supabase retornou vazio.")
+        _df_npsartistas_cache = pd.DataFrame()
+        return _df_npsartistas_cache
+
+    _df_npsartistas_cache = sanitize_npsartistas_df(df_raw)
+    logger.info("[modulobase] NPSArtistas carregado: %s",
+                _df_npsartistas_cache.shape)
+    return _df_npsartistas_cache

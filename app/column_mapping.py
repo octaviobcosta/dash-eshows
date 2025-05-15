@@ -189,6 +189,26 @@ _CUSTOSABERTOS: Dict[str, str] = {
     "Data Vencimento":   "Data Vencimento",
 }
 
+# 7) NPSARTISTAS – NOVO
+_NPSARTISTAS: Dict[str, str] = {
+    "id":                 "Id",
+    "data":               "Data",
+    "nps_eshows":         "NPS Eshows",
+    "csat_eshows":        "CSAT Eshows",
+    "operador_1":         "Operador 1",
+    "operador_2":         "Operador 2",
+    "csat_operador_1":    "CSAT Operador 1",
+    "csat_operador_2":    "CSAT Operador 2",
+    # variações TitleCase (caso venha direto do Excel)
+    "ID":                 "Id",
+    "Data":               "Data",
+    "NPS Eshows":         "NPS Eshows",
+    "CSAT Eshows":        "CSAT Eshows",
+    "Operador_1":         "Operador 1",
+    "Operador_2":         "Operador 2",
+    "CSAT Operador_1":    "CSAT Operador 1",
+    "CSAT Operador_2":    "CSAT Operador 2",
+}
 
 # ────────────────────────────────────────────────────────────
 # Dicionário principal
@@ -200,7 +220,8 @@ MAPPING: Dict[str, Dict[str, str]] = {
     "boletoartistas": _ARTISTAS,
     "pessoas":        _PESSOAS,
     "metas":          _METAS,
-    "custosabertos":  _CUSTOSABERTOS,   # ← NOVO
+    "custosabertos":  _CUSTOSABERTOS,
+    "npsartistas":    _NPSARTISTAS,    # ← NOVO
 }
 
 # ────────────────────────────────────────────────────────────

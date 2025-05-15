@@ -154,7 +154,9 @@ def get_df_ocorrencias()   -> pd.DataFrame:                      return _get("oc
 def get_df_pessoas()       -> pd.DataFrame:                      return _get("pessoas")
 def get_df_metas()         -> pd.DataFrame:                      return _get("metas")
 def get_df_inadimplencia() -> Tuple[pd.DataFrame, pd.DataFrame]: return _get("boletocasas"), _get("boletoartistas")
-def get_df_custosabertos() -> pd.DataFrame:                      return _get("custosabertos")  # NOVO
+def get_df_custosabertos() -> pd.DataFrame:                      return _get("custosabertos")
+def get_df_npsartistas()   -> pd.DataFrame:                      return _get("npsartistas")   # ← NOVO
+
 
 def reset_all_data(clear_disk: bool = False):
     _cache.clear()
