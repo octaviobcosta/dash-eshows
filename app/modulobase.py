@@ -34,7 +34,7 @@ from .data_manager import (
     dedup,
     get_df_npsartistas,            # NOVO
 )
-from .column_mapping import rename_columns, SUPPLIER_TO_SETOR
+from .column_mapping import rename_columns, SUPPLIER_TO_SETOR, PERCENT_COLS
 
 # ─────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger("modulobase")
@@ -396,6 +396,30 @@ def sanitize_inad_df(df_raw: pd.DataFrame, tabela: str) -> pd.DataFrame:
 
     return otimizar_tipos(df.reset_index(drop=True))
 
+# ╭───────────────  SANITIZE Metas  ─────────────────────────╮ 
+def sanitize_metas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
+    """
+    • Converte todas as colunas de PERCENT_COLS de 0–100 → 0–1
+    """
+    df = rename_columns(dedup(df_raw), "metas").copy()
+
+    for col in PERCENT_COLS:
+        if col in df.columns:
+            # to_numeric resolve texto ('70%') ou '70,00'
+            s = pd.to_numeric(
+                    df[col]
+                    .astype(str)
+                    .str.replace('%', '', regex=False)
+                    .str.replace(',', '.', regex=False),
+                errors="coerce"
+            )
+            # frações já corridas (<1) ficam como estão; >1 divide por 100
+            mask = s.notna() & (s >= 1)
+            s.loc[mask] = s.loc[mask] / 100.0
+            df[col] = s.astype("float32")
+
+    return otimizar_tipos(df.reset_index(drop=True))
+
 # ╭──────────────────────────  loaders  ──────────────────────────────╮
 def carregar_base_eshows(force_reload: bool = False) -> pd.DataFrame:
     global _df_eshows_cache, _df_eshows_excluidos_cache
@@ -481,11 +505,15 @@ def carregar_base_inad() -> Tuple[pd.DataFrame, pd.DataFrame]:
     return carregar_base_inadimplencia()
 
 
-def carregar_metas() -> pd.DataFrame:
+def carregar_metas(force_reload: bool = False) -> pd.DataFrame:
     global _df_metas_cache
-    if _df_metas_cache is None:
-        _df_metas_cache = dedup(get_df_metas())
+    if _df_metas_cache is not None and not force_reload:
+        return _df_metas_cache
+
+    raw = get_df_metas()
+    _df_metas_cache = sanitize_metas_df(raw)
     return _df_metas_cache
+
 
 # ╭──────────────────────  loader Custos Abertos  ────────────────────╮
 def carregar_custosabertos(force_reload: bool = False) -> pd.DataFrame:

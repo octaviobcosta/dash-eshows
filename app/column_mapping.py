@@ -334,6 +334,17 @@ SUPPLIER_TO_SETOR: Dict[str, str] = {
 }
 
 # ────────────────────────────────────────────────────────────
+# 8) COLUNAS PERCENTUAIS — dividir por 100 na carga
+# ────────────────────────────────────────────────────────────
+PERCENT_COLS = [
+    "InadimplenciaReal", "Lucratividade", "NRR", "Perdas_Operacionais",
+    "Nivel_Servico", "Churn", "TurnOver", "Ef_Atendimento",
+    "Estabilidade", "Crescimento_Sustentavel", "Conformidade_Juridica",
+    "NPS_Equipe", "NPS_Contratante", "NPS_Artistas",
+]
+
+
+# ────────────────────────────────────────────────────────────
 # Funções utilitárias
 # ────────────────────────────────────────────────────────────
 def rename_columns(df: pd.DataFrame, table: str) -> pd.DataFrame:
