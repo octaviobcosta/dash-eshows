@@ -1,0 +1,106 @@
+✅ Checklist para adicionar um novo KPI no dashboard
+1. Defina o nome do KPI
+Escolha um nome claro e direto. Exemplo:
+
+"CSAT Artistas"
+2. Adicione ao JSON de descrição (kpi_descriptions.json)
+Esse arquivo traz:
+
+Título e explicação;
+
+Fórmula com LaTeX;
+
+Variáveis com descrições;
+
+Faixas de controle (critico → excelente).
+
+📌 Exemplo completo no formato correto:
+
+jsonc
+Copiar
+Editar
+"CSAT Artistas": {
+  "title": "CSAT Artistas",
+  "description": "Mede a satisfação média dos artistas com base nas respostas da pesquisa (escala de 1 a 5).",
+  "formula": "CSAT = \\frac{\\sum\\;Notas}{Quantidade\\;de\\;Respostas}",
+  "variables": {
+    "Notas": "Notas dadas pelos artistas (de 1 a 5)",
+    "Quantidade de Respostas": "Total de respostas no período"
+  },
+  "usage": "Ajuda a entender se os artistas estão satisfeitos com o atendimento e operação da Eshows.",
+  "behavior": "Positivo",
+  "format": "number_two_decimals",
+  "responsible_area": "Operações / Sucesso do Artista",
+  "control_values": {
+    "critico":   ["-Infinity", "2.50"],
+    "ruim":      ["2.50", "3.00"],
+    "controle":  ["3.00", "3.50"],
+    "bom":       ["3.50", "4.50"],
+    "excelente": ["4.50", "Infinity"]
+  }
+}
+3. Crie a função de cálculo (em kpis_variables.py)
+A função:
+
+Recebe ano, período, mês e custom_range.
+
+Usa carregar_base para pegar os dados.
+
+Faz o cálculo.
+
+Retorna resultado, status, icon e variables_values.
+
+📌 Exemplo base:
+
+
+def get_csat_artistas_variables(ano, periodo, mes, custom_range=None, df_nps_global=None) -> dict:
+    from .modulobase import carregar_npsartistas
+    COL = "CSAT Eshows"
+    df = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas()
+    if "Data" in df.columns:
+        df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
+    # Rollback
+    df_sel, label = _buscar_periodo_valido_nps(df, ano, periodo, mes, COL)
+    if df_sel.empty:
+        return {
+            "periodo": label,
+            "resultado": "0.00",
+            "status": "controle",
+            "variables_values": {"CSAT Artistas": 0.0}
+        }
+    media = df_sel[COL].dropna().astype(float).mean()
+    media = round(media, 2)
+    status, icon = get_kpi_status("CSAT Artistas", media, kpi_descriptions)
+    return {
+        "periodo": label,
+        "resultado": f"{media:.2f}",
+        "status": status,
+        "icon": icon,
+        "variables_values": {"CSAT Artistas": media}
+    }
+4. Mapeie o KPI no dicionário de funções (KPI_GETTERS)
+Exemplo no variacoes.py ou onde você registra todos os cálculos:
+
+KPI_GETTERS = {
+    ...
+    "CSAT Artistas": get_csat_artistas_variables,
+}
+5. Adicione a lógica de descrição no painel (tooltip ou card)
+No arquivo onde monta a explicação Markdown (ex.: descricao_kpi.py):
+
+elif kpi_name == "CSAT Artistas":
+    csat_val = variables_values.get("CSAT Artistas", 0.0)
+    csat_fmt = f"{csat_val:.2f}☆"
+    computed_formula = (
+        f"CSAT = \\frac{{\\sum \\text{{Notas}}}}{{n_{{respostas}}}} = {resultado_latex}"
+    )
+    itens = [
+        f"**Período Analisado:** {periodo_texto}",
+        f"**CSAT Médio (1-5):** {csat_fmt}"
+    ]
+    general_formula = "CSAT = \\frac{\\sum \\text{Notas}}{n_{respostas}}"
+6. Adicione ao display do card (com estrela, se aplicável)
+No código que define a classe CSS do valor:
+
+if titulo in {"Score Médio do Show", "CSAT Artistas", "CSAT Operação"}:
+    valor_classes += " rating-star"

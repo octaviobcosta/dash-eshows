@@ -164,6 +164,21 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* ⭐ Score Médio do Show premium – estrela um pouco maior */
+.card-kpi-value.rating-star {
+    display: inline-block;
+}
+
+.card-kpi-value.rating-star::after {
+    content: "★";
+    margin-left: 4px;
+    color: #F7B500;
+    font-size: 1em;            /* ↑ aqui controla o tamanho (1 em = igual ao número) */
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.25);
+    line-height: 1;              /* garante que não “afunde” verticalmente */
+    vertical-align: -2%;         /* ajuste fino de altura (tweak se necessário) */
+}
+
 .card-kpi-variation {
     display: flex;
     align-items: center;
