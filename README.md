@@ -28,22 +28,22 @@ Windows 10/11 precisa do WSL 2 habilitado ⚙️ para o Docker.
 
 ## 🖥️ Como rodar localmente
 
-```bash
+```powershell
 # 1 – clonar
 $ git clone <https://github.com/octaviobcosta/dash-eshows.git>
 $ cd dash-eshows
 
 # 2 – criar venv
 $ python -m venv .venv
-$ source .venv/bin/activate          # PowerShell: .\.venv\Scripts\Activate.ps1
+$ .\.venv\Scripts\Activate.ps1
 
 # 3 – deps
 $ python -m pip install --upgrade pip
 $ pip install -r requirements.txt
 
 # 4 – copiar variáveis e preencher chaves
-$ cp .env.example .env
-$ nano .env
+$ Copy-Item .env.example .env
+$ notepad .env
 
 # 5 – subir o app
 $ python app/main.py                  # ou "python -m flask run" se for Flask
