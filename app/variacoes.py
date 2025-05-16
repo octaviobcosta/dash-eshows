@@ -16,7 +16,8 @@ from .modulobase import (
     carregar_pessoas,
     carregar_base_inad,
     carregar_ocorrencias,
-    carregar_pessoas
+    carregar_pessoas,
+    carregar_npsartistas
 )
 from .controles import get_kpi_status
 from .utils import (
@@ -1291,10 +1292,10 @@ def get_estabilidade_variables(ano, periodo, mes,
         row_sel = mensal.mean(numeric_only=True)
 
     avg_up, avg_mb, avg_mt, avg_er = map(float,
-                                         [row_sel["Uptime (%)"],
-                                          row_sel["MTBF (horas)"],
-                                          row_sel["MTTR (Min)"],
-                                          row_sel["Taxa de Erros (%)"]])
+                                        [row_sel["Uptime (%)"],
+                                         row_sel["MTBF (horas)"],
+                                         row_sel["MTTR (Min)"],
+                                         row_sel["Taxa de Erros (%)"]])
 
     # 4) Normaliza + pesos ---------------------------------------------
     MTBF_MAX, MTTR_MAX, ERROS_MAX = 200, 60, 50
@@ -3163,4 +3164,168 @@ def get_receita_pessoal_variables(
         "resultado": formatar_valor_utils(receita_por_pessoal, "numero_2f"),
         "status": status,
     }
+
+# ===========================================================================
+# KPI: CSAT Artistas (base: npsartistas)
+# ===========================================================================
+def get_csat_artistas_variables(
+    ano: int,
+    periodo: str,
+    mes: int | None,
+    custom_range=None,
+    df_nps_global=None,
+) -> dict:
+    """
+    • CSAT médio dos artistas (escala 1-5, duas casas decimais)
+    • Usa rollback até encontrar um intervalo com dados, como no NPS.
+    """
+    from .modulobase import carregar_npsartistas
+    COL_CSAT = "CSAT Eshows"          # nome exato da coluna na base
+    df_nps = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas().copy()
+
+    # Garantir que a coluna Data está em datetime
+    if "Data" in df_nps.columns:
+        df_nps["Data"] = pd.to_datetime(df_nps["Data"], errors="coerce")
+
+    if df_nps.empty or COL_CSAT not in df_nps.columns:
+        return {
+            "periodo": "Sem dados",
+            "resultado": "0.00",
+            "status": "controle",
+            "variables_values": {"CSAT Artistas": 0.0},
+        }
+
+    # --- tentativa de achar período válido --------------------------------
+    df_sel, label_periodo = _buscar_periodo_valido_nps(
+        df_nps, ano, periodo, mes, COL_CSAT
+    )
+
+    if df_sel.empty:
+        return {
+            "periodo": label_periodo,
+            "resultado": "0.00",
+            "status": "controle",
+            "variables_values": {"CSAT Artistas": 0.0},
+        }
+
+    media = pd.to_numeric(df_sel[COL_CSAT], errors="coerce").dropna().mean()
+    media = float(round(media, 2))  # duas casas
+    st, icon = get_kpi_status("CSAT Artistas", media, kpi_descriptions)
+
+    return {
+        "periodo": label_periodo,
+        "resultado": f"{media:.2f}",
+        "status": st,
+        "icon": icon,
+        "variables_values": {"CSAT Artistas": media},
+    }
+
+# ===========================================================================
+# KPI: CSAT Operação (base: npsartistas)
+# ===========================================================================
+def get_csat_operacao_variables(
+    ano: int,
+    periodo: str,
+    mes: int | None,
+    custom_range=None,
+    df_nps_global=None,
+) -> dict:
+    """
+    • CSAT médio da operação (escala 1-5, duas casas decimais)
+    • Soma as notas de operadores válidos (1 e 2), ignora 'Nenhum', 'Não', etc.
+    • Usa rollback até encontrar um intervalo com dados, como no NPS.
+    """
+    from .modulobase import carregar_npsartistas
+    COL_CSAT1 = "CSAT Operador 1"
+    COL_CSAT2 = "CSAT Operador 2"
+    COL_OP1 = "Operador 1"
+    COL_OP2 = "Operador 2"
+    IGNORAR = {"Nenhum", "Não", "Outro", "Não me Lembro", "", None}
+
+    df_nps = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas().copy()
+
+    # Garantir que a coluna Data está em datetime
+    if "Data" in df_nps.columns:
+        df_nps["Data"] = pd.to_datetime(df_nps["Data"], errors="coerce")
+
+    if df_nps.empty or COL_CSAT1 not in df_nps.columns or COL_CSAT2 not in df_nps.columns:
+        return {
+            "periodo": "Sem dados",
+            "resultado": "0.00",
+            "status": "controle",
+            "variables_values": {"CSAT Operação": 0.0},
+        }
+
+    # Cria coluna auxiliar com todos os CSATs válidos
+    csat_todos = []
+
+    for _, row in df_nps.iterrows():
+        op1 = str(row.get(COL_OP1, "")).strip()
+        op2 = str(row.get(COL_OP2, "")).strip()
+        csat1 = row.get(COL_CSAT1)
+        csat2 = row.get(COL_CSAT2)
+
+        if op1 not in IGNORAR and pd.notnull(csat1):
+            csat_todos.append(float(csat1))
+        if op2 not in IGNORAR and pd.notnull(csat2):
+            csat_todos.append(float(csat2))
+
+    # Cria DataFrame auxiliar para o rollback
+    df_aux = pd.DataFrame({"Data": df_nps["Data"], "CSAT Operação": None})
+    df_aux["CSAT Operação"] = None
+
+    idx_validos = []
+
+    for i, (_, row) in enumerate(df_nps.iterrows()):
+        op1 = str(row.get(COL_OP1, "")).strip()
+        op2 = str(row.get(COL_OP2, "")).strip()
+        csat1 = row.get(COL_CSAT1)
+        csat2 = row.get(COL_CSAT2)
+
+        if op1 not in IGNORAR and pd.notnull(csat1):
+            idx_validos.append(i)
+        elif op2 not in IGNORAR and pd.notnull(csat2):
+            idx_validos.append(i)
+
+    df_aux = df_nps.loc[idx_validos, ["Data"]].copy()
+    df_aux["CSAT"] = [
+        float(row[COL_CSAT1]) if str(row[COL_OP1]).strip() not in IGNORAR and pd.notnull(row[COL_CSAT1])
+        else float(row[COL_CSAT2]) if str(row[COL_OP2]).strip() not in IGNORAR and pd.notnull(row[COL_CSAT2])
+        else None
+        for _, row in df_nps.loc[idx_validos].iterrows()
+    ]
+
+    # Rollback: procurar o período com CSATs válidos
+    df_sel, label_periodo = _buscar_periodo_valido_nps(
+        df_aux.rename(columns={"CSAT": "CSAT Operação"}),  # adapta coluna
+        ano,
+        periodo,
+        mes,
+        "CSAT Operação"
+    )
+
+    if df_sel.empty:
+        return {
+            "periodo": label_periodo,
+            "resultado": "0.00",
+            "status": "controle",
+            "variables_values": {"CSAT Operação": 0.0},
+        }
+
+    media = pd.to_numeric(df_sel["CSAT Operação"], errors="coerce").dropna().mean()
+    media = float(round(media, 2))
+    st, icon = get_kpi_status("CSAT Operação", media, kpi_descriptions)
+
+    return {
+        "periodo": label_periodo,
+        "resultado": f"{media:.2f}",
+        "status": st,
+        "icon": icon,
+        "variables_values": {
+            "CSAT Operação": media,
+            "Total Avaliações": len(df_sel)
+        },
+    }
+
+
 

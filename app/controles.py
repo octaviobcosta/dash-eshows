@@ -219,8 +219,23 @@ zonas_de_controle = {
         'controle': [2, 2.5],
         'bom': [2.5, 3.5],
         'excelente': [3.5, float('inf')]
-    }   
-
+    },
+    'CSAT Artistas': {
+        'comportamento': 'Positivo',
+        'critico':   [-float('inf'), 2.50],
+        'ruim':      [2.50, 3.00],
+        'controle':  [3.00, 3.50],
+        'bom':       [3.50, 4.50],
+        'excelente': [4.50, float('inf')]
+    },
+    'CSAT Operação': {
+        'comportamento': 'Positivo',
+        'critico':   [-float('inf'), 2.50],
+        'ruim':      [2.50, 3.00],
+        'controle':  [3.00, 3.50],
+        'bom':       [3.50, 4.50],
+        'excelente': [4.50, float('inf')]
+    },
 }
 
 # Mapeamento de KPIs para Áreas
@@ -253,6 +268,8 @@ kpi_area_mapping = {
     'Score Médio do Show': 'Operações',
     'Churn $': 'Operações',
     'Receita por Pessoal': 'Financeiro',
+    'CSAT Artistas': 'Operações',
+    'CSAT Operação': 'Operações'
 }
 
 def sanitize_id(value: str) -> str:

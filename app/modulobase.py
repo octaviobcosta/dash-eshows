@@ -88,7 +88,7 @@ def sanitize_npsartistas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
     df = rename_columns(dedup(df_raw), "npsartistas").copy()
 
     if "Data" in df.columns:
-        df["Data"] = pd.to_datetime(df["Data"], errors="coerce").dt.date
+        df["Data"] = pd.to_datetime(df["Data"], errors="coerce")
 
     for col in ("NPS Eshows", "CSAT Eshows", "CSAT Operador 1", "CSAT Operador 2"):
         if col in df.columns:

@@ -63,6 +63,8 @@ from ..variacoes        import (
     get_ltv_cac_variables,
     get_score_medio_show_variables,
     get_churn_valor_variables,
+    get_csat_artistas_variables,
+    get_csat_operacao_variables,
 )
 
 # ── Descrições dos KPIs ───────────────────────────────────────
@@ -716,27 +718,35 @@ def criar_card_kpi_painel(
     cor = 'danger' if (is_positive == is_negative) else 'success'
     valor_formatado = formatar_valor_utils(valor_float, format_type)
 
-    # -------- NOVO: adiciona a estrelinha apenas ao Score Médio do Show ---- #
-    if titulo == "Score Médio do Show" and valor_formatado not in ("N/A", ""):
-        valor_display = f"{valor_formatado}★"
-    else:
-        valor_display = valor_formatado
-    # ----------------------------------------------------------------------- #
+    # ------------------------------------------- #
+    # Ajuste exclusivo p/ Score Médio do Show
+    # ------------------------------------------- #
+    if titulo == "Score Médio do Show":
+        valor_formatado = f"{valor_float:.2f}"   # força 2 casas → 4.85
+    # ------------------------------------------- #
+
+    # -------- NOVO: classe extra para KPIs com estrela -------------------- #
+    valor_display = valor_formatado
+    valor_classes = "card-kpi-value"
+    if titulo in {"Score Médio do Show", "CSAT Artistas", "CSAT Operação"}:
+        valor_classes += " rating-star"      # CSS cuidará da estrelinha
+    # ---------------------------------------------------------------------- #
 
     variacao_text = (
         f"{'+' if is_positive else ''}{variacao:.1f}%" if variacao is not None else "N/A"
     )
 
     status, icon_filename = get_kpi_status(titulo, valor_float, kpi_descriptions)
-    display_icon = (status not in [None, 'controle']) and (icon_filename is not None)
+    display_icon   = (status not in [None, 'controle']) and (icon_filename is not None)
     icon_path_status = f"/assets/{icon_filename}" if display_icon else None
 
-    kpi_icon_id = {'type': 'kpi-icon-painel', 'index': sanitize_id(titulo)}
+    kpi_icon_id   = {'type': 'kpi-icon-painel', 'index': sanitize_id(titulo)}
     icon_id_status = f"status-icon-painel-{sanitize_id(titulo)}"
 
     card_content = [
         dbc.CardBody([
             html.Div([
+                # -------- Título + ícone-info --------------------------------
                 html.Div(
                     [
                         html.Span(titulo, className="card-kpi-title-text"),
@@ -758,9 +768,15 @@ def criar_card_kpi_painel(
                         'margin-bottom': '0.25rem'
                     }
                 ),
-                html.H3(valor_display,  # ← usa valor_display com ou sem estrela
-                        className="card-kpi-value",
-                        style={'margin-bottom': '0.25rem'}),
+
+                # -------- Valor principal ------------------------------------
+                html.H3(
+                    valor_display,
+                    className=valor_classes,         # ← usa classes dinâmicas
+                    style={'margin-bottom': '0.25rem'}
+                ),
+
+                # -------- Linha de variação + status -------------------------
                 html.Div([
                     html.Div(
                         [
@@ -807,11 +823,14 @@ def criar_card_kpi_painel(
                     'align-items': 'center',
                     'margin-bottom': '0.25rem'
                 }),
+
+                # -------- Texto do período comparativo -----------------------
                 html.Div(f"vs {periodo_comp}", className="card-kpi-period")
             ], className="card-kpi-inner")
         ])
     ]
     return dbc.Card(card_content, className="card-kpi h-100")
+
 
 
 ############################################
@@ -1139,7 +1158,8 @@ def register_callbacks(app):
         "Score Médio do Show",
         "Churn em Valor",
         "Receita por Pessoal",
-
+        "CSAT Artistas",
+        "CSAT Operação"
     ]
     kpi_functions = {
         "CMGR": get_cmgr_variables,
@@ -1169,6 +1189,8 @@ def register_callbacks(app):
         "Score Médio do Show": get_score_medio_show_variables,
         "Churn em Valor": get_churn_valor_variables,
         "Receita por Pessoal": get_receita_pessoal_variables,
+        "CSAT Artistas": get_csat_artistas_variables,
+        "CSAT Operação": get_csat_operacao_variables,
     }
 
     # # TASK A: Adicionando aliases
@@ -2658,6 +2680,76 @@ $$
             
             # Usado para sobrescrever o padrão
             return markdown_content
+
+        elif kpi_name == "CSAT Artistas":
+            csat_val = variables_values.get("CSAT Artistas", 0.0)
+            csat_fmt = f"{csat_val:.2f}☆"
+
+            computed_formula = (
+                f"CSAT_{{Artistas}} = \\frac{{\\sum \\text{{Notas}}}}{{n_{{respostas}}}} = {csat_fmt}"
+            )
+            itens = [
+                f"Período: {periodo_texto}",
+                f"CSAT Médio (1-5): {csat_fmt}"
+            ]
+            general_formula = (
+                "CSAT_{Artistas} = \\frac{\\sum \\text{pontuacoes}}{n_{respostas}}"
+            )
+            variaveis_explicadas = (
+                "- **Notas CSAT:** Soma das respostas dos artistas para a satisfação com os shows (escala de 1 a 5 estrelas)\n"
+                "- **Quantidade de Respostas:** Total de avaliações recebidas no período"
+            )
+
+        elif kpi_name == "CSAT Operação":
+            csat_val = variables_values.get("CSAT Operação", 0.0)
+            total_avaliacoes = variables_values.get("Total Avaliações", 0)
+            csat_fmt = f"{csat_val:.2f}☆"
+
+            computed_formula = (
+                f"CSAT_{{Operacao}} = \\frac{{\\sum \\text{{Notas validas}}}}{{n_{{respostas validas}}}} = {csat_fmt}"
+            )
+            itens = [
+                f"Período: {periodo_texto}",
+                f"CSAT Médio (1-5): {csat_fmt}",
+                f"Total de avaliações válidas: {total_avaliacoes}"
+            ]
+            detalhes_reais = '\n'.join([f'- {item}' for item in itens])
+            general_formula = (
+                "CSAT_{Operacao} = \\frac{\\sum \\text{pontuacoes validas}}{n_{respostas validas}}"
+            )
+            variaveis_explicadas = (
+                "- **Notas CSAT dos Operadores:** Soma das respostas dos artistas para o atendimento dos operadores (escala de 1 a 5 estrelas)\n"
+                "- **Quantidade de Respostas Válidas:** Total de avaliações consideradas para o cálculo no período"
+            )
+            description = (
+                "O CSAT Operação mede o grau de satisfação dos artistas com o atendimento prestado pelos operadores da Eshows. "       
+                "A nota é dada em uma escala de 1 a 5 estrelas, onde valores mais altos indicam melhor experiência de atendimento."
+            )
+            markdown_content = f"""
+{description}
+
+**Área Responsável:** Operações
+
+## Como o CSAT Operação é calculado?
+
+$$
+{general_formula}
+$$
+
+### Onde:
+{variaveis_explicadas}
+
+## Aplicando CSAT Operação para a Eshows no Período
+
+### Temos:
+{detalhes_reais}
+
+$$
+{computed_formula}
+$$
+"""
+            final_markdown = "\n".join(line.lstrip() for line in textwrap.dedent(markdown_content).splitlines())
+            return final_markdown
 
         else:
             print(f"DEBUG: KPI '{kpi_name}' caiu no bloco ELSE (não mapeado explicitamente ou nome incorreto)") # DEBUG

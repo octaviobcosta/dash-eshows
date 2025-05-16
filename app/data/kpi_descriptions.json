@@ -565,7 +565,26 @@
         "excelente": ["4.2", "Infinity"]
       }
     },
-
+    "CSAT Artistas": {
+      "title": "CSAT Artistas (Customer Satisfaction Score)",
+      "description": "O CSAT Artistas mede, em média, o quão satisfeitos os artistas estão com nosso serviço, usando uma escala simples de 1 a 5 estrelas. Quanto mais próximo de 5, melhor a experiência que oferecemos.",
+      "formula": "CSAT_{Artistas} = \\frac{\\sum\\;Notas\\;CSAT}{Quantidade\\;de\\;Respostas}",
+      "variables": {
+        "Notas CSAT": "Pontuações individuais (1 a 5) dadas pelos artistas em cada pesquisa",
+        "Quantidade de Respostas": "Total de artistas que responderam à pesquisa no período"
+      },
+      "usage": "Acompanhar o CSAT ajuda a detectar rapidamente problemas de operação ou comunicação que afetam a satisfação dos artistas. Valores baixos indicam a necessidade de investigar e corrigir processos.",
+      "behavior": "Positivo",
+      "format": "number_two_decimals",
+      "responsible_area": "Operações / Sucesso do Artista",
+      "control_values": {
+        "critico": ["-Infinity", "2.50"],
+        "ruim": ["2.50", "3.00"],
+        "controle": ["3.00", "3.50"],
+        "bom": ["3.50", "4.50"],
+        "excelente": ["4.50", "Infinity"]
+      }
+    },
   "GMV": {
     "title": "GMV",
     "description": "Valor total transacionado na plataforma Eshows (soma dos valores de todos os shows realizados).",
@@ -665,6 +684,26 @@
     "title": "Erros Operacionais",
     "description": "Volume financeiro resultante de erros da equipe ou problemas de tecnologia (e.g. reembolsos).",
     "format": "monetario"
+  },
+  "CSAT Operação": {
+    "title": "CSAT Operação (Customer Satisfaction Score)",
+    "description": "O CSAT Operação mede o grau de satisfação dos artistas com o atendimento prestado pelos operadores da Eshows. A nota é dada em uma escala de 1 a 5 estrelas, onde valores mais altos indicam melhor experiência de atendimento.",
+    "formula": "CSAT_{Operação} = \\frac{\\sum\\;Notas\\;CSAT_{Operadores}}{Quantidade\\;de\\;Respostas\\;Válidas}",
+    "variables": {
+      "Notas CSAT_{Operadores}": "Pontuações individuais (1 a 5) dadas para cada operador válido em cada pesquisa",
+      "Quantidade de Respostas Válidas": "Total de avaliações em que o nome do operador foi informado corretamente"
+    },
+    "usage": "Acompanhar o CSAT Operação permite identificar rapidamente problemas ou destaques no atendimento da equipe, orientando treinamentos e reconhecimentos. Valores baixos indicam necessidade de investigação e melhoria nos processos de atendimento.",
+    "behavior": "Positivo",
+    "format": "number_two_decimals",
+    "responsible_area": "Operações",
+    "control_values": {
+      "critico":   ["-Infinity", "2.50"],
+      "ruim":      ["2.50", "3.00"],
+      "controle":  ["3.00", "3.50"],
+      "bom":       ["3.50", "4.50"],
+      "excelente": ["4.50", "Infinity"]
+    }
   }
 }
 
