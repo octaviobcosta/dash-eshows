@@ -1,0 +1,70 @@
+
+diff --git a/app/hist.py b/app/hist.py
+--- a/app/hist.py
++++ b/app/hist.py
+@@
+-from .modulobase import (
+-    carregar_base_eshows,
+-    carregar_base2 as base2,
+-    carregar_pessoas,
+-    carregar_ocorrencias,
+-    carregar_base_inad,
+-    carregar_base_inadimplencia,
+-    carregar_base2
++from .data_loader import (
++    get_eshows,
++    get_base2,
++    get_pessoas,
++    get_ocorrencias,
++    get_inad,
+ )
+@@ def historical_rpc(months: int = 12) -> dict:
+-    df_eshows = carregar_base_eshows()
++    df_eshows = get_eshows()
+
+@@ def historical_cmgr(months: int = 12) -> dict:
+-    df_eshows = carregar_base_eshows()
++    df_eshows = get_eshows()
+
+@@ def historical_lucratividade(months: int = 12) -> dict:
+-    df_eshows = carregar_base_eshows()
+-    df_base2  = carregar_base2()
++    df_eshows = get_eshows()
++    df_base2  = get_base2()
+
+@@ def historical_ebitda(months: int = 12) -> dict:
+-    df_eshows = carregar_base_eshows()
+-    df_base2  = carregar_base2()
++    df_eshows = get_eshows()
++    df_base2  = get_base2()
+
+@@ def historical_nrr(months=12):
+-    df_eshows = carregar_base_eshows()
++    df_eshows = get_eshows()
+
+@@ def historical_perdas_operacionais(months=12) -> dict:
+-    df_eshows = carregar_base_eshows()
+-    df_b2 = carregar_base2()
++    df_eshows = get_eshows()
++    df_b2 = get_base2()
+
+diff --git a/app/variacoes.py b/app/variacoes.py
+--- a/app/variacoes.py
++++ b/app/variacoes.py
+@@
+-from .modulobase import (
+-    carregar_base_eshows,
+-    carregar_base2,
+-    carregar_pessoas,
+-    carregar_base_inad,
+-    carregar_ocorrencias,
+-    carregar_pessoas,
+-    carregar_npsartistas
++from .data_loader import (
++    get_eshows,
++    get_base2,
++    get_pessoas,
++    get_inad,
++    get_ocorrencias,
++    get_npsartistas,
+ )
