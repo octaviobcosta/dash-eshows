@@ -408,20 +408,23 @@
   },
   "NPS Artistas": {
     "title": "NPS Artistas",
-    "description": "Avalia o nível de confiança dos artistas na Eshows, medindo a disposição deles em recomendar a plataforma para outros artistas.",
-    "formula": "\\text{NPS Artistas}(\\%) = \\text{Média de NPS dos Artistas} \\times 100",
+    "description": "Net Promoter Score dos artistas: diferença entre a porcentagem de Promotores (notas 9–10) e Detratores (0–6). Mede o grau de lealdade e recomendação dos artistas à plataforma.",
+    "formula": "NPS = \\%\\text{Promotores} - \\%\\text{Detratores}",
     "variables": {
-      "NPS Artistas": "Notas de satisfação dos artistas (entre -1 e 1)"
+      "Total respostas": "Número de avaliações no período",
+      "%Promotores":     "Respostas com nota 9 ou 10, em porcentagem",
+      "%Detratores":     "Respostas com nota 0 a 6, em porcentagem",
+      "%Passivos":       "Respostas com nota 7 ou 8, em porcentagem"
     },
-    "usage": "Avaliar a satisfação dos artistas e orientar melhorias.",
+    "usage": "Acompanhar a satisfação/engajamento dos artistas e guiar melhorias de produto.",
     "behavior": "Positivo",
-    "format": "percent",
+    "format": "number",                    
     "responsible_area": "Produto",
     "control_values": {
-      "critico": ["-Infinity", "0"],
-      "ruim": ["0", "30"],
-      "controle": ["30", "50"],
-      "bom": ["50", "70"],
+      "critico":   ["-Infinity", "0"],
+      "ruim":      ["0", "30"],
+      "controle":  ["30", "50"],
+      "bom":       ["50", "70"],
       "excelente": ["70", "Infinity"]
     }
   },

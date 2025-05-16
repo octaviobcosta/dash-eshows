@@ -917,7 +917,7 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         periodo=periodo,
         mes=mes_selecionado if periodo == "Mês Aberto" else None,
         custom_range=custom_range if periodo == "custom-range" else None,
-        df_base2_global=df_base2_global
+        df_nps_global=df_base2_global
     )
     try:
         val_nps_artistas = float(nps_artistas_data["resultado"].replace("%", ""))
@@ -946,7 +946,7 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         periodo=periodo,
         mes=mes_selecionado if periodo == "Mês Aberto" else None,
         custom_range=custom_range if periodo == "custom-range" else None,
-        df_base2_global=df_base2_global
+        df_nps_global=df_base2_global
     )
     try:
         val_nps_equipe = float(nps_equipe_data["resultado"].replace("%", ""))
@@ -4222,7 +4222,7 @@ def register_okrs_callbacks(app):
             periodo=periodo,
             mes=mes_selecionado if periodo == "Mês Aberto" else None,
             custom_range=custom_range if periodo == "custom-range" else None,
-            df_base2_global=df_base2_global
+            df_nps_global=df_base2_global
         )
         try:
             val_art = float(nps_art_data["resultado"].replace("%", ""))
@@ -4252,7 +4252,7 @@ def register_okrs_callbacks(app):
             periodo=periodo,
             mes=mes_selecionado if periodo == "Mês Aberto" else None,
             custom_range=custom_range if periodo == "custom-range" else None,
-            df_base2_global=df_base2_global
+            df_nps_global=df_base2_global
         )
         try:
             val_eq = float(nps_eq_data["resultado"].replace("%", ""))

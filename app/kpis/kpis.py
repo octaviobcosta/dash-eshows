@@ -2220,17 +2220,36 @@ def register_callbacks(app):
                 "Autonomia do Usuário = \\frac{Propostas_{Usuários}}{Propostas_{Usuários} + Propostas_{Internas}} \\times 100"
             )
 
-        elif kpi_name == 'NPS Artistas':
-            resultado_num = to_float_percent_local(resultado)
-            resultado_latex = f"{resultado_num:,.2f}\\%"
+        elif kpi_name == "NPS Artistas":
+            # ──────────────────────────────────────────────────────────────
+            # 1) Conversão segura do resultado (pode vir "", "42 %", etc.)
+            # ──────────────────────────────────────────────────────────────
+            resultado_num = parse_valor_formatado(resultado) or 0.0
+            resultado_latex = f"{resultado_num:,.2f}"
 
+            # ──────────────────────────────────────────────────────────────
+            # 2) Valores vindos da função de KPI
+            # ──────────────────────────────────────────────────────────────
+            prom_pct = variables_values.get("%Promotores", 0.0)
+            det_pct  = variables_values.get("%Detratores", 0.0)
+            pas_pct  = variables_values.get("%Passivos",   0.0)
+
+            # ──────────────────────────────────────────────────────────────
+            # 3) Fórmulas em LaTeX e bullets
+            # ──────────────────────────────────────────────────────────────
             computed_formula = (
-                f"NPS Artistas = \\text{{Media de NPS dos Artistas}} \\times 100 = {resultado_latex}"
+                "NPS = \\%\\text{Promotores} - \\%\\text{Detratores} "
+                f"= {prom_pct:.1f}\\% - {det_pct:.1f}\\% = {resultado_latex}"
             )
+
             itens = [
-                f"**Período:** {periodo_texto}"
+                f"**Período:** {periodo_texto}",
+                f"Promotores: **{formatar_valor_utils(prom_pct, 'percentual')}**",
+                f"Detratores: **{formatar_valor_utils(det_pct, 'percentual')}**",
+                f"Neutros: **{formatar_valor_utils(pas_pct, 'percentual')}**",
             ]
-            general_formula = "NPS Artistas = \\text{Media de NPS dos Artistas} \\times 100"
+
+            general_formula = "NPS = \\%\\text{Promotores} - \\%\\text{Detratores}"
 
         elif kpi_name == 'NPS Equipe':
             resultado_num = to_float_percent_local(resultado)

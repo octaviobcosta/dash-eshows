@@ -2,6 +2,7 @@
 # variacoes.py
 # =======================
 from __future__ import annotations
+from typing import Dict
 import pandas as pd
 import calendar
 from datetime import datetime, timedelta, date
@@ -94,109 +95,123 @@ def _buscar_periodo_valido_nps(
     ano: int,
     periodo: str,
     mes: int | None,
-    coluna_nps: str,
+    coluna_nps: str,                # ex.: 'NPS Eshows'
+    custom_range: tuple | None = None,   #  ←  NOVO
     max_back: int = 8,
 ) -> tuple[pd.DataFrame, str]:
     """
-    Procura o intervalo mais recente com dados completos na coluna NPS.
+    Procura o intervalo mais recente com dados completos na coluna NPS (notas 0-10).
     Lógica:
       • Trimestre: trimestre → bimestre → mês → trimestre anterior…
       • YTD      : recua mês a mês até encontrar dados.
       • Mês      : recua mês a mês.
-    Retorna (df_filtrado, label_periodo).  DataFrame vazio se nada encontrado.
+    Retorna (df_filtrado_com_notas_originais, label_periodo). DataFrame vazio se nada encontrado.
     """
+    try:
+        max_back = int(max_back)
+    except (ValueError, TypeError):
+        max_back = 8 # Fallback para o valor padrão se a conversão falhar
+
     tentativas = 0
     label_periodo = "Sem dados"
 
+    if "Data" not in df.columns or not pd.api.types.is_datetime64_any_dtype(df["Data"]):
+        if "Data" in df.columns:
+            df = df.copy()
+            df["Data"] = pd.to_datetime(df["Data"], errors='coerce')
+            if df["Data"].isnull().all():
+                return pd.DataFrame(), label_periodo
+        else:
+            return pd.DataFrame(), label_periodo
+
     while tentativas < max_back:
+        df_sel = pd.DataFrame()
         # --------------------------- TRIMESTRES ----------------------------
         if "Trimestre" in periodo:
             tri = int(periodo.split("°")[0])
-
-            for ini, fim, lbl in _gerar_ranges_trimestre(ano, tri):
+            for ini, fim, lbl_interno in _gerar_ranges_trimestre(ano, tri):
                 mask = (df["Data"] >= pd.Timestamp(ini)) & (df["Data"] <= pd.Timestamp(fim))
-                df_sel = df.loc[mask, [coluna_nps]].copy()
-
-                if not df_sel.empty:
-                    serie = pd.to_numeric(
-                        df_sel[coluna_nps].apply(
-                            lambda x: parse_valor_formatado(x) if isinstance(x, str) else x
-                        ),
-                        errors="coerce",
-                    ).dropna()
-
-                    # --- corrigir escala ----------------------------------
-                    if not serie.empty and abs(serie.max()) <= 1 and abs(serie.min()) <= 1:
-                        serie *= 100
-                    # -------------------------------------------------------
-
-                    if not serie.empty:
-                        df_sel[coluna_nps] = serie
-                        return df_sel, lbl
-
-            # nenhum dado => retrocede um trimestre
-            tri = 4 if tri == 1 else tri - 1
-            if tri == 4:
+                df_temp = df.loc[mask, ["Data", coluna_nps]].copy()
+                if not df_temp.empty:
+                    serie_notas = pd.to_numeric(df_temp[coluna_nps], errors="coerce").dropna()
+                    if not serie_notas.empty:
+                        df_temp = df_temp.loc[serie_notas.index]
+                        df_sel = df_temp
+                        label_periodo = lbl_interno
+                        return df_sel, label_periodo
+            if tri == 1:
+                tri = 4
                 ano -= 1
+            else:
+                tri -=1
             periodo = f"{tri}° Trimestre"
 
         # --------------------------- Y T D ---------------------------------
         elif periodo.upper() in {"YTD", "Y T D", "ANO CORRENTE"}:
-            if mes is None or mes <= 1:
-                break
+            if mes is None or mes <= 0:
+                if ano <= df["Data"].dt.year.min(): break
+                ano -=1
+                mes = 12
+                periodo = "YTD"
 
             ini = date(ano, 1, 1)
             fim = _last_day(ano, mes)
             mask = (df["Data"] >= pd.Timestamp(ini)) & (df["Data"] <= pd.Timestamp(fim))
-            df_sel = df.loc[mask, [coluna_nps]].copy()
-
-            serie = pd.to_numeric(
-                df_sel[coluna_nps].apply(
-                    lambda x: parse_valor_formatado(x) if isinstance(x, str) else x
-                ),
-                errors="coerce",
-            ).dropna()
-
-            # --- corrigir escala ------------------------------------------
-            if not serie.empty and abs(serie.max()) <= 1 and abs(serie.min()) <= 1:
-                serie *= 100
-            # ---------------------------------------------------------------
-
-            if not serie.empty:
-                df_sel[coluna_nps] = serie
-                lbl = f"YTD até {calendar.month_abbr[mes]} {ano}"
-                return df_sel, lbl
-
-            mes -= 1  # recua mês
-        # --------------------------- MÊS ABERTO ----------------------------
-        else:
-            if mes is None:
-                break
-            mask = (df["Data"].dt.year == ano) & (df["Data"].dt.month == mes)
-            df_sel = df.loc[mask, [coluna_nps]].copy()
-
-            serie = pd.to_numeric(
-                df_sel[coluna_nps].apply(
-                    lambda x: parse_valor_formatado(x) if isinstance(x, str) else x
-                ),
-                errors="coerce",
-            ).dropna()
-
-            # --- corrigir escala ------------------------------------------
-            if not serie.empty and abs(serie.max()) <= 1 and abs(serie.min()) <= 1:
-                serie *= 100
-            # ---------------------------------------------------------------
-
-            if not serie.empty:
-                df_sel[coluna_nps] = serie
-                lbl = f"{calendar.month_abbr[mes]} {ano}"
-                return df_sel, lbl
-
-            # recua mês
-            mes -= 1
-            if mes == 0:
+            df_temp = df.loc[mask, ["Data", coluna_nps]].copy()
+            if not df_temp.empty:
+                serie_notas = pd.to_numeric(df_temp[coluna_nps], errors="coerce").dropna()
+                if not serie_notas.empty:
+                    df_temp = df_temp.loc[serie_notas.index]
+                    df_sel = df_temp
+                    label_periodo = f"YTD até {calendar.month_abbr[mes]} {ano}"
+                    return df_sel, label_periodo
+            if mes == 1:
+                if ano <= df["Data"].dt.year.min(): break
                 ano -= 1
                 mes = 12
+            else:
+                mes -=1
+        # --------------------------- MÊS ABERTO ou CUSTOM-RANGE----------------------------
+        else: 
+            processar_periodo = False
+            # custom_range é um parâmetro da função, então está no escopo.
+            # No entanto, seu valor só é relevante se periodo == "custom-range".
+            if periodo == "custom-range" and custom_range:
+                ini, fim = custom_range
+                label_periodo = f"{pd.to_datetime(ini):%d/%m/%y} a {pd.to_datetime(fim):%d/%m/%y}"
+                processar_periodo = True
+            elif periodo == "Ano Completo":
+                ini, fim = date(ano, 1, 1), date(ano, 12, 31)
+                label_periodo = f"Ano de {ano}"
+                processar_periodo = True
+            elif periodo == "Mês Aberto" and mes is not None and mes > 0:
+                ini, fim = date(ano, mes, 1), _last_day(ano, mes)
+                label_periodo = f"{calendar.month_abbr[mes]} {ano}"
+                processar_periodo = True
+            else: 
+                break 
+
+            if processar_periodo:
+                mask = (df["Data"] >= pd.Timestamp(ini)) & (df["Data"] <= pd.Timestamp(fim))
+                df_temp = df.loc[mask, ["Data", coluna_nps]].copy()
+                if not df_temp.empty:
+                    serie_notas = pd.to_numeric(df_temp[coluna_nps], errors="coerce").dropna()
+                    if not serie_notas.empty:
+                        df_temp = df_temp.loc[serie_notas.index]
+                        df_sel = df_temp
+                        return df_sel, label_periodo
+            
+            if periodo == "Mês Aberto":
+                if mes == 1:
+                    if ano <= df["Data"].dt.year.min(): break
+                    ano -=1
+                    mes = 12
+                elif mes is not None: 
+                    mes -=1
+                else: 
+                    break
+            elif processar_periodo: # Se custom-range ou Ano Completo e não encontrou, sai.
+                break
 
         tentativas += 1
 
@@ -2186,26 +2201,71 @@ def get_nps_artistas_variables(
     ano: int,
     periodo: str,
     mes: int | None,
-    custom_range=None,  # mantido para compat
-    df_base2_global: pd.DataFrame | None = None,
+    custom_range=None,
+    df_nps_global:  pd.DataFrame | None = None,
+    df_base2_global: pd.DataFrame | None = None,   # compat legado
 ) -> dict:
-    df_base2 = df_base2_global if df_base2_global is not None else carregar_base2()
+    from .modulobase import carregar_npsartistas
 
-    if df_base2 is None or df_base2.empty:
-        return {"periodo": "Sem dados", "resultado": "0.00%", "status": "controle", "variables_values": {}}
+    COL_NPS_NOTAS = "NPS Eshows"
 
-    df_ok, label = _buscar_periodo_valido_nps(df_base2, ano, periodo, mes, "NPS Artistas")
+    # ------------------------------------------------------------------
+    # 1) escolhe o DataFrame correto
+    # ------------------------------------------------------------------
+    if df_nps_global is not None and COL_NPS_NOTAS in df_nps_global.columns:
+        df_nps_base = df_nps_global.copy()
+    elif df_base2_global is not None and COL_NPS_NOTAS in df_base2_global.columns:
+        df_nps_base = df_base2_global.copy()       # raro, mas cobre fallback
+    else:
+        df_nps_base = carregar_npsartistas().copy()
 
-    if df_ok.empty:
-        return {"periodo": "Sem dados", "resultado": "0.00%", "status": "controle", "variables_values": {}}
+    if "Data" in df_nps_base.columns:
+        df_nps_base["Data"] = pd.to_datetime(df_nps_base["Data"], errors="coerce")
 
-    nps_val = df_ok["NPS Artistas"].mean()
-    st, icon = get_kpi_status("NPS Artistas", nps_val, kpi_descriptions)
+    COL_NPS_NOTAS = "NPS Eshows" # Nome da coluna com as notas 0-10
+
+    if df_nps_base.empty or COL_NPS_NOTAS not in df_nps_base.columns:
+        return {"periodo": "Sem dados", "resultado": "0", "status": "controle", "variables_values": {}}
+
+    # _buscar_periodo_valido_nps retorna df com notas originais (0-10)
+    df_ok_com_notas, label = _buscar_periodo_valido_nps(
+        df_nps_base,
+        ano,
+        periodo,
+        mes,
+        COL_NPS_NOTAS,
+        custom_range=custom_range
+    )
+
+    if df_ok_com_notas.empty:
+        return {"periodo": label, "resultado": "0", "status": "controle", "variables_values": {}}
+
+    notas = pd.to_numeric(df_ok_com_notas[COL_NPS_NOTAS], errors='coerce').dropna()
+    
+    if notas.empty:
+        return {"periodo": label, "resultado": "0", "status": "controle", "variables_values": {}}
+
+    total_respostas = len(notas)
+    promotores_count = notas[notas >= 9].count()
+    detratores_count = notas[notas <= 6].count()
+    
+    prom_pct = (promotores_count / total_respostas) * 100 if total_respostas > 0 else 0
+    det_pct = (detratores_count / total_respostas) * 100 if total_respostas > 0 else 0
+    pas_pct = 100 - prom_pct - det_pct
+
+    nps_score = prom_pct - det_pct
+    
+    st, icon = get_kpi_status("NPS Artistas", nps_score, kpi_descriptions)
 
     return {
-        "variables_values": {},
+        "variables_values": {
+            "%Promotores": prom_pct,
+            "%Detratores": det_pct,
+            "%Passivos": pas_pct,
+            "Total Respostas": total_respostas
+        },
         "periodo": label,
-        "resultado": formatar_valor_utils(nps_val, "percentual"),
+        "resultado": formatar_valor_utils(nps_score, "numero"), 
         "status": st,
         "icon": icon,
     }
@@ -2217,26 +2277,51 @@ def get_nps_equipe_variables(
     ano: int,
     periodo: str,
     mes: int | None,
-    custom_range=None,
-    df_base2_global: pd.DataFrame | None = None,
+    custom_range=None,  # mantido para compatibilidade
+    df_nps_global: pd.DataFrame | None = None, 
 ) -> dict:
-    df_base2 = df_base2_global if df_base2_global is not None else carregar_base2()
+    from .modulobase import carregar_npsartistas 
+    df_nps_base = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas().copy()
 
-    if df_base2 is None or df_base2.empty:
-        return {"periodo": "Sem dados", "resultado": "0.00%", "status": "controle", "variables_values": {}}
+    if "Data" in df_nps_base.columns:
+        df_nps_base["Data"] = pd.to_datetime(df_nps_base["Data"], errors="coerce")
 
-    df_ok, label = _buscar_periodo_valido_nps(df_base2, ano, periodo, mes, "NPS Equipe")
+    COL_NPS_NOTAS = "NPS Equipe" # Nome da coluna com as notas 0-10
 
-    if df_ok.empty:
-        return {"periodo": "Sem dados", "resultado": "0.00%", "status": "controle", "variables_values": {}}
+    if df_nps_base.empty or COL_NPS_NOTAS not in df_nps_base.columns:
+        return {"periodo": "Sem dados", "resultado": "0", "status": "controle", "variables_values": {}}
 
-    nps_val = df_ok["NPS Equipe"].mean()
-    st, icon = get_kpi_status("NPS Equipe", nps_val, kpi_descriptions)
+    df_ok_com_notas, label = _buscar_periodo_valido_nps(df_nps_base, ano, periodo, mes, COL_NPS_NOTAS)
+
+    if df_ok_com_notas.empty:
+        return {"periodo": label, "resultado": "0", "status": "controle", "variables_values": {}}
+
+    notas = pd.to_numeric(df_ok_com_notas[COL_NPS_NOTAS], errors='coerce').dropna()
+
+    if notas.empty:
+        return {"periodo": label, "resultado": "0", "status": "controle", "variables_values": {}}
+        
+    total_respostas = len(notas)
+    promotores_count = notas[notas >= 9].count()
+    detratores_count = notas[notas <= 6].count()
+
+    prom_pct = (promotores_count / total_respostas) * 100 if total_respostas > 0 else 0
+    det_pct = (detratores_count / total_respostas) * 100 if total_respostas > 0 else 0
+    pas_pct = 100 - prom_pct - det_pct
+
+    nps_score = prom_pct - det_pct
+
+    st, icon = get_kpi_status("NPS Equipe", nps_score, kpi_descriptions)
 
     return {
-        "variables_values": {},
+        "variables_values": {
+            "%Promotores": prom_pct,
+            "%Detratores": det_pct,
+            "%Passivos": pas_pct,
+            "Total Respostas": total_respostas
+        },
         "periodo": label,
-        "resultado": formatar_valor_utils(nps_val, "percentual"),
+        "resultado": formatar_valor_utils(nps_score, "numero"),
         "status": st,
         "icon": icon,
     }

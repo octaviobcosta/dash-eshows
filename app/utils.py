@@ -19,7 +19,8 @@ from .modulobase import (
     carregar_base2,
     carregar_ocorrencias,
     carregar_base_inad,
-    carregar_pessoas
+    carregar_pessoas,
+    carregar_npsartistas
 )
 
 # =================================================================================
@@ -34,8 +35,9 @@ try:
     df_ocorrencias = carregar_ocorrencias()
     df_inad = carregar_base_inad()
     df_pessoas = carregar_pessoas()
+    df_npsartistas = carregar_npsartistas()
 except Exception:
-    df_eshows = df_base2 = df_ocorrencias = df_inad = df_pessoas = None
+    df_eshows = df_base2 = df_ocorrencias = df_inad = df_pessoas = df_npsartistas = None
 
 def ensure_grupo_col(df):
     """
@@ -75,7 +77,7 @@ kpi_bases_mapping = {
     "Perfis Completos": ["base2"],
     "Take Rate": ["eshows"],
     "Autonomia do Usuário": ["base2"],
-    "NPS Artistas": ["base2"],
+    "NPS Artistas": ["npsartistas"],
     "NPS Equipe": ["base2"],
     "Conformidade Jurídica": ["base2"],
     "Eficiência de Atendimento": ["base2"],
@@ -83,6 +85,7 @@ kpi_bases_mapping = {
     "Sucesso da Implantação": ["eshows", "base2"],
     "Roll 6M Growth": ["eshows"],
     "Eficiência Comercial": ["eshows", "base2"],
+
 }
 
 # =================================================================================
