@@ -35,7 +35,6 @@ import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
 
 # ― Módulos internos ------------------------------------------------------------
-from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
     carregar_base_eshows,
     carregar_eshows_excluidos,  # para exportar registros descartados
@@ -69,7 +68,7 @@ from .utils import (
     calcular_variacao_percentual,
     ensure_grupo_col
 )
-from .kpis_charts import generate_kpi_figure
+from .utils import profile_callback
 
 # ==============================================================================
 # 2) CONFIGURAÇÕES GLOBAIS
@@ -382,21 +381,6 @@ def estado_para_arquivo_bandeira(nome_estado: str) -> str:
     )
     return f"{nome_limpo}.png"
 
-# ==============================================================================
-# 8) EXPOSIÇÃO GLOBAL DO HIST_KPI_MAP (para kpis_charts.py)
-# ==============================================================================
-import flask
-
-try:
-    flask.current_app.HIST_KPI_MAP = HIST_KPI_MAP  # dentro de app Flask
-except RuntimeError:  # sem contexto Flask – fallback
-    globals()["HIST_KPI_MAP"] = HIST_KPI_MAP
-
-# ==============================================================================
-# 9) GC PREVENTIVO (opcional)
-# ==============================================================================
-gc.collect()
-logger.info("Coleta de lixo executada.")
 
 
 # =================================================================================
@@ -1726,6 +1710,25 @@ app = Dash(
     assets_folder=assets_path,
 )
 
+# Inicializa o Flask-Caching
+from .cache_helper import init_cache, cache
+init_cache(app.server)
+
+# Após inicializar o cache, importe módulos que dependem dele
+from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
+from .kpis_charts import generate_kpi_figure
+
+# Exposição global de ``HIST_KPI_MAP`` para reutilização em outros módulos
+import flask
+try:
+    flask.current_app.HIST_KPI_MAP = HIST_KPI_MAP
+except RuntimeError:
+    globals()["HIST_KPI_MAP"] = HIST_KPI_MAP
+
+# GC preventivo simples
+gc.collect()
+logger.info("Coleta de lixo executada.")
+
 #######################################
 # DEFINIÇÃO DO LAYOUT PRINCIPAL
 #######################################
@@ -1811,6 +1814,7 @@ def render_page_content(pathname):
     Input("btn-atualiza-base", "n_clicks"),
     prevent_initial_call=True
 )
+@profile_callback
 def atualizar_base(n):
     if not n:
         raise dash.exceptions.PreventUpdate
