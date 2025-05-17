@@ -3557,8 +3557,6 @@ if __name__ == "__main__":
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()       # libera o tracer
 
-    print(f"Memória atual: {current/1e6:.2f} MB | Pico: {peak/1e6:.2f} MB")
-
 
 
 
