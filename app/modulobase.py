@@ -53,6 +53,26 @@ _df_metas_cache:             pd.DataFrame | None = None
 _df_custosabertos_cache:     pd.DataFrame | None = None          # NOVO
 _df_npsartistas_cache:       pd.DataFrame | None = None          # NOVO
 
+# Colunas mantidas ao salvar em Parquet
+COLUMNS_DASH: dict[str, list[str] | None] = {
+    "baseeshows": [
+        "Id do Show", "Id da Casa", "Casa", "Cidade", "Estado", "Data",
+        "Nome do Artista", "Grupo", "Valor Total do Show", "Valor Artista",
+        "Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
+        "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais",
+        "Avaliação", "Ano", "Mês", "Dia do Show",
+    ],
+    "base2": ["Data", "Ano", "Mês", "Faturamento", "Custos", "Imposto", "LucroLiquido"],
+    "pessoas": [
+        "ID", "Nome", "Funcao", "DataInicio", "DataFinal",
+        "Salário Mensal", "AnoInicio", "MesInicio", "AnoFinal", "MesFinal", "DataSaida",
+    ],
+    "ocorrencias": None,
+    "boletocasas": ["ID_Boleto", "Casa", "Valor", "Valor Real", "Status", "Data Vencimento"],
+    "boletoartistas": ["ID_Boleto", "NOME", "Adiantamento", "Valor Bruto", "ID", "Data Vencimento"],
+    "npsartistas": ["Data", "NPS Eshows", "CSAT Eshows", "CSAT Operador 1", "CSAT Operador 2"],
+}
+
 # ╭───────────────────────────  helpers  ─────────────────────────────╮
 def _slug(text: str) -> str:
     text = unicodedata.normalize("NFD", str(text))
@@ -63,21 +83,19 @@ def otimizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
 
-    df2 = df.copy()
+    for col in df.select_dtypes(include="int64").columns:
+        df[col] = pd.to_numeric(df[col], downcast="integer", errors="ignore")
+    for col in df.select_dtypes(include="float64").columns:
+        df[col] = pd.to_numeric(df[col], downcast="float", errors="ignore")
 
-    for col in df2.select_dtypes(include="int64").columns:
-        df2[col] = pd.to_numeric(df2[col], downcast="integer")
-    for col in df2.select_dtypes(include="float64").columns:
-        df2[col] = pd.to_numeric(df2[col], downcast="float")
-
-    for col in df2.select_dtypes(include="object").columns:
+    for col in df.select_dtypes(include="object").columns:
         try:
-            nunq = df2[col].nunique(dropna=False)
-            if nunq and nunq / len(df2) < 0.5:
-                df2[col] = df2[col].astype("category")
+            nunq = df[col].nunique(dropna=False)
+            if nunq and nunq / len(df) < 0.5:
+                df[col] = df[col].astype("category", errors="ignore")
         except TypeError:
             pass
-    return df2
+    return df
 
 # ──────────────────  SANITIZE NPS Artistas  ───────────────────────
 def sanitize_npsartistas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
