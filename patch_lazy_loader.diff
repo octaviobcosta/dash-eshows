@@ -1,0 +1,66 @@
+
+diff --git a/app/main.py b/app/main.py
+--- a/app/main.py
++++ b/app/main.py
+@@ -38,7 +38,12 @@
+ from .modulobase import (
+-    carregar_base_eshows,
+-    carregar_eshows_excluidos,  # para exportar registros descartados
+-    carregar_base2,
+-    carregar_ocorrencias,
++    carregar_eshows_excluidos,  # para exportar registros descartados
+ )
++from .data_loader import (
++    get_eshows,
++    get_base2,
++    get_ocorrencias,
++)
+@@
+ logger.info("Carregando bases do Supabase…")
+-df_eshows = carregar_base_eshows()
+-df_base2 = carregar_base2()
+-df_ocorrencias = carregar_ocorrencias()
++df_eshows = get_eshows()
++df_base2 = get_base2()
++df_ocorrencias = get_ocorrencias()
+ logger.info("Bases carregadas com sucesso.")
+diff --git a/app/utils.py b/app/utils.py
+--- a/app/utils.py
++++ b/app/utils.py
+@@
+ from .modulobase import (
+-    carregar_base_eshows,
+     carregar_eshows_excluidos,
+-    carregar_base2,
+-    carregar_ocorrencias,
+-    carregar_base_inad,
+-    carregar_pessoas,
+-    carregar_npsartistas
++    carregar_eshows_excluidos,
+ )
++from .data_loader import (
++    get_eshows,
++    get_base2,
++    get_ocorrencias,
++    get_inad,
++    get_pessoas,
++    get_npsartistas,
++)
+@@
+-try:
+-    df_eshows = carregar_base_eshows()
+-    df_base2 = carregar_base2()
+-    df_ocorrencias = carregar_ocorrencias()
+-    df_inad = carregar_base_inad()
+-    df_pessoas = carregar_pessoas()
+-    df_npsartistas = carregar_npsartistas()
+-except Exception:
+-    df_eshows = df_base2 = df_ocorrencias = df_inad = df_pessoas = df_npsartistas = None
++
++# Lazy-load via funções do data_loader
++df_eshows = get_eshows()
++df_base2 = get_base2()
++df_ocorrencias = get_ocorrencias()
++df_inad = get_inad()
++df_pessoas = get_pessoas()
++df_npsartistas = get_npsartistas()
