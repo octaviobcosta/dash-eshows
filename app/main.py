@@ -39,11 +39,9 @@ tracemalloc.start()
 # ― Módulos internos ------------------------------------------------------------
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
-    carregar_base_eshows,
     carregar_eshows_excluidos,  # para exportar registros descartados
-    carregar_base2,
-    carregar_ocorrencias,
 )
+from . import data_loader
 from .utils import (
     formatar_range_legivel,
     formatar_valor_utils,
@@ -342,10 +340,12 @@ external_stylesheets = [
 # ==============================================================================
 # 6) CARREGAMENTO DAS BASES PRINCIPAIS
 # ==============================================================================
+from . import data_loader
+
 logger.info("Carregando bases do Supabase…")
-df_eshows = carregar_base_eshows()
-df_base2 = carregar_base2()
-df_ocorrencias = carregar_ocorrencias()
+df_eshows = data_loader.get_eshows()
+df_base2 = data_loader.get_base2()
+df_ocorrencias = data_loader.get_ocorrencias()
 logger.info("Bases carregadas com sucesso.")
 
 # ― Ajustes auxiliares para Novos Clientes -------------------------------------
@@ -552,9 +552,8 @@ import pandas as pd
 
 from .modulobase import (
     carregar_pessoas,
-    carregar_base2,
-    carregar_base_eshows,
 )
+from . import data_loader
 from .variacoes  import get_churn_variables, get_rpc_variables
 from .utils      import (
     get_period_start,
@@ -603,12 +602,12 @@ def metricas_rh_quick(
     df_b2 = (
         df_base2_global.copy()
         if df_base2_global is not None and not df_base2_global.empty
-        else carregar_base2()
+        else data_loader.get_base2()
     )
     df_e  = (
         df_eshows_global.copy()
         if df_eshows_global is not None and not df_eshows_global.empty
-        else carregar_base_eshows()
+        else data_loader.get_eshows()
     )
 
     _to_dt = lambda s: pd.to_datetime(s, errors="coerce")
@@ -1817,9 +1816,9 @@ def atualizar_base(n):
     if not n:
         raise dash.exceptions.PreventUpdate
     global df_eshows, df_base2, df_ocorrencias
-    df_eshows = carregar_base_eshows()
-    df_base2 = carregar_base2()
-    df_ocorrencias = carregar_ocorrencias()
+    df_eshows = data_loader.get_eshows()
+    df_base2 = data_loader.get_base2()
+    df_ocorrencias = data_loader.get_ocorrencias()
     return {"status": "Bases atualizadas com sucesso!"}, True
 
 # ================== Callbacks de filtros (Dashboard) ==================

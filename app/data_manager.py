@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime as _dt
 import logging
 import os
+import gc
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -48,10 +49,16 @@ def _load_parquet(table: str) -> pd.DataFrame | None:
 
 def _save_parquet(table: str, df: pd.DataFrame) -> None:
     try:
-        df.to_parquet(_cache_path(table),
-                      index=False,
-                      compression="zstd",
-                      use_dictionary=True)
+        from .modulobase import COLUMNS_DASH
+        cols = COLUMNS_DASH.get(table.lower())
+        if cols:
+            df = df[[c for c in cols if c in df.columns]]
+        df.to_parquet(
+            _cache_path(table),
+            index=False,
+            compression="zstd",
+            use_dictionary=True,
+        )
     except Exception:
         pass
 
@@ -95,7 +102,8 @@ def _fetch(table: str) -> pd.DataFrame:
     if supa is None:
         return pd.DataFrame()
 
-    STEP, page, pages = 1000, 0, []
+    STEP, page = 1000, 0
+    result = pd.DataFrame()
     while True:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
@@ -110,16 +118,17 @@ def _fetch(table: str) -> pd.DataFrame:
         data = resp.data or []
         if not data:
             break
-        pages.append(pd.DataFrame(data))
+        df_page = pd.DataFrame(data)
+        result = pd.concat([result, df_page], ignore_index=True, copy=False)
+        gc.collect()
         if len(data) < STEP:
             break
         page += 1
 
-    if not pages:
-        return pd.DataFrame()
+    if result.empty:
+        return result
 
-    df = pd.concat(pages, ignore_index=True)
-    df = divide_cents(dedup(rename_columns(df, table)), table)
+    df = divide_cents(dedup(rename_columns(result, table)), table)
 
     for col in CENTS_MAPPING.get(table.lower(), []):
         if col in df.columns:
@@ -143,6 +152,8 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
             return df_disk
 
     df_live = _fetch(table)
+    from .modulobase import otimizar_tipos
+    df_live = otimizar_tipos(df_live)
     _cache[table] = df_live
     _save_parquet(table, df_live)
     return df_live

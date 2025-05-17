@@ -13,31 +13,13 @@ from dateutil.relativedelta import relativedelta
 # =================================================================================
 # IMPORTAÇÃO DE FUNÇÕES DE CARREGAMENTO (modulobase) E FORMATAÇÃO (utils)
 # =================================================================================
-from .modulobase import (
-    carregar_base_eshows,
-    carregar_eshows_excluidos,  # p/ exportar as linhas excluídas
-    carregar_base2,
-    carregar_ocorrencias,
-    carregar_base_inad,
-    carregar_pessoas,
-    carregar_npsartistas
-)
+# Funções de carregamento agora são acessadas via data_loader (lazy)
+from . import data_loader
 
-# =================================================================================
-# CARREGAMENTO DAS BASES GERAIS (removido uso de variáveis globais duplicadas)
-# =================================================================================
-# Utilize carregar_base_eshows(), carregar_base2(), carregar_ocorrencias() etc. sempre que precisar dos dados.
-
-# Load global DataFrames for util functions
-try:
-    df_eshows = carregar_base_eshows()
-    df_base2 = carregar_base2()
-    df_ocorrencias = carregar_ocorrencias()
-    df_inad = carregar_base_inad()
-    df_pessoas = carregar_pessoas()
-    df_npsartistas = carregar_npsartistas()
-except Exception:
-    df_eshows = df_base2 = df_ocorrencias = df_inad = df_pessoas = df_npsartistas = None
+# ==============================================================================
+# CARREGAMENTO DAS BASES GERAIS
+# ==============================================================================
+# Os DataFrames agora são carregados sob demanda via `data_loader`.
 
 def ensure_grupo_col(df):
     """
@@ -676,7 +658,7 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
         Número de casas KA cujo churn técnico ocorreu no período.
     """
     import pandas as pd
-    from .modulobase import carregar_base_eshows
+    from . import data_loader
     import gc
     from datetime import timedelta
 
@@ -687,7 +669,7 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     grupos_ka = [g[0] for g in top5_list]
     
     # Carregar dados da base, aplicando filtros iniciais para economizar memória
-    df = carregar_base_eshows()
+    df = data_loader.get_eshows()
     if df is None or df.empty:
         print("[get_churn_ka_for_period] Base de dados vazia ou None")
         return 0
@@ -986,6 +968,7 @@ def calcular_churn(ano, periodo, mes, start_date=None, end_date=None, uf=None, d
     start_periodo = get_period_start(ano, periodo, mes, date_range)
     end_periodo = get_period_end(ano, periodo, mes, date_range)
 
+    df_eshows = data_loader.get_eshows()
     if df_eshows is None or df_eshows.empty:
         return 0
 
