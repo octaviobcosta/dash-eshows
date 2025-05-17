@@ -99,7 +99,6 @@ def filtrar_novos_palcos(df_completo, ano, periodo, mes, custom_range=None):
     # Se custom_range foi fornecido, usamos a data inicial dele
     if custom_range is not None and periodo == "custom-range":
         start_date = custom_range[0]
-        print(f"Filtrando novos palcos a partir de {start_date.strftime('%d/%m/%Y')}")
     else:
         # Caso contrário, usamos get_period_start como antes
         start_date = get_period_start(ano, periodo, mes, custom_range)
@@ -220,13 +219,6 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     Returns:
         float: Valor percentual do progresso geral (0-100)
     """
-    print("\n" + "="*80)
-    print(f"INICIANDO CÁLCULO DO PROGRESSO GERAL - PARÂMETROS RECEBIDOS:")
-    print(f"  Período: {periodo}")
-    print(f"  Mês selecionado: {mes_selecionado}")
-    print(f"  Mês inicial: {mes_inicial}")
-    print(f"  Mês final: {mes_final}")
-    print("-"*80)
     
     # *** CORREÇÃO FUNDAMENTAL: Para resolver o problema de inconsistência nas metas ***
     # *** Vamos armazenar o período original E todas as variáveis necessárias para recuperá-lo ***
@@ -241,42 +233,34 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     periodo_convertido = None
     
     if periodo == "custom-range" and mes_inicial and mes_final:
-        print(f"Período personalizado: De {mes_nome(mes_inicial)} até {mes_nome(mes_final)} de {ano}")
         
         # Criar o custom_range apenas para manter compatibilidade inicial
         custom_range = criar_custom_range(ano, mes_inicial, mes_final)
         if custom_range:
-            print(f"custom_range inicial: {custom_range[0].strftime('%Y-%m-%d %H:%M:%S')} até {custom_range[1].strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Verificar se o período personalizado é equivalente a algum período predefinido
         if mes_inicial == 1 and mes_final == 3:
-            print(f"⚠️ CORREÇÃO APLICADA: Período personalizado (Jan-Mar) equivale a 1° Trimestre")
             # IMPORTANTE: Não convertemos ainda, apenas marcamos
             periodo_convertido = "1° Trimestre"
             usar_metas_periodo_convertido = True
             
         elif mes_inicial == 4 and mes_final == 6:
-            print(f"⚠️ CORREÇÃO APLICADA: Período personalizado (Abr-Jun) equivale a 2° Trimestre")
             periodo_convertido = "2° Trimestre"
             usar_metas_periodo_convertido = True
             
         elif mes_inicial == 7 and mes_final == 9:
-            print(f"⚠️ CORREÇÃO APLICADA: Período personalizado (Jul-Set) equivale a 3° Trimestre")
             periodo_convertido = "3° Trimestre"
             usar_metas_periodo_convertido = True
             
         elif mes_inicial == 10 and mes_final == 12:
-            print(f"⚠️ CORREÇÃO APLICADA: Período personalizado (Out-Dez) equivale a 4° Trimestre")
             periodo_convertido = "4° Trimestre"
             usar_metas_periodo_convertido = True
             
         elif mes_inicial == 1 and mes_final == 12:
-            print(f"⚠️ CORREÇÃO APLICADA: Período personalizado (Jan-Dez) equivale a Ano Completo")
             periodo_convertido = "Ano Completo"
             usar_metas_periodo_convertido = True
     
     # Carregamento dos dados necessários para os cálculos
-    print(f"Carregando dados para cálculos...")
     df_eshows_completo = df_eshows  # Já carregado globalmente
     df_eshows_global = df_eshows    # Referência para manter compatibilidade com o resto da função
     df_pessoas = carregar_pessoas()
@@ -295,18 +279,14 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     
     # Carregamos primeiro as metas do período original (para custom-range)
     metas = ler_todas_as_metas(ano, periodo, mes, custom_range)
-    print(f"Metas obtidas para período original: {metas}")
     
     # Se há um período convertido, carregamos também as metas desse período
     metas_periodo_convertido = None
     if usar_metas_periodo_convertido and periodo_convertido:
-        print(f"⚠️ CORREÇÃO AVANÇADA: Carregando também metas para período equivalente '{periodo_convertido}'")
         metas_periodo_convertido = ler_todas_as_metas(ano, periodo_convertido, None, None)
-        print(f"Metas obtidas para período equivalente: {metas_periodo_convertido}")
         
         # CRÍTICO: Usar as metas do período convertido em vez das originais
         metas = metas_periodo_convertido
-        print(f"⚠️ CORREÇÃO FINAL: Usando metas do período '{periodo_convertido}' em vez de 'custom-range', MAS MANTENDO TIPO DE PERÍODO ORIGINAL")
         
         # *** CORREÇÃO CRUCIAL: NÃO converter o período nem anular custom_range ***
         # Isso foi a causa da inconsistência nos cálculos de progresso
@@ -314,9 +294,6 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         # custom_range = None
     
     # ----- OBJETIVO 1: Retomar o Crescimento -----
-    print("\n" + "-"*80)
-    print("CALCULANDO OBJETIVO 1: Retomar o Crescimento")
-    print("-"*80)
     
     # Obtém as metas do dicionário
     meta_novos = metas["NovosClientes"]
@@ -333,12 +310,9 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     if periodo == "Mês Aberto":
         mes_real = mes_selecionado
 
-    print(f"Filtrando dados para período: ano={ano_real}, período={periodo}, mês={mes_real}, custom_range={custom_range}")
     df_periodo_eshows = filtrar_periodo_principal(df_eshows_completo, ano_real, periodo, mes_real, custom_range)
-    print(f"Registros filtrados: {len(df_periodo_eshows) if df_periodo_eshows is not None and not df_periodo_eshows.empty else 0}")
 
     if df_periodo_eshows is None or df_periodo_eshows.empty:
-        print("⚠️ Nenhum dado encontrado para o período. Utilizando valores zerados.")
         real_novos = real_key = real_outros = real_plat = real_fint = 0.0
     else:
         COLUNAS_CURADORIA = ["Comissão B2B", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"]
@@ -352,27 +326,21 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
             df_periodo_eshows[FINTECH_COLUNA] = pd.to_numeric(df_periodo_eshows[FINTECH_COLUNA], errors='coerce').fillna(0)
 
         # Identificação de novos palcos
-        print("Identificando novos palcos...")
         if periodo == "custom-range" and custom_range:
             start_date = custom_range[0]
             df_min = df_eshows_completo.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow")
             df_min["EarliestShow"] = pd.to_datetime(df_min["EarliestShow"], errors='coerce')
             novos_ids = set(df_min.loc[df_min["EarliestShow"] >= start_date, "Id da Casa"])
-            print(f"Identificados {len(novos_ids)} novos palcos a partir de {start_date.strftime('%d/%m/%Y')}")
         elif periodo == "Mês Aberto":
             janeiro_1 = datetime(ano_real, 1, 1)
             df_min = df_eshows_completo.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow")
             df_min["EarliestShow"] = pd.to_datetime(df_min["EarliestShow"], errors='coerce')
             novos_ids = set(df_min.loc[df_min["EarliestShow"] >= janeiro_1, "Id da Casa"])
-            print(f"Identificados {len(novos_ids)} novos palcos a partir de {janeiro_1.strftime('%d/%m/%Y')}")
         else:
             novos_ids = filtrar_novos_palcos(df_eshows_completo, ano_real, periodo, mes_real, custom_range)
-            print(f"Identificados {len(novos_ids)} novos palcos para {periodo}")
 
         # Identificação de Key Accounts
-        print("Identificando Key Accounts...")
         kas_ids = filtrar_key_accounts(df_eshows_completo, ano_real)
-        print(f"Identificados {len(kas_ids)} Key Accounts")
         
         # Cálculos de valores reais
         real_fint = df_periodo_eshows[FINTECH_COLUNA].sum() if FINTECH_COLUNA in df_periodo_eshows.columns else 0.0
@@ -410,9 +378,6 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     print(f"Progresso Obj1: {progresso_obj1:.2f}%")
 
     # ----- OBJETIVO 3: Ser uma empresa enxuta e eficiente -----
-    print("\n" + "-"*80)
-    print("CALCULANDO OBJETIVO 3: Ser uma empresa enxuta e eficiente")
-    print("-"*80)
 
     # Extrair as metas específicas do dicionário
     meta_nrr = metas["NRR"]
@@ -429,15 +394,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     meta_rpc = metas["ReceitaPorColaborador"]
     meta_ltv_cac = metas["LtvCac"]
     
-    print("VALORES DAS METAS OBJETIVO 3:")
-    print(f"NRR: {meta_nrr}, Churn: {meta_churn}, TurnOver: {meta_turnover}")
-    print(f"Lucratividade: {meta_lucratividade}, Crescimento Sustentável: {meta_crescimento_sustentavel}")
-    print(f"Palcos Vazios: {meta_palcos_vazios}, Inadimplência Real: {meta_inadimplencia_real}")
-    print(f"Estabilidade: {meta_estabilidade}, Eficiência: {meta_eficiencia}, Autonomia: {meta_autonomia}")
-    print(f"Perdas: {meta_perdas}, RPC: {meta_rpc}, LTV/CAC: {meta_ltv_cac}")
     
     # Cálculo do NRR
-    print("\nCalculando NRR...")
     nrr_data = get_nrr_variables(
         ano=ano,
         periodo=periodo,
@@ -467,10 +425,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"NRR: valor={realizado_nrr:.2f}%, progresso={progresso_nrr:.2f}%")
     
     # Cálculo do Churn
-    print("Calculando Churn...")
     churn_data = get_churn_variables(
         ano=ano,
         periodo=periodo,
@@ -500,10 +456,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Churn: valor={realizado_churn:.2f}%, progresso={progresso_churn:.2f}%")
 
     # Cálculo do Turn Over
-    print("Calculando Turn Over...")
     turnover_data = get_turnover_variables(
         ano=ano,
         periodo=periodo,
@@ -533,10 +487,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Turn Over: valor={realizado_turnover:.2f}%, progresso={progresso_turnover:.2f}%")
     
     # Cálculo da Lucratividade
-    print("Calculando Lucratividade...")
     lucratividade_data = get_lucratividade_variables(
         ano=ano,
         periodo=periodo,
@@ -567,10 +519,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Lucratividade: valor={realizado_lucratividade:.2f}%, progresso={progresso_lucratividade:.2f}%")
         
     # Cálculo do Crescimento Sustentável
-    print("Calculando Crescimento Sustentável...")
     crescimento_sustentavel_data = get_crescimento_sustentavel_variables(
         ano=ano,
         periodo=periodo,
@@ -601,10 +551,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Crescimento Sustentável: valor={realizado_crescimento_sustentavel:.2f}%, progresso={progresso_crescimento_sustentavel:.2f}%")
 
     # Cálculo dos Palcos Vazios
-    print("Calculando Palcos Vazios...")
     palcos_vazios_data = get_palcos_vazios_variables(
         ano=ano,
         periodo=periodo,
@@ -634,10 +582,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Palcos Vazios: valor={realizado_palcos_vazios:.2f}, progresso={progresso_palcos_vazios:.2f}%")
         
     # Cálculo da Inadimplência Real
-    print("Calculando Inadimplência Real...")
     inadimplencia_real_data = get_inadimplencia_real_variables(
         ano=ano,
         periodo=periodo,
@@ -669,10 +615,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Inadimplência Real: valor={realizado_inadimplencia_real:.2f}%, progresso={progresso_inadimplencia_real:.2f}%")
 
     # Cálculo da Estabilidade
-    print("Calculando Estabilidade...")
     estabilidade_data = get_estabilidade_variables(
         ano=ano,
         periodo=periodo,
@@ -702,10 +646,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Estabilidade: valor={realizado_estabilidade:.2f}%, progresso={progresso_estabilidade:.2f}%")
     
     # Cálculo da Eficiência de Atendimento
-    print("Calculando Eficiência de Atendimento...")
     eficiencia_data = get_eficiencia_atendimento_variables(
         ano=ano,
         periodo=periodo,
@@ -735,10 +677,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Eficiência de Atendimento: valor={realizado_eficiencia:.2f}%, progresso={progresso_eficiencia:.2f}%")
     
     # Cálculo da Autonomia do Usuário
-    print("Calculando Autonomia do Usuário...")
     autonomia_data = get_autonomia_usuario_variables(
         ano=ano,
         periodo=periodo,
@@ -768,10 +708,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Autonomia do Usuário: valor={realizado_autonomia:.2f}%, progresso={progresso_autonomia:.2f}%")
     
     # Cálculo das Perdas Operacionais
-    print("Calculando Perdas Operacionais...")
     perdas_data = get_perdas_operacionais_variables(
         ano=ano,
         periodo=periodo,
@@ -802,10 +740,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Perdas Operacionais: valor={realizado_perdas:.2f}%, progresso={progresso_perdas:.2f}%")
     
     # Cálculo da Receita por Colaborador
-    print("Calculando Receita por Colaborador...")
     rpc_data = get_rpc_variables(
         ano=ano,
         periodo=periodo,
@@ -839,10 +775,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"Receita por Colaborador: valor={realizado_rpc:.2f}, progresso={progresso_rpc:.2f}%")
         
     # Cálculo do LTV/CAC
-    print("Calculando LTV/CAC...")
     ltv_cac_data = get_ltv_cac_variables(
         ano=ano,
         periodo=periodo,
@@ -876,7 +810,6 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"LTV/CAC: valor={realizado_ltv_cac:.2f}, progresso={progresso_ltv_cac:.2f}%")
 
     # Média dos progressos para o objetivo 3 (todos os 13 KPIs)
     todos_progressos_obj3 = [
@@ -903,15 +836,10 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
     else:
         progresso_obj3 = 0
         
-    print(f"Progresso Obj3: {progresso_obj3:.2f}% (média de {len(progressos_validos_obj3)} KPIs válidos)")
     
     # ----- OBJETIVO 4: Melhorar a reputação da eshows -----
-    print("\n" + "-"*80)
-    print("CALCULANDO OBJETIVO 4: Melhorar a reputação da eshows")
-    print("-"*80)
     
     # Cálculo do NPS de Artistas
-    print("Calculando NPS Artistas...")
     nps_artistas_data = get_nps_artistas_variables(
         ano=ano,
         periodo=periodo,
@@ -937,10 +865,8 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"NPS Artistas: valor={val_nps_artistas:.2f}%, progresso={progresso_nps_artistas:.2f}%")
 
     # Cálculo do NPS de Equipe
-    print("Calculando NPS Equipe...")
     nps_equipe_data = get_nps_equipe_variables(
         ano=ano,
         periodo=periodo,
@@ -966,12 +892,10 @@ def calcular_progresso_geral(periodo, mes_selecionado, mes_inicial=None, mes_fin
         dicionario_metas=metas,
         debug=False
     )
-    print(f"NPS Equipe: valor={val_nps_equipe:.2f}%, progresso={progresso_nps_equipe:.2f}%")
 
     # Média dos progressos para o objetivo 4
     progressos_obj4 = [progresso_nps_artistas, progresso_nps_equipe]
     progresso_obj4 = sum(progressos_obj4) / len(progressos_obj4) if progressos_obj4 else 0
-    print(f"Progresso Obj4: {progresso_obj4:.2f}%")
     
     # Calcula o progresso geral (média dos objetivos 1, 3 e 4)
     progresso_geral = (progresso_obj1 + progresso_obj3 + progresso_obj4) / 3
@@ -1177,25 +1101,15 @@ def calcular_progresso_kpi_com_historico(
         if meta_key and meta_key in dicionario_metas:
             meta = dicionario_metas[meta_key]
             if debug:
-                print(f"Meta para {kpi_name} obtida do dicionário: {meta}")
     
     # Iniciar impressão de debug
     if debug:
-        print(f"\n{'=' * 60}")
-        print(f"CÁLCULO DE PROGRESSO SIMPLIFICADO: {kpi_name}")
-        print(f"  Valor atual: {valor_atual:.2f}% ({periodo}/{ano}/{mes if mes else 'N/A'})")
         if periodo == "custom-range" and custom_range:
-            print(f"  Período personalizado: {custom_range[0].strftime('%d/%m/%Y')} até {custom_range[1].strftime('%d/%m/%Y')}")
-        print(f"  Meta: {meta:.2f}%")
-        print(f"  Tipo: {tipo_meta} é melhor")
-        print(f"{'=' * 60}")
     
     # 1. Premissa principal: Bateu meta = 100% de progresso
     if (tipo_meta == "maior" and valor_atual >= meta) or \
        (tipo_meta == "menor" and valor_atual <= meta):
         if debug:
-            print(f"✓ Valor atual atingiu ou superou a meta - Progresso = 100%")
-            print(f"{'=' * 60}")
         return 100.0
     
     # 2. Determinar status atual para ajuste posterior
@@ -1218,10 +1132,8 @@ def calcular_progresso_kpi_com_historico(
         status_atual, _ = get_kpi_status(kpi_name, valor_atual, kpi_descriptions)
     except Exception as e:
         if debug:
-            print(f"⚠️ Erro ao obter status: {str(e)}")
     
     if debug:
-        print(f"📊 Status atual: {status_atual.upper()}")
     
     # 3. Buscar valor do período cronologicamente anterior
     valor_anterior = None
@@ -1236,7 +1148,6 @@ def calcular_progresso_kpi_com_historico(
         periodos_verificados = 0
         
         if debug:
-            print("\n🔍 Buscando dados históricos cronológicos...")
         
         # Loop para buscar até max_periodos_anteriores
         while periodos_verificados < max_periodos_anteriores and valor_anterior is None:
@@ -1255,7 +1166,6 @@ def calcular_progresso_kpi_com_historico(
                 periodo_str = f"{periodo_ant}/{ano_ant}/{mes_ant if mes_ant else 'N/A'}"
             
             if debug:
-                print(f"  • Verificando período: {periodo_str}")
             
             # Tentar obter valor para esse período
             try:
@@ -1421,20 +1331,15 @@ def calcular_progresso_kpi_com_historico(
                             periodo_anterior_str = periodo_str
                             
                             if debug:
-                                print(f"  ✓ Encontrado: {valor_anterior:.2f}% em {periodo_str}")
                                 break
                     except (ValueError, AttributeError):
                         if debug:
-                            print(f"  ✗ Formato inválido no período {periodo_str}")
                 else:
                     if debug:
-                        print(f"  ✗ Sem resultado válido no período {periodo_str}")
             except Exception as e:
                 if debug:
-                    print(f"  ✗ Erro ao buscar período {periodo_str}: {str(e)}")
         
         if valor_anterior is None and debug:
-            print(f"  ✗ Não foi possível encontrar dados históricos após {periodos_verificados} tentativas")
     
     # 4. NOVA ABORDAGEM SIMPLIFICADA
     
@@ -1448,9 +1353,6 @@ def calcular_progresso_kpi_com_historico(
     contribuicao_prox_meta = prox_meta * 70  # 70% do peso total
     
     if debug:
-        print(f"\n📏 Contribuição da proximidade da meta (70%):")
-        print(f"  • Razão: {prox_meta:.2f}")
-        print(f"  • Contribuição: {contribuicao_prox_meta:.2f}%")
     
     # 4.2 Calcular contribuição da evolução (30% do peso)
     if valor_anterior is not None and valor_anterior != 0:
@@ -1482,17 +1384,11 @@ def calcular_progresso_kpi_com_historico(
         evolucao_percentual = 0
     
     if debug:
-        print(f"\n📈 Contribuição da evolução (30%):")
-        print(f"  • Período anterior: {valor_anterior:.2f}% ({periodo_anterior_str})" if valor_anterior is not None else "  • Sem dados do período anterior")
-        print(f"  • Evolução: {evolucao_descricao} ({evolucao_percentual:.2f}%)")
-        print(f"  • Contribuição: {contribuicao_evolucao:.2f}%")
     
     # 4.3 Combinar as contribuições
     progresso_base = contribuicao_prox_meta + contribuicao_evolucao
     
     if debug:
-        print(f"\n🧮 Progresso base (proximidade + evolução):")
-        print(f"  • {contribuicao_prox_meta:.2f}% + {contribuicao_evolucao:.2f}% = {progresso_base:.2f}%")
     
     # 4.4 Aplicar ajuste baseado no status
     ajustes_status = {
@@ -1506,8 +1402,6 @@ def calcular_progresso_kpi_com_historico(
     
     if debug:
         dir_ajuste = "+" if ajuste >= 0 else ""
-        print(f"\n🛠️ Ajuste por status ({status_atual.upper()}):")
-        print(f"  • Ajuste: {dir_ajuste}{ajuste}%")
     
     progresso_final = progresso_base + ajuste
     
@@ -1516,13 +1410,6 @@ def calcular_progresso_kpi_com_historico(
     
     # Log final
     if debug:
-        print(f"\n{'=' * 60}")
-        print(f"RESULTADO FINAL: {kpi_name}")
-        print(f"  • Proximidade da meta: {contribuicao_prox_meta:.2f}%")
-        print(f"  • Evolução: {contribuicao_evolucao:.2f}%")
-        print(f"  • Ajuste por status: {ajuste}%")
-        print(f"  • PROGRESSO FINAL: {progresso_final:.2f}%")
-        print(f"{'=' * 60}")
     
     return progresso_final
 
@@ -1587,7 +1474,6 @@ def create_status_svg(
         return formatar_valor_utils(valor, formato)
 
     # Debug para verificar os valores
-    print(f"SVG: {kpi_name} - Atual={current_value_percent}, Meta={meta_value_percent}")
 
     # --------------------------------------------------
     # 3) Resto da lógica do gradiente
@@ -2426,7 +2312,6 @@ def sub_objective_card(
         
         # Log para debug de metas
         kpi_display = kpi_name or "Indicador"
-        print(f"[SVG Debug] {kpi_display}: valor atual = {cv_float}, meta = {tv_float}, tipo = {target_type}")
 
         # Cores para o indicador de progresso baseado no valor
         if progress_percent is not None:
@@ -3385,9 +3270,7 @@ def register_okrs_callbacks(app):
         ano = 2025
         if periodo == "custom-range" and mes_inicial and mes_final:
             custom_range = criar_custom_range(ano, mes_inicial, mes_final)
-            print(f"Período personalizado: De {mes_nome(mes_inicial)} até {mes_nome(mes_final)} de {ano}")
             if custom_range:
-                print(f"custom_range: {custom_range[0]} até {custom_range[1]}")
 
         df_eshows_completo = df_eshows
         
@@ -3508,7 +3391,6 @@ def register_okrs_callbacks(app):
         fin_fint = montar_fintext(real_fint, meta_fint)
 
         # Log para verificar os valores formatados
-        print(f"Obj: {fin_obj}, Curadoria: {fin_cura}, Novos: {fin_nov}, Key: {fin_key}, Outros: {fin_out}")
 
         # Retorna o card "Retomar o Crescimento"
         return objective_card(
@@ -3575,17 +3457,13 @@ def register_okrs_callbacks(app):
         Processa diversos KPIs relacionados à eficiência operacional da empresa.
         Utiliza a função ler_todas_as_metas para obter os valores das metas.
         """
-        print("=== update_obj3 callback ===")
-        print(f"Recebi periodo = {periodo} | mes_selecionado = {mes_selecionado}")
         
         # Criar custom_range se for período personalizado
         custom_range = None
         ano = 2025
         if periodo == "custom-range" and mes_inicial and mes_final:
             custom_range = criar_custom_range(ano, mes_inicial, mes_final)
-            print(f"Período personalizado: De {mes_nome(mes_inicial)} até {mes_nome(mes_final)} de {ano}")
             if custom_range:
-                print(f"custom_range: {custom_range[0]} até {custom_range[1]}")
         
         # Carregamento das bases de dados necessárias (exceto metas que serão via ler_todas_as_metas)
         df_pessoas = carregar_pessoas()
@@ -3606,7 +3484,6 @@ def register_okrs_callbacks(app):
         # Obter o dicionário de metas
         metas = ler_todas_as_metas(ano, periodo, mes, custom_range)
         
-        print(f"Dicionário de metas obtido: {metas}")
         
         # Extrair as metas específicas do dicionário
         meta_nrr = metas["NRR"]
@@ -3624,20 +3501,6 @@ def register_okrs_callbacks(app):
         meta_ltv_cac = metas["LtvCac"]  # Nova meta para LTV/CAC
         
         # Log das metas obtidas
-        print("=== VALORES DAS METAS OBTIDAS ===")
-        print(f"NRR: {meta_nrr:.1f}%")
-        print(f"Churn: {meta_churn:.1f}%")
-        print(f"TurnOver: {meta_turnover:.1f}%")
-        print(f"Lucratividade: {meta_lucratividade:.1f}%")
-        print(f"CrescimentoSustentavel: {meta_crescimento_sustentavel:.1f}%")
-        print(f"PalcosVazios: {meta_palcos_vazios:.1f} (valor absoluto)")
-        print(f"InadimplenciaReal: {meta_inadimplencia_real:.1f}%")
-        print(f"Estabilidade: {meta_estabilidade:.1f}%")
-        print(f"EficienciaAtendimento: {meta_eficiencia:.1f}%")
-        print(f"AutonomiaUsuario: {meta_autonomia:.1f}%")
-        print(f"PerdasOperacionais: {meta_perdas:.3f}")
-        print(f"ReceitaPorColaborador: {meta_rpc:.2f}")
-        print(f"LTV/CAC: {meta_ltv_cac:.2f}")
         
         # Mapeamento de status para cores (usado em todo o callback)
         status_color_map = {
@@ -3768,19 +3631,11 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_eshows_global=df_eshows_global
         )
-        print("\n=== DETALHES DO KPI: NRR ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in nrr_data:
             for nome_var, valor_var in nrr_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_nrr_variables:")
-        print(nrr_data)
         
         nrr_processado = processar_resultado_kpi(nrr_data, "Net Revenue Retention", meta_nrr)
-        print(f"💰 Valor final de NRR (string): {nrr_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de NRR (float): {nrr_processado['valor']}\n")
         
         # 2. Churn
         churn_data = get_churn_variables(
@@ -3790,19 +3645,11 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_eshows_global=df_eshows_global
         )
-        print("\n=== DETALHES DO KPI: CHURN ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in churn_data:
             for nome_var, valor_var in churn_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_churn_variables:")
-        print(churn_data)
         
         churn_processado = processar_resultado_kpi(churn_data, "Churn %", meta_churn)
-        print(f"💰 Valor final de Churn (string): {churn_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Churn (float): {churn_processado['valor']}\n")
         
         # 3. Turn Over
         turnover_data = get_turnover_variables(
@@ -3812,19 +3659,11 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_pessoas_global=df_pessoas
         )
-        print("\n=== DETALHES DO KPI: TURN OVER ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in turnover_data:
             for nome_var, valor_var in turnover_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_turnover_variables:")
-        print(turnover_data)
         
         turnover_processado = processar_resultado_kpi(turnover_data, "Turn Over", meta_turnover)
-        print(f"💰 Valor final de Turn Over (string): {turnover_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Turn Over (float): {turnover_processado['valor']}\n")
         
         # 4. Lucratividade
         lucratividade_data = get_lucratividade_variables(
@@ -3835,19 +3674,11 @@ def register_okrs_callbacks(app):
             df_eshows_global=df_eshows_global,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: LUCRATIVIDADE ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in lucratividade_data:
             for nome_var, valor_var in lucratividade_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_lucratividade_variables:")
-        print(lucratividade_data)
         
         lucratividade_processado = processar_resultado_kpi(lucratividade_data, "Lucratividade", meta_lucratividade)
-        print(f"💰 Valor final de Lucratividade (string): {lucratividade_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Lucratividade (float): {lucratividade_processado['valor']}\n")
         
         # 5. Crescimento Sustentável
         crescimento_sustentavel_data = get_crescimento_sustentavel_variables(
@@ -3858,24 +3689,15 @@ def register_okrs_callbacks(app):
             df_eshows_global=df_eshows_global,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: CRESCIMENTO SUSTENTÁVEL ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in crescimento_sustentavel_data:
             for nome_var, valor_var in crescimento_sustentavel_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_crescimento_sustentavel_variables:")
-        print(crescimento_sustentavel_data)
         
         crescimento_sustentavel_processado = processar_resultado_kpi(
             crescimento_sustentavel_data, "Crescimento Sustentável", meta_crescimento_sustentavel
         )
-        print(f"💰 Valor final de Crescimento Sustentável (string): {crescimento_sustentavel_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Crescimento Sustentável (float): {crescimento_sustentavel_processado['valor']}\n")
         
         # 6. Palcos Vazios
-        print("Calculando Palcos Vazios...")
         palcos_vazios_data = get_palcos_vazios_variables(
             ano=ano, 
             periodo=periodo,
@@ -3883,24 +3705,15 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_ocorrencias_global=df_ocorrencias_global
         )
-        print("\n=== DETALHES DO KPI: PALCOS VAZIOS ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in palcos_vazios_data:
             for nome_var, valor_var in palcos_vazios_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_palcos_vazios_variables:")
-        print(palcos_vazios_data)
         
         palcos_vazios_processado = processar_resultado_kpi(
             palcos_vazios_data, "Palcos Vazios", meta_palcos_vazios, "numero"
         )
-        print(f"💰 Valor final de Palcos Vazios (string): {palcos_vazios_data.get('resultado','0')}")
-        print(f"💰 Valor final de Palcos Vazios (float): {palcos_vazios_processado['valor']}\n")
         
         # 7. Inadimplência Real
-        print("Calculando Inadimplência Real...")
         inadimplencia_real_data = get_inadimplencia_real_variables(
             ano=ano, 
             periodo=periodo,
@@ -3910,21 +3723,13 @@ def register_okrs_callbacks(app):
             df_inad_casas=df_inad_casas,
             df_inad_artistas=df_inad_artistas
         )
-        print("\n=== DETALHES DO KPI: INADIMPLÊNCIA REAL ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in inadimplencia_real_data:
             for nome_var, valor_var in inadimplencia_real_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_inadimplencia_real_variables:")
-        print(inadimplencia_real_data)
         
         inadimplencia_real_processado = processar_resultado_kpi(
             inadimplencia_real_data, "Inadimplência Real", meta_inadimplencia_real
         )
-        print(f"💰 Valor final de Inadimplência Real (string): {inadimplencia_real_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Inadimplência Real (float): {inadimplencia_real_processado['valor']}\n")
         
         # ===== Cálculo dos NOVOS KPIs =====
         
@@ -3936,21 +3741,13 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: ESTABILIDADE ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in estabilidade_data:
             for nome_var, valor_var in estabilidade_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_estabilidade_variables:")
-        print(estabilidade_data)
         
         estabilidade_processado = processar_resultado_kpi(
             estabilidade_data, "Estabilidade", meta_estabilidade
         )
-        print(f"💰 Valor final de Estabilidade (string): {estabilidade_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Estabilidade (float): {estabilidade_processado['valor']}\n")
         
         # 9. Eficiência de Atendimento
         eficiencia_data = get_eficiencia_atendimento_variables(
@@ -3960,21 +3757,13 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: EFICIÊNCIA DE ATENDIMENTO ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in eficiencia_data:
             for nome_var, valor_var in eficiencia_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_eficiencia_atendimento_variables:")
-        print(eficiencia_data)
         
         eficiencia_processado = processar_resultado_kpi(
             eficiencia_data, "Eficiência de Atendimento", meta_eficiencia
         )
-        print(f"💰 Valor final de Eficiência de Atendimento (string): {eficiencia_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Eficiência de Atendimento (float): {eficiencia_processado['valor']}\n")
         
         # 10. Autonomia do Usuário
         autonomia_data = get_autonomia_usuario_variables(
@@ -3984,21 +3773,13 @@ def register_okrs_callbacks(app):
             custom_range=custom_range if periodo=="custom-range" else None,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: AUTONOMIA DO USUÁRIO ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in autonomia_data:
             for nome_var, valor_var in autonomia_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_autonomia_usuario_variables:")
-        print(autonomia_data)
         
         autonomia_processado = processar_resultado_kpi(
             autonomia_data, "Autonomia do Usuário", meta_autonomia
         )
-        print(f"💰 Valor final de Autonomia do Usuário (string): {autonomia_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Autonomia do Usuário (float): {autonomia_processado['valor']}\n")
         
         # 11. Perdas Operacionais
         perdas_data = get_perdas_operacionais_variables(
@@ -4009,21 +3790,13 @@ def register_okrs_callbacks(app):
             df_eshows_global=df_eshows_global,
             df_base2_global=df_base2_global
         )
-        print("\n=== DETALHES DO KPI: PERDAS OPERACIONAIS ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in perdas_data:
             for nome_var, valor_var in perdas_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_perdas_operacionais_variables:")
-        print(perdas_data)
         
         perdas_processado = processar_resultado_kpi(
             perdas_data, "Perdas Operacionais", meta_perdas
         )
-        print(f"💰 Valor final de Perdas Operacionais (string): {perdas_data.get('resultado','0.00%')}")
-        print(f"💰 Valor final de Perdas Operacionais (float): {perdas_processado['valor']}\n")
         
         # 12. Receita por Colaborador
         rpc_data = get_rpc_variables(
@@ -4034,24 +3807,15 @@ def register_okrs_callbacks(app):
             df_eshows_global=df_eshows_global,
             df_pessoas_global=df_pessoas
         )
-        print("\n=== DETALHES DO KPI: RECEITA POR COLABORADOR ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in rpc_data:
             for nome_var, valor_var in rpc_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_rpc_variables:")
-        print(rpc_data)
         
         rpc_processado = processar_resultado_kpi(
             rpc_data, "Receita por Colaborador", meta_rpc, "monetario"
         )
-        print(f"💰 Valor final de Receita por Colaborador (string): {rpc_data.get('resultado','R$ 0,00')}")
-        print(f"💰 Valor final de Receita por Colaborador (float): {rpc_processado['valor']}\n")
         
         # 13. NOVO KPI: LTV/CAC
-        print("Calculando LTV/CAC...")
         ltv_cac_data = get_ltv_cac_variables(
             ano=ano,
             periodo=periodo,
@@ -4062,32 +3826,15 @@ def register_okrs_callbacks(app):
             df_casas_earliest_global=df_casas_earliest,
             df_casas_latest_global=df_casas_latest
         )
-        print("\n=== DETALHES DO KPI: LTV/CAC ===")
-        print("🔎 Passo a passo do cálculo:")
         if "variables_values" in ltv_cac_data:
             for nome_var, valor_var in ltv_cac_data["variables_values"].items():
-                print(f"   • {nome_var}: {valor_var}")
         else:
-            print("   • Não há 'variables_values' detalhadas no resultado.")
-        print("📄 Dicionário retornado por get_ltv_cac_variables:")
-        print(ltv_cac_data)
         
         ltv_cac_processado = processar_resultado_kpi(
             ltv_cac_data, "LTV/CAC", meta_ltv_cac, "numero_2f"
         )
-        print(f"💰 Valor final de LTV/CAC (string): {ltv_cac_data.get('resultado','0.00')}")
-        print(f"💰 Valor final de LTV/CAC (float): {ltv_cac_processado['valor']}\n")
         
         # Log dos valores finais calculados
-        print("=== VALORES FINAIS CALCULADOS ===")
-        print(f"NRR: meta={meta_nrr}, realizado={nrr_processado['valor']}, cor={nrr_processado['cor']}")
-        print(f"Churn: meta={meta_churn}, realizado={churn_processado['valor']}, cor={churn_processado['cor']}")
-        print(f"Turn Over: meta={meta_turnover}, realizado={turnover_processado['valor']}, cor={turnover_processado['cor']}")
-        print(f"Lucratividade: meta={meta_lucratividade}, realizado={lucratividade_processado['valor']}, cor={lucratividade_processado['cor']}")
-        print(f"Crescimento Sustentável: meta={meta_crescimento_sustentavel}, realizado={crescimento_sustentavel_processado['valor']}, cor={crescimento_sustentavel_processado['cor']}")
-        print(f"Palcos Vazios: meta={meta_palcos_vazios}, realizado={palcos_vazios_processado['valor']}, cor={palcos_vazios_processado['cor']}")
-        print(f"Inadimplência Real: meta={meta_inadimplencia_real}, realizado={inadimplencia_real_processado['valor']}, cor={inadimplencia_real_processado['cor']}")
-        print(f"LTV/CAC: meta={meta_ltv_cac}, realizado={ltv_cac_processado['valor']}, cor={ltv_cac_processado['cor']}")
 
         # Criação dos subobjetivos usando um formato padronizado
         def criar_subobjetivo(titulo, kpi_processado, valor_meta, nome_kpi):
@@ -4197,9 +3944,7 @@ def register_okrs_callbacks(app):
         custom_range = None
         if periodo == "custom-range" and mes_inicial and mes_final:
             custom_range = criar_custom_range(ano, mes_inicial, mes_final)
-            print(f"Período personalizado: De {mes_nome(mes_inicial)} até {mes_nome(mes_final)} de {ano}")
             if custom_range:
-                print(f"custom_range: {custom_range[0]} até {custom_range[1]}")
         
         # Obtenção das metas utilizando a função ler_todas_as_metas
         mes = None
@@ -4213,8 +3958,6 @@ def register_okrs_callbacks(app):
         meta_nps_artistas = metas["NPSArtistas"]
         meta_nps_equipe = metas["NPSEquipe"]
         
-        print(f"Meta NPS Artistas: {meta_nps_artistas}")
-        print(f"Meta NPS Equipe: {meta_nps_equipe}")
 
         # 1) Calcula NPS Artistas
         nps_art_data = get_nps_artistas_variables(

@@ -1425,7 +1425,6 @@ def register_callbacks(app):
 
         # Calculate earliest/latest based on the global df_eshows_global
         # Ensure df_eshows_global is accessible here (should be if loaded globally)
-        print("DEBUG: Calculando earliest/latest dentro de update_kpi_selected_data")
         df_casas_earliest = df_eshows_global.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow") if df_eshows_global is not None and not df_eshows_global.empty else None
         df_casas_latest = df_eshows_global.groupby("Id da Casa")["Data do Show"].max().reset_index(name="LastShow") if df_eshows_global is not None and not df_eshows_global.empty else None
         # Also ensure df_base2_global is accessible if needed later (e.g., for LTV/CAC call)
@@ -1523,7 +1522,6 @@ def register_callbacks(app):
                     'periodo_texto': kpi_values.get('periodo', ''),
                     'status': kpi_values.get('status', ''),
                 }
-                print(f"DEBUG: kpi_data a ser armazenado para {kpi_name}: {kpi_data}") # DEBUG STORE
                 return kpi_data
 
         raise dash.exceptions.PreventUpdate
@@ -2771,7 +2769,6 @@ $$
             return final_markdown
 
         else:
-            print(f"DEBUG: KPI '{kpi_name}' caiu no bloco ELSE (não mapeado explicitamente ou nome incorreto)") # DEBUG
             computed_formula = "Fórmula específica não disponível."
             # ... (lógica do else) ...
             itens = [
@@ -2817,8 +2814,6 @@ $$
         final_markdown = "\n".join(line.lstrip() for line in textwrap.dedent(markdown_content).splitlines())
         
         # --- DEBUG START ---
-        print(f"DEBUG: Conteúdo Markdown Final (primeiros 200 chars): {final_markdown[:200]}...") # DEBUG
-        print("="*30 + " FIM DEBUG " + "="*30 + "\n")
         # --- DEBUG END ---
         
         return final_markdown
@@ -2840,7 +2835,6 @@ $$
         prevent_initial_call=True
     )
     def generate_interpretation(kpi_data, strategy_info, painel_data, dashboard_data, modal_is_open, ia_data):
-        print("Dashboard_data recebido:", dashboard_data)  # Debug: ver o conteúdo do store
         if not modal_is_open or not kpi_data or 'kpi_name' not in kpi_data:
             raise dash.exceptions.PreventUpdate
         if ia_data is None:
