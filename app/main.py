@@ -69,6 +69,7 @@ from .utils import (
     calcular_variacao_percentual,
     ensure_grupo_col
 )
+from .utils import profile_callback
 from .kpis_charts import generate_kpi_figure
 
 # ==============================================================================
@@ -1726,6 +1727,10 @@ app = Dash(
     assets_folder=assets_path,
 )
 
+# Inicializa o Flask-Caching
+from .cache_helper import init_cache, cache
+init_cache(app.server)
+
 #######################################
 # DEFINIÇÃO DO LAYOUT PRINCIPAL
 #######################################
@@ -1811,6 +1816,7 @@ def render_page_content(pathname):
     Input("btn-atualiza-base", "n_clicks"),
     prevent_initial_call=True
 )
+@profile_callback
 def atualizar_base(n):
     if not n:
         raise dash.exceptions.PreventUpdate

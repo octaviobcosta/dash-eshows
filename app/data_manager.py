@@ -11,6 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 from postgrest import APIError
 
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
+from .cache_helper import cache
 
 # ────────────────────────────  logging  ────────────────────────────
 logging.basicConfig(
@@ -82,6 +83,11 @@ def _init_supabase():
 
 supa = _init_supabase()
 
+# Dica: para consultas assíncronas, instancie o cliente com
+# ``create_client(..., auth_options={"use_async": True})`` e use ``await``
+# em ``table().select().execute()``. O Dash continuará síncrono,
+# mas você pode realizar pré-carregamentos assíncronos em threads.
+
 # ─────────────────────────  helpers comuns  ────────────────────────
 _cache: Dict[str, pd.DataFrame] = {}
 
@@ -91,17 +97,29 @@ def dedup(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 # ────────────────────────  download + limpeza  ─────────────────────
-def _fetch(table: str) -> pd.DataFrame:
+def _fetch(
+    table: str,
+    *,
+    columns: list[str] | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    date_col: str = "Data",
+    page_size: int = 1000,
+) -> pd.DataFrame:
+    """Baixa uma tabela do Supabase em páginas utilizando filtros."""
     if supa is None:
         return pd.DataFrame()
 
-    STEP, page, pages = 1000, 0, []
+    cols = ",".join(columns) if columns else "*"
+    page, pages = 0, []
     while True:
-        start, end = page * STEP, (page + 1) * STEP - 1
+        start, end = page * page_size, (page + 1) * page_size - 1
         try:
-            q = supa.table(table).select("*")
-            if table.lower() == "baseeshows":
-                q = q.gte("Data", "2022-01-01")
+            q = supa.table(table).select(cols)
+            if start_date:
+                q = q.gte(date_col, start_date)
+            if end_date:
+                q = q.lte(date_col, end_date)
             resp = q.range(start, end).execute()
         except APIError as err:
             logger.error("[%s] página %s: %s", table, page + 1, err.message)
@@ -111,7 +129,7 @@ def _fetch(table: str) -> pd.DataFrame:
         if not data:
             break
         pages.append(pd.DataFrame(data))
-        if len(data) < STEP:
+        if len(data) < page_size:
             break
         page += 1
 
@@ -129,7 +147,21 @@ def _fetch(table: str) -> pd.DataFrame:
     return df
 
 # ───────────────────────  cache RAM + Parquet  ─────────────────────
-def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
+@cache.memoize(timeout=3600)
+def _fetch_cached(table: str, **kwargs) -> pd.DataFrame:
+    return _fetch(table, **kwargs)
+
+
+def _get(
+    table: str,
+    *,
+    force_reload: bool = False,
+    columns: list[str] | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    date_col: str = "Data",
+    page_size: int = 1000,
+) -> pd.DataFrame:
     table = table.lower()
     logger.info("carregando %s…", table)
 
@@ -142,20 +174,75 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
             logger.info("[%s] carregado do Parquet (%s linhas)", table, len(df_disk))
             return df_disk
 
-    df_live = _fetch(table)
+    df_live = _fetch_cached(
+        table,
+        columns=columns,
+        start_date=start_date,
+        end_date=end_date,
+        date_col=date_col,
+        page_size=page_size,
+    )
     _cache[table] = df_live
     _save_parquet(table, df_live)
     return df_live
 
 # ────────────────────  interfaces públicas  ────────────────────────
-def get_df_eshows()        -> pd.DataFrame:                      return _get("baseeshows")
-def get_df_base2()         -> pd.DataFrame:                      return _get("base2")
-def get_df_ocorrencias()   -> pd.DataFrame:                      return _get("ocorrencias")
-def get_df_pessoas()       -> pd.DataFrame:                      return _get("pessoas")
-def get_df_metas()         -> pd.DataFrame:                      return _get("metas")
-def get_df_inadimplencia() -> Tuple[pd.DataFrame, pd.DataFrame]: return _get("boletocasas"), _get("boletoartistas")
-def get_df_custosabertos() -> pd.DataFrame:                      return _get("custosabertos")
-def get_df_npsartistas()   -> pd.DataFrame:                      return _get("npsartistas")   # ← NOVO
+def get_df_eshows(*, columns=None, start_date=None, end_date=None) -> pd.DataFrame:
+    """Consulta paginada da tabela ``baseeshows``.
+
+    Exemplo:
+        ``get_df_eshows(columns=["Data", "Valor_Bruto"], start_date="2022-01-01")``
+    """
+    return _get(
+        "baseeshows",
+        columns=columns,
+        start_date=start_date,
+        end_date=end_date,
+        date_col="Data",
+    )
+
+
+def get_df_base2(*, columns=None) -> pd.DataFrame:
+    return _get("base2", columns=columns)
+
+
+def get_df_ocorrencias(*, columns=None) -> pd.DataFrame:
+    return _get("ocorrencias", columns=columns)
+
+
+def get_df_pessoas(*, columns=None) -> pd.DataFrame:
+    return _get("pessoas", columns=columns)
+
+
+def get_df_metas(*, columns=None) -> pd.DataFrame:
+    return _get("metas", columns=columns)
+
+
+def get_df_inadimplencia(*, columns=None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    return (
+        _get("boletocasas", columns=columns, date_col="data_vencimento"),
+        _get("boletoartistas", columns=columns, date_col="data_vencimento"),
+    )
+
+
+def get_df_custosabertos(*, columns=None, start_date=None, end_date=None) -> pd.DataFrame:
+    return _get(
+        "custosabertos",
+        columns=columns,
+        start_date=start_date,
+        end_date=end_date,
+        date_col="data_competencia",
+    )
+
+
+def get_df_npsartistas(*, columns=None, start_date=None, end_date=None) -> pd.DataFrame:
+    return _get(
+        "npsartistas",
+        columns=columns,
+        start_date=start_date,
+        end_date=end_date,
+        date_col="Data",
+    )  # ← NOVO
 
 
 def reset_all_data(clear_disk: bool = False):

@@ -9,6 +9,34 @@ import calendar
 from datetime import datetime
 import sys
 from dateutil.relativedelta import relativedelta
+import psutil
+import time
+import logging
+
+
+def profile_callback(func):
+    """Decorator para medir uso de memória e tempo de callbacks."""
+    from functools import wraps
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        proc = psutil.Process(os.getpid())
+        mem_before = proc.memory_info().rss / 1024 ** 2
+        start = time.perf_counter()
+        try:
+            return func(*args, **kwargs)
+        finally:
+            mem_after = proc.memory_info().rss / 1024 ** 2
+            elapsed = time.perf_counter() - start
+            logging.info(
+                "[callback %s] %.1f MB -> %.1f MB in %.2fs",
+                func.__name__,
+                mem_before,
+                mem_after,
+                elapsed,
+            )
+
+    return wrapper
 
 # =================================================================================
 # IMPORTAÇÃO DE FUNÇÕES DE CARREGAMENTO (modulobase) E FORMATAÇÃO (utils)
