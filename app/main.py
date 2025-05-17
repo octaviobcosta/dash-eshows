@@ -33,6 +33,8 @@ import plotly.graph_objects as go
 from dateutil.relativedelta import relativedelta
 import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
+import tracemalloc
+tracemalloc.start() 
 
 # ― Módulos internos ------------------------------------------------------------
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
@@ -3551,8 +3553,11 @@ def toggle_kpi_modal(n_clicks_list, close_clicks, is_open):
 if __name__ == "__main__":
     app.run_server(debug=True, dev_tools_hot_reload=True)
     
-    # # Em vez disso, imprimir uma mensagem de instrução:
-    # logger.info("Use 'python index.py' para iniciar o aplicativo com a tela de login")
+    # depois que o app for encerrado (Ctrl+C)
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()       # libera o tracer
+
+    print(f"Memória atual: {current/1e6:.2f} MB | Pico: {peak/1e6:.2f} MB")
 
 
 
