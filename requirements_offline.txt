@@ -1,0 +1,5 @@
+--no-index
+--find-links ./wheelhouse
+pandas
+dash
+# coloque aqui os outros pacotes que já estavam no seu requirements
