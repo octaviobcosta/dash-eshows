@@ -100,9 +100,12 @@ _CASAS: Dict[str, str] = {
 
 _ARTISTAS: Dict[str, str] = {
     "Artista": "Nome do Artista",
+    "NOME": "Nome do Artista",
     "Valor_Bruto": "Valor Bruto",
+    "Valor Bruto": "Valor Bruto",
     "Status": "Status",
     "Data_Vencimento": "Data Vencimento",
+    "DATA_PAGAMENTO": "Data Vencimento",
 }
 
 # ────────────────────────────────────────────────────────────
@@ -135,15 +138,23 @@ _PESSOAS: Dict[str, str] = {
     # ───────────────────────── Ano / Mês individuais ──────────────────────
     "AnoInicio":   "AnoInicio",
     "ano_inicio":  "AnoInicio",
+    "Ano_Inicio":  "AnoInicio",
     "Ano Inicio":  "AnoInicio",
     "MesInicio":   "MesInicio",
     "mes_inicio":  "MesInicio",
+    "Mes_Inicio":  "MesInicio",
     "Mes Inicio":  "MesInicio",
     "AnoFinal":    "AnoFinal",
     "ano_final":   "AnoFinal",
+    "Ano_Final":   "AnoFinal",
+    "Ano_Saida":   "AnoFinal",
+    "Ano Saida":   "AnoFinal",
     "Ano Final":   "AnoFinal",
     "MesFinal":    "MesFinal",
     "mes_final":   "MesFinal",
+    "Mes_Final":   "MesFinal",
+    "Mes_Saida":   "MesFinal",
+    "Mes Saida":   "MesFinal",
     "Mes Final":   "MesFinal",
 
     # ───────────────────────────── Salário ────────────────────────────────
@@ -211,6 +222,57 @@ _NPSARTISTAS: Dict[str, str] = {
 }
 
 # ────────────────────────────────────────────────────────────
+# Listas de colunas (seleção na carga)
+# ────────────────────────────────────────────────────────────
+COLS_BASESHOWS = [
+    "p_ID", "c_ID", "Casa", "Cidade", "UF", "Data", "Data_Pagamento",
+    "Artista", "Valor_Bruto", "Valor_Total", "Valor_Liquido",
+    "Comissao_Eshows_B2B", "Comissao_Eshows_B2C", "Taxa_Adiantamento",
+    "Curadoria", "SAAS_Percentual", "SAAS_Mensalidade", "Taxa_Emissao_NF",
+    "GRUPO_CLIENTES", "NOTA", "Mes", "Dia",
+]
+
+COLS_BASE2 = [
+    "Mes Ref", "mes_ref", "mes", "Ano", "Custos", "Imposto", "Ocupacao",
+]
+
+COLS_BOLETOCASAS = [
+    "Casa",
+    "Valor",
+    "Valor_Real",
+    "Status",
+    "Data_Vencimento",
+    "AnoVenc",
+    "MesVenc",
+    "DiaVenc",
+]
+
+COLS_BOLETOARTISTAS = [
+    "Artista",
+    "Valor_Bruto",
+    "Status",
+    "Data_Vencimento",
+    "AnoVenc",
+    "MesVenc",
+    "DiaVenc",
+]
+
+COLS_PESSOAS = [
+    "DataInicio", "DataFinal", "AnoInicio", "MesInicio", "AnoFinal",
+    "MesFinal", "Salario", "Nome", "Cargo",
+]
+
+COLS_CUSTOSABERTOS = [
+    "id_custo", "grupo_geral", "nivel_1", "nivel_2", "fornecedor", "valor",
+    "pagamento", "data_competencia", "data_vencimento",
+]
+
+COLS_NPSARTISTAS = [
+    "id", "data", "nps_eshows", "csat_eshows", "operador_1", "operador_2",
+    "csat_operador_1", "csat_operador_2",
+]
+
+# ────────────────────────────────────────────────────────────
 # Dicionário principal
 # ────────────────────────────────────────────────────────────
 MAPPING: Dict[str, Dict[str, str]] = {
@@ -228,37 +290,36 @@ MAPPING: Dict[str, Dict[str, str]] = {
 # Colunas em centavos (dividir por 100)
 # ────────────────────────────────────────────────────────────
 # Colunas que vêm em centavos
+# Mapeamento consolidado de colunas em centavos
+CENTAVOS_BASESHOWS = [
+    "Valor_Bruto", "Valor Total do Show", "Valor_Total", "Valor Artista",
+    "Valor_Liquido", "Comissao_Eshows_B2B", "Comissao_Eshows_B2C",
+    "Taxa_Adiantamento", "Curadoria", "SAAS_Percentual",
+    "SAAS_Mensalidade", "Taxa_Emissao_NF",
+]
+
+CENTAVOS_BASE2 = [
+    "Custos", "Imposto", "Ocupacao", "Equipe", "Terceiros", "Op. Shows",
+    "D.Cliente", "Softwares", "Mkt", "D.Finan", "C. Comercial", "C. Tecnologia",
+    "C. Geral", "C. Recursos Humanos", "C. Customer Success", "C. Operações",
+    "C. Novos Produtos", "C. Contabilidade", "C. Marketing", "Custo Farm",
+    "Custo Hunt", "Comercial", "Tech", "Geral", "Financas", "Control",
+    "Juridico", "C.Sucess", "Operações", "RH",
+]
+
+CENTAVOS_BOLETOCASAS = ["Valor", "Valor_Real", "Valor Real"]
+
+CENTAVOS_BOLETOARTISTAS = ["Valor_Bruto", "Valor Bruto"]
+
+CENTAVOS_CUSTOSABERTOS = ["valor", "Valor"]
+
+# Dicionário retrocompatível
 CENTS_MAPPING: Dict[str, List[str]] = {
-    "baseeshows": [
-        "Valor_Bruto", "Valor Total do Show", "Valor_Total", "Valor Artista",
-        "Valor_Liquido", "Comissao_Eshows_B2B", "Comissão B2B",
-        "Comissao_Eshows_B2C", "Comissão B2C", "Taxa_Adiantamento",
-        "Antecipação de Cachês", "Curadoria", "SAAS_Percentual",
-        "SaaS Percentual", "SAAS_Mensalidade", "SaaS Mensalidade",
-        "Taxa_Emissao_NF", "Notas Fiscais",
-    ],
-    "base2": [                 # ← **lista completa**
-        "Custos", "Imposto", "Ocupação", "Equipe", "Terceiros", "Op. Shows",
-        "D.Cliente", "Softwares", "Mkt", "D.Finan",
-        "C. Comercial", "C. Tecnologia", "C. Geral", "C. Recursos Humanos",
-        "C. Customer Success", "C. Operações", "C. Novos Produtos",
-        "C. Contabilidade", "C. Marketing",
-        "Custo Farm", "Custo Hunt",
-        "Comercial", "Tech", "Geral", "Financas", "Control",
-        "Juridico", "C.Sucess", "Operações", "RH",
-    ],
-    "boletocasas": [
-        "Valor",            # já existia
-        "Valor_Real",       # nome original
-        "Valor Real",       # <- adicionar
-    ],
-    "boletoartistas": [
-        "Valor_Bruto",      # nome original
-        "Valor Bruto",      # <- adicionar
-    ],
-    "custosabertos": [
-        "valor", "Valor",   # ← NOVO
-    ],
+    "baseeshows": CENTAVOS_BASESHOWS,
+    "base2": CENTAVOS_BASE2,
+    "boletocasas": CENTAVOS_BOLETOCASAS,
+    "boletoartistas": CENTAVOS_BOLETOARTISTAS,
+    "custosabertos": CENTAVOS_CUSTOSABERTOS,
 }
 
 # ────────────────────────────────────────────────────────────

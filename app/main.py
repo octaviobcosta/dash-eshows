@@ -3557,7 +3557,7 @@ def toggle_kpi_modal(n_clicks_list, close_clicks, is_open):
 # MAIN
 # =========================================================
 if __name__ == "__main__":
-    app.run_server(debug=True, dev_tools_hot_reload=True)
+    app.run(debug=True, dev_tools_hot_reload=True)
     
     # # Em vez disso, imprimir uma mensagem de instrução:
     # logger.info("Use 'python index.py' para iniciar o aplicativo com a tela de login")

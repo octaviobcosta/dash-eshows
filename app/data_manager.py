@@ -10,7 +10,22 @@ import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 from postgrest import APIError
 
-from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
+from .column_mapping import (
+    rename_columns,
+    COLS_BASESHOWS,
+    COLS_BASE2,
+    COLS_BOLETOCASAS,
+    COLS_BOLETOARTISTAS,
+    COLS_PESSOAS,
+    COLS_CUSTOSABERTOS,
+    COLS_NPSARTISTAS,
+    CENTAVOS_BASESHOWS,
+    CENTAVOS_BASE2,
+    CENTAVOS_BOLETOCASAS,
+    CENTAVOS_BOLETOARTISTAS,
+    CENTAVOS_CUSTOSABERTOS,
+    MAPPING,
+)
 
 # ────────────────────────────  logging  ────────────────────────────
 logging.basicConfig(
@@ -101,18 +116,50 @@ def dedup(df: pd.DataFrame) -> pd.DataFrame:
 
 # ────────────────────────  download + limpeza  ─────────────────────
 # -----------------------------------------------------------------------------
-def _fetch(table: str, force: bool = False) -> pd.DataFrame:
-    """
-    Baixa a tabela do Supabase.
+def _fetch(table: str, mode: str = "online") -> pd.DataFrame:
+    """Carrega a tabela do Supabase (``mode='online'``) ou do Parquet
+    local (``mode='offline'``) utilizando apenas as colunas mapeadas."""
 
-    Parameters
-    ----------
-    table : str
-        Nome da tabela.
-    force : bool, default False
-        Reservado para compatibilidade; ignorado aqui porque o data_manager
-        já decide se baixa ou usa cache conforme chamado.
-    """
+    table = table.lower()
+
+    cols_map = {
+        "baseeshows": COLS_BASESHOWS,
+        "base2": COLS_BASE2,
+        "boletocasas": COLS_BOLETOCASAS,
+        "boletoartistas": COLS_BOLETOARTISTAS,
+        "pessoas": COLS_PESSOAS,
+        "custosabertos": COLS_CUSTOSABERTOS,
+        "npsartistas": COLS_NPSARTISTAS,
+    }
+
+    cents_map = {
+        "baseeshows": CENTAVOS_BASESHOWS,
+        "base2": CENTAVOS_BASE2,
+        "boletocasas": CENTAVOS_BOLETOCASAS,
+        "boletoartistas": CENTAVOS_BOLETOARTISTAS,
+        "custosabertos": CENTAVOS_CUSTOSABERTOS,
+    }
+
+    cols = cols_map.get(table)
+    if not cols:
+        cols = None
+
+    offline_cols = [MAPPING.get(table, {}).get(c, c) for c in cols] if cols else None
+
+    if mode == "offline":
+        try:
+            df = pd.read_parquet(_cache_path(table), columns=offline_cols)
+        except Exception:
+            try:
+                df = pd.read_parquet(_cache_path(table))
+            except Exception as exc:
+                logger.error("[%s] erro lendo Parquet: %s", table, exc)
+                return pd.DataFrame()
+        df = rename_columns(dedup(df), table)
+        for col in [c for c in cents_map.get(table, []) if c in df.columns]:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0) / 100.0
+        return df
+
     if supa is None:
         return pd.DataFrame()
 
@@ -120,7 +167,8 @@ def _fetch(table: str, force: bool = False) -> pd.DataFrame:
     while True:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
-            q = supa.table(table).select("*")
+            sel = ",".join(cols) if cols else "*"
+            q = supa.table(table).select(sel)
             if table.lower() == "baseeshows":
                 q = q.gte("Data", "2022-01-01")  # corte opcional
             resp = q.range(start, end).execute()
@@ -140,11 +188,9 @@ def _fetch(table: str, force: bool = False) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = pd.concat(pages, ignore_index=True)
-    df = divide_cents(dedup(rename_columns(df, table)), table)
-
-    for col in CENTS_MAPPING.get(table.lower(), []):
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+    df = rename_columns(dedup(df), table)
+    for col in [c for c in cents_map.get(table, []) if c in df.columns]:
+        df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0) / 100.0
 
     logger.info("[%s] baixado: %s linhas × %s col", table, *df.shape)
     return df
@@ -157,16 +203,13 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
     if not force_reload and table in _cache:
         return _cache[table]
 
-    if not force_reload:
-        if (df_disk := _load_parquet(table)) is not None:
-            _cache[table] = df_disk
-            logger.info("[%s] carregado do Parquet (%s linhas)", table, len(df_disk))
-            return df_disk
+    mode = "online" if supa is not None else "offline"
 
-    df_live = _fetch(table)
-    _cache[table] = df_live
-    _save_parquet(table, df_live)
-    return df_live
+    df = _fetch(table, mode=mode)
+    _cache[table] = df
+    if mode == "online":
+        _save_parquet(table, df)
+    return df
 
 # ────────────────────  interfaces públicas  ────────────────────────
 def get_df_eshows()        -> pd.DataFrame:                      return _get("baseeshows")

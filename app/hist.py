@@ -1787,9 +1787,12 @@ def historical_erros_operacionais(months: int = 12):
     df = prepare_base2_with_date(df)            # garante coluna 'Data'
 
     # Coluna pode não existir ainda
-    df["Op. Shows"] = pd.to_numeric(
-        df.get("Op. Shows", 0), errors="coerce"
-    ).fillna(0)
+    if "Op. Shows" not in df.columns:
+        df["Op. Shows"] = 0
+    else:
+        df["Op. Shows"] = pd.to_numeric(
+            df["Op. Shows"], errors="coerce"
+        ).fillna(0)
 
     # Agrupa por ano-mês e soma erros do mês
     df_mensal = (

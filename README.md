@@ -60,6 +60,18 @@ $ python app/main.py                  # ou "python -m flask run" se for Flask
 
 Nunca commit essas chaves. Mantenha-as no .env ou nos Secrets do GitHub.
 
+## 📶 Modo offline
+
+Sem `SUPABASE_URL` e `SUPABASE_KEY` o dashboard lê os arquivos Parquet em
+`app/_cache_parquet/`. Somente as colunas listadas em `app/column_mapping.py`
+são carregadas para reduzir o consumo inicial de RAM.
+
+Para incluir uma nova coluna no futuro:
+
+1. Adicione o nome em `COLS_<TABELA>` no mesmo arquivo.
+2. Caso seja valor em centavos, inclua também em `CENTAVOS_<TABELA>`.
+3. Rode o app online uma vez para atualizar o Parquet local.
+
 ## 🗄️ Fluxo de migrations (Supabase CLI)
 
 ```bash

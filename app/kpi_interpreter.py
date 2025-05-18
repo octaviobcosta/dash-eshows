@@ -2,7 +2,10 @@ import json
 import logging
 import os
 from typing import Dict, Any
-import anthropic
+try:
+    import anthropic
+except Exception:  # pacote ausente em modo offline
+    anthropic = None
 from dotenv import load_dotenv
 from .utils import formatar_valor_utils
 
@@ -16,12 +19,21 @@ class KPIInterpreter:
         (description, formula, etc.).
         """
         self.kpi_descriptions = kpi_descriptions
-        # Inicializa o cliente da Anthropic usando a variável de ambiente
-        self.anthropic_api_key = "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"
-        self.client = anthropic.Client(api_key=self.anthropic_api_key)
-
-        # [NOVO] Cria um dicionário para cachear as interpretações
         self.cache = {}
+
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        self.client = None
+        if anthropic and api_key:
+            try:
+                if hasattr(anthropic, "Anthropic"):
+                    self.client = anthropic.Anthropic(api_key=api_key)
+                else:
+                    self.client = anthropic.Client(api_key=api_key)
+                logger.info("Cliente Anthropic inicializado")
+            except Exception as exc:
+                logger.warning("Anthropic indisponível: %s", exc)
+        else:
+            logger.warning("Anthropic desativado (pacote ou chave ausente)")
 
     def _convert_result_to_float(self, resultado_valor):
         """
@@ -234,6 +246,9 @@ DIRETRIZES:
         )
 
         # Chamada ao modelo
+        if not self.client:
+            return self._fallback_gpt(kpi_name, kpi_values, strategy_info)
+
         try:
             response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",  # Mantendo o modelo que você tinha

@@ -53,7 +53,7 @@ def _load_or_cache(table: str, force: bool = False) -> pd.DataFrame:
     # 1) tenta Supabase
     if supa is not None:
         try:
-            df_online = _fetch(table, force)
+            df_online = _fetch(table, mode="online")
         except Exception as exc:  # perda de conexão, etc.
             logger.warning("[%s] Fetch falhou: %s — usando cache se existir", table, exc)
             df_online = pd.DataFrame()
@@ -64,7 +64,7 @@ def _load_or_cache(table: str, force: bool = False) -> pd.DataFrame:
 
     # 2) cache local
     if path.exists():
-        return pd.read_parquet(path)
+        return _fetch(table, mode="offline")
 
     # 3) nada disponível
     raise FileNotFoundError(
@@ -408,15 +408,31 @@ def sanitize_inad_df(df_raw: pd.DataFrame, tabela: str) -> pd.DataFrame:
     """
     df = rename_columns(df_raw, tabela).pipe(dedup).copy()
 
-    # boletoartistas — reduz colunas
-    if tabela.lower() == "boletoartistas":
-        cols_keep = ["ID_Boleto", "NOME", "Adiantamento", "Valor Bruto", "ID"]
-        df = df[[c for c in cols_keep if c in df.columns]].copy()
-
-    # Datas
+    # Datas e colunas derivadas
     for col in ("Data Vencimento", "Data_Show", "DATA_PAGAMENTO"):
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors="coerce")
+
+    if "Data Vencimento" in df.columns:
+        dt = pd.to_datetime(df["Data Vencimento"], errors="coerce")
+        df["DiaVenc"] = dt.dt.day.astype("Int8")
+        df["MesVenc"] = dt.dt.month.astype("Int8")
+        df["AnoVenc"] = dt.dt.year.astype("Int16")
+
+    # boletoartistas — reduz colunas
+    if tabela.lower() == "boletoartistas":
+        cols_keep = [
+            "ID_Boleto",
+            "NOME",
+            "Adiantamento",
+            "Valor Bruto",
+            "ID",
+            "Data Vencimento",
+            "AnoVenc",
+            "MesVenc",
+            "DiaVenc",
+        ]
+        df = df[[c for c in cols_keep if c in df.columns]].copy()
 
     # Valores
     for col in ("Valor", "Valor Real", "Valor Bruto"):

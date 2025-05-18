@@ -2,7 +2,10 @@
 import pandas as pd
 import json
 import os
-import tiktoken
+try:
+    import tiktoken  # opcional
+except ImportError:
+    tiktoken = None
 import numbers
 from datetime import datetime, timedelta
 import calendar
