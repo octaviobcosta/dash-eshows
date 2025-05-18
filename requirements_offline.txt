@@ -9,7 +9,7 @@ python-dotenv
 postgrest
 supabase
 
-# ─ Dependências de apoio que seu app usa diretamente ───────────────────
+# ─ Dependências de apoio usadas diretamente pelo app ────────────────────
 plotly
 numpy
 requests
