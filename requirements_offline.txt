@@ -14,3 +14,4 @@ plotly
 numpy
 requests
 pyarrow
+anthropic==0.45.2
