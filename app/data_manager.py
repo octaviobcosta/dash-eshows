@@ -27,6 +27,12 @@ CACHE_DIR.mkdir(exist_ok=True)
 
 CACHE_EXPIRY_HOURS: int | None = 12
 
+# -----------------------------------------------------------------------------
+# helper compatível com modulobase
+def _parquet_path(table: str) -> Path:
+    """Retorna app/_cache_parquet/{table}.parquet (wrapper para _cache_path)."""
+    return _cache_path(table)
+
 def _cache_path(table: str) -> Path:
     return CACHE_DIR / f"{table.lower()}.parquet"
 
@@ -56,9 +62,10 @@ def _save_parquet(table: str, df: pd.DataFrame) -> None:
         pass
 
 # ────────────────────────  Supabase client  ────────────────────────
-supa = None  # lazily-instantiated singleton
+supa = None  # singleton
 
 def _init_supabase():
+    """Cria o cliente se houver URL+KEY; caso contrário, sinaliza MODO OFFLINE."""
     global supa
     if supa is not None:
         return supa
@@ -68,7 +75,8 @@ def _init_supabase():
 
     url, key = os.getenv("SUPABASE_URL", ""), os.getenv("SUPABASE_KEY", "")
     if not (url and key):
-        logger.error("SUPABASE_URL/KEY não encontrados.")
+        logger.warning("Rodando em MODO OFFLINE – cache Parquet será usado.")
+        supa = None
         return None
 
     try:
@@ -76,7 +84,8 @@ def _init_supabase():
         supa = create_client(url, key)
         logger.info("Cliente Supabase inicializado.")
     except Exception as e:
-        logger.error("Falha ao criar cliente Supabase: %s", e)
+        logger.error("Falha ao criar cliente Supabase: %s – entrando em MODO OFFLINE", e)
+        supa = None
 
     return supa
 
@@ -91,7 +100,19 @@ def dedup(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 # ────────────────────────  download + limpeza  ─────────────────────
-def _fetch(table: str) -> pd.DataFrame:
+# -----------------------------------------------------------------------------
+def _fetch(table: str, force: bool = False) -> pd.DataFrame:
+    """
+    Baixa a tabela do Supabase.
+
+    Parameters
+    ----------
+    table : str
+        Nome da tabela.
+    force : bool, default False
+        Reservado para compatibilidade; ignorado aqui porque o data_manager
+        já decide se baixa ou usa cache conforme chamado.
+    """
     if supa is None:
         return pd.DataFrame()
 
@@ -101,7 +122,7 @@ def _fetch(table: str) -> pd.DataFrame:
         try:
             q = supa.table(table).select("*")
             if table.lower() == "baseeshows":
-                q = q.gte("Data", "2022-01-01")
+                q = q.gte("Data", "2022-01-01")  # corte opcional
             resp = q.range(start, end).execute()
         except APIError as err:
             logger.error("[%s] página %s: %s", table, page + 1, err.message)
