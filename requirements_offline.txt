@@ -1,5 +1,15 @@
 --no-index
 --find-links ./wheelhouse
+
+# ─ Pacotes principais ───────────────────────────────────────────────────
 pandas
 dash
-# coloque aqui os outros pacotes que já estavam no seu requirements
+dash_bootstrap_components
+python-dotenv
+postgrest
+supabase
+
+# ─ Dependências de apoio que seu app usa diretamente ───────────────────
+plotly
+numpy
+requests
