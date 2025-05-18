@@ -1,9 +1,17 @@
 """
-app.py – Entry point do Dash da Eshows
-====================================
+app.main – Entry point do Dash da Eshows
+=======================================
 Organizado em blocos lógicos, com títulos claros e comentários de contexto.  
 Comentários extensos e código morto foram removidos para facilitar a leitura.
 """
+
+# ==============================================================================
+# 0) CARREGA VARIÁVEIS DE AMBIENTE (.env ou .env.example)
+# ==============================================================================
+from dotenv import load_dotenv, find_dotenv
+
+# tenta carregar .env; se não existir, carrega .env.example
+load_dotenv(find_dotenv(".env") or ".env.example")
 
 # ==============================================================================
 # 1) IMPORTS
@@ -19,7 +27,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import calendar
 
-# ― Terceiros -------------------------------------------------------------------
+# ― Terceiros ------------------------------------------------------------------
 import warnings
 
 import pandas as pd
@@ -34,7 +42,7 @@ from dateutil.relativedelta import relativedelta
 import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
 
-# ― Módulos internos ------------------------------------------------------------
+# ― Módulos internos -----------------------------------------------------------
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
     carregar_base_eshows,
@@ -67,7 +75,7 @@ from .utils import (
     filtrar_novos_palcos_por_periodo,
     calcular_churn_novos_palcos,
     calcular_variacao_percentual,
-    ensure_grupo_col
+    ensure_grupo_col,
 )
 from .kpis_charts import generate_kpi_figure
 
