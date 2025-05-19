@@ -11,9 +11,7 @@ import logging
 from typing import Dict, List
 import pandas as pd
 
-logger = logging.getLogger("column_mapping")
-if not logger.handlers:
-    logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 logger.info("column_mapping importado.")
 
 # ────────────────────────────────────────────────────────────

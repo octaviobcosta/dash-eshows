@@ -13,13 +13,7 @@ from postgrest import APIError
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
 
 # ────────────────────────────  logging  ────────────────────────────
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s – %(name)s – %(levelname)s – %(message)s",
-)
-logger = logging.getLogger("data_manager")
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("supabase_py").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 # ───────────────────────  cache em Parquet  ────────────────────────
 CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"

@@ -14,13 +14,13 @@ import sys
 import gc
 import json
 import logging
+from dotenv import load_dotenv
 import unicodedata
 from pathlib import Path
 from datetime import datetime, timedelta
 import calendar
 
 # ― Terceiros -------------------------------------------------------------------
-import warnings
 
 import pandas as pd
 import numpy as np
@@ -33,6 +33,9 @@ import plotly.graph_objects as go
 from dateutil.relativedelta import relativedelta
 import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
+
+load_dotenv()
+import logging_config  # noqa: F401
 
 # ― Módulos internos ------------------------------------------------------------
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
@@ -79,20 +82,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 # ― Logger ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
 
 # ― Warnings & Pandas -----------------------------------------------------------
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings(
-    "ignore",
-    message="Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated",
-)
 
-pd.options.mode.chained_assignment = None
 
 # ― Constantes visuais ----------------------------------------------------------
 TEXT_COLOR = "#122046"

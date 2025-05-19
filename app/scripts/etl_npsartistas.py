@@ -17,6 +17,9 @@ Salva em: app/npsartistas.csv
 
 from pathlib import Path
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ────────── paths ──────────
 BASE_DIR  = Path(__file__).resolve().parents[1]         # …/dash-eshows/app
@@ -46,4 +49,4 @@ if "Data" in df.columns:
 
 # ────────── grava CSV ───────
 df.to_csv(DST_CSV, index=False)
-print(f"✅ CSV gerado em {DST_CSV}")
+logger.debug("✅ CSV gerado em %s", DST_CSV)

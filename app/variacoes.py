@@ -9,6 +9,9 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import gc # <--- ADICIONADO
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Imports do seu projeto
 from .modulobase import (
@@ -3011,8 +3014,8 @@ def _compute_ltv_cac(
             ini, fim = custom_range
             label_periodo_calc = f"{pd.to_datetime(ini):%d/%m/%y} – {pd.to_datetime(fim):%d/%m/%y}"
         except Exception as e:
-            print(f"Erro ao formatar custom_range para label em _compute_ltv_cac: {e}")
-            label_periodo_calc = mes_nome_intervalo(df_per, periodo) # Fallback
+            logger.debug("Erro ao formatar custom_range para label em _compute_ltv_cac: %s", e)
+            label_periodo_calc = mes_nome_intervalo(df_per, periodo)  # Fallback
     else:
         label_periodo_calc = mes_nome_intervalo(df_per, periodo)
     # Fim TASK D

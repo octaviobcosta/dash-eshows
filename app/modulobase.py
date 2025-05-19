@@ -37,9 +37,7 @@ from .data_manager import (
 from .column_mapping import rename_columns, SUPPLIER_TO_SETOR, PERCENT_COLS
 
 # ─────────────────────────────  logging  ────────────────────────────
-logger = logging.getLogger("modulobase")
-if not logger.handlers:
-    logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ────────────────────────────  caches  ──────────────────────────────
 _df_eshows_cache:            pd.DataFrame | None = None

@@ -13,6 +13,7 @@ import numbers
 import textwrap
 import re
 import logging
+logger = logging.getLogger(__name__)
 
 # ── IMPORTS DO PROJETO (todos voltam um nível: "..") ──────────
 from ..controles        import kpi_area_mapping, sanitize_id
@@ -143,7 +144,7 @@ def extract_pdf_content(pdf_name, folder="assets"):
                     text += page_text + "\n"
         return text
     except Exception as e:
-        print(f"Erro ao ler o PDF {pdf_name}: {e}")
+        logger.debug("Erro ao ler o PDF %s: %s", pdf_name, e)
         return ""
 
 def parse_strategy_and_pillars(pdf_text):
@@ -1311,7 +1312,7 @@ def register_callbacks(app):
             try:
                 data_now = func(ano, periodo, mes, **kwargs_current)
             except Exception as e:
-                print(f"[ERRO] KPI {kpi_key} atual: {e}")
+                logger.debug("[ERRO] KPI %s atual: %s", kpi_key, e)
                 data_now = {}
 
             valor_str      = data_now.get('resultado', "N/A")
@@ -1344,7 +1345,7 @@ def register_callbacks(app):
                 data_comp = func(ano_comp, periodo_comp, mes_comp, **kwargs_comp)
                 anterior_result_float = parse_valor_formatado(data_comp.get('resultado', "0"))
             except Exception as e:
-                print(f"[ERRO] KPI {kpi_key} comparativo: {e}")
+                logger.debug("[ERRO] KPI %s comparativo: %s", kpi_key, e)
                 anterior_result_float = 0.0
 
             atual_result_float = parse_valor_formatado(valor_str)
@@ -1396,12 +1397,6 @@ def register_callbacks(app):
 
 
     # Exemplo de logging (opcional)
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
 
     import ast
     @app.callback(
@@ -1425,7 +1420,7 @@ def register_callbacks(app):
 
         # Calculate earliest/latest based on the global df_eshows_global
         # Ensure df_eshows_global is accessible here (should be if loaded globally)
-        print("DEBUG: Calculando earliest/latest dentro de update_kpi_selected_data")
+        logger.debug("DEBUG: Calculando earliest/latest dentro de update_kpi_selected_data")
         df_casas_earliest = df_eshows_global.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow") if df_eshows_global is not None and not df_eshows_global.empty else None
         df_casas_latest = df_eshows_global.groupby("Id da Casa")["Data do Show"].max().reset_index(name="LastShow") if df_eshows_global is not None and not df_eshows_global.empty else None
         # Also ensure df_base2_global is accessible if needed later (e.g., for LTV/CAC call)
@@ -1457,7 +1452,7 @@ def register_callbacks(app):
                         if start_dt <= end_dt:
                             current_custom_range = (start_dt, end_dt)
                     except Exception as e:
-                        print(f"Erro ao converter datas para custom_range em update_kpi_selected_data: {e}")
+                        logger.debug("Erro ao converter datas para custom_range em update_kpi_selected_data: %s", e)
 
                 # --- Ajuste na chamada da função --- 
                 func_to_call = kpi_functions.get(kpi_name)
@@ -1504,12 +1499,12 @@ def register_callbacks(app):
                             kpi_values = func_to_call(ano=ano, periodo=periodo, mes=mes, **kwargs_for_kpi)
                             
                     except Exception as e:
-                        print(f"Erro ao chamar {kpi_name}: {e}")
-                        kpi_values = {} # Retorna vazio em caso de erro
+                        logger.debug("Erro ao chamar %s: %s", kpi_name, e)
+                        kpi_values = {}  # Retorna vazio em caso de erro
                 # -----------------------------------
 
                 if not kpi_values:
-                    print(f"WARNING: kpi_values vazio para {kpi_name}")
+                    logger.debug("WARNING: kpi_values vazio para %s", kpi_name)
                     # raise dash.exceptions.PreventUpdate # Decide se quer impedir update ou mostrar modal vazio
 
                 kpi_data = {
@@ -1523,7 +1518,7 @@ def register_callbacks(app):
                     'periodo_texto': kpi_values.get('periodo', ''),
                     'status': kpi_values.get('status', ''),
                 }
-                print(f"DEBUG: kpi_data a ser armazenado para {kpi_name}: {kpi_data}") # DEBUG STORE
+                logger.debug("DEBUG: kpi_data a ser armazenado para %s: %s", kpi_name, kpi_data)  # DEBUG STORE
                 return kpi_data
 
         raise dash.exceptions.PreventUpdate
@@ -2771,7 +2766,7 @@ $$
             return final_markdown
 
         else:
-            print(f"DEBUG: KPI '{kpi_name}' caiu no bloco ELSE (não mapeado explicitamente ou nome incorreto)") # DEBUG
+            logger.debug("DEBUG: KPI '%s' caiu no bloco ELSE (não mapeado explicitamente ou nome incorreto)", kpi_name)
             computed_formula = "Fórmula específica não disponível."
             # ... (lógica do else) ...
             itens = [
@@ -2817,8 +2812,8 @@ $$
         final_markdown = "\n".join(line.lstrip() for line in textwrap.dedent(markdown_content).splitlines())
         
         # --- DEBUG START ---
-        print(f"DEBUG: Conteúdo Markdown Final (primeiros 200 chars): {final_markdown[:200]}...") # DEBUG
-        print("="*30 + " FIM DEBUG " + "="*30 + "\n")
+        logger.debug("DEBUG: Conteúdo Markdown Final (primeiros 200 chars): %s...", final_markdown[:200])
+        logger.debug("%s", "="*30 + " FIM DEBUG " + "="*30 + "\n")
         # --- DEBUG END ---
         
         return final_markdown
@@ -2840,7 +2835,7 @@ $$
         prevent_initial_call=True
     )
     def generate_interpretation(kpi_data, strategy_info, painel_data, dashboard_data, modal_is_open, ia_data):
-        print("Dashboard_data recebido:", dashboard_data)  # Debug: ver o conteúdo do store
+        logger.debug("Dashboard_data recebido: %s", dashboard_data)  # Debug: ver o conteúdo do store
         if not modal_is_open or not kpi_data or 'kpi_name' not in kpi_data:
             raise dash.exceptions.PreventUpdate
         if ia_data is None:

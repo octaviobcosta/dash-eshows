@@ -18,6 +18,9 @@ from datetime import timedelta, datetime
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ────────────────────────────────────────────────────────────
 # Ajuste os imports abaixo ao seu projeto
@@ -112,7 +115,7 @@ def gerar_excel_churn_valor_debug(
     # --------- carrega base ------------------------------------------------------------------
     df_eshows = carregar_base_eshows()
     if df_eshows is None or df_eshows.empty:
-        print("[DEBUG] ➜ df_eshows vazio")
+        logger.debug("[DEBUG] ➜ df_eshows vazio")
         return None
 
     # --------- intervalo ---------------------------------------------------------------------
@@ -125,7 +128,7 @@ def gerar_excel_churn_valor_debug(
     # --------- casas churnadas ---------------------------------------------------------------
     churn_df = _churn_ids_debug(df_eshows, dias_sem_show, dt_ini, dt_fim, uf)
     if churn_df.empty:
-        print("[DEBUG] ➜ Nenhum churn encontrado")
+        logger.debug("[DEBUG] ➜ Nenhum churn encontrado")
         return None
 
     ids_churn = churn_df["Id da Casa"].unique()
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         # --- salvar arquivo (opcional) ---
         with open("ChurnValorYTD.xlsx", "wb") as f:
             f.write(buffer.getvalue())
-        print("✓ Arquivo ChurnValorYTD.xlsx gerado com sucesso!\n")
+        logger.debug("✓ Arquivo ChurnValorYTD.xlsx gerado com sucesso!\n")
 
         # --- carregar da memória para DataFrame e printar ---
         import pandas as pd
@@ -224,6 +227,6 @@ if __name__ == "__main__":
         # imprime tudo no terminal
         pd.set_option("display.max_rows", None)
         pd.set_option("display.max_columns", None)
-        print(tabela_df.to_string(index=False))
+        logger.debug(tabela_df.to_string(index=False))
     else:
-        print("Nenhum churn $$ encontrado para o intervalo informado.")
+        logger.debug("Nenhum churn $$ encontrado para o intervalo informado.")

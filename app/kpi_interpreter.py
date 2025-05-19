@@ -89,13 +89,13 @@ class KPIInterpreter:
         """
 
         indicators_json = json.dumps(all_indicators, indent=2, ensure_ascii=False)
-        print("### JSON de Indicadores Enviado ao LLM:\n", indicators_json)
+        logger.debug("### JSON de Indicadores Enviado ao LLM:\n%s", indicators_json)
 
         strategy_context = ""
         if strategy_info:
             estrat = strategy_info.get('estrategia', 'Estratégia não definida')
             pilares = strategy_info.get('pilares', 'Pilares não definidos')
-            print("### Conteúdo do Strategy Info:\n", json.dumps(strategy_info, indent=2, ensure_ascii=False))
+            logger.debug("### Conteúdo do Strategy Info:\n%s", json.dumps(strategy_info, indent=2, ensure_ascii=False))
 
             strategy_context = f"""
 [CONTEXTO ESTRATÉGICO]
@@ -103,7 +103,7 @@ Estratégia (Doc): {estrat}
 Pilares (Doc): {pilares}
 """
         else:
-            print("### Nenhuma estratégia definida no 'strategy_info'.")
+            logger.debug("### Nenhuma estratégia definida no 'strategy_info'.")
 
         data_priority_note = (
             "Caso existam divergências entre o KPI principal e valores brutos conflitantes, "

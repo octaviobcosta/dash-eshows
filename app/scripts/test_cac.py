@@ -15,6 +15,9 @@ from .modulobase import (
     carregar_base_eshows,
     carregar_pessoas,
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------- #
 # Parâmetros                                                                  #
@@ -93,11 +96,11 @@ def resumir_cac(resultado: dict) -> None:
         f"💰 CAC Total                    : {formatar_valor_utils(cac_raw, 'monetario')}",
     ])
 
-    print("\n".join(linhas))
+    logger.debug("\n".join(linhas))
 
     # ─ Detalhe Alimentação (mês × fornecedor) ────────────────────────────── #
     if alim_df_full:
-        print("\nDetalhe Alimentação (mês × fornecedor):")
+        logger.debug("\nDetalhe Alimentação (mês × fornecedor):")
         df_alim = pd.DataFrame(alim_df_full).rename(columns=str.strip)
 
         # Corrige variações de nome
@@ -120,21 +123,22 @@ def resumir_cac(resultado: dict) -> None:
                 .sort_values(["Mês", "Fornecedor"])
             )
             for _, row in resumo.iterrows():
-                print(f"  {row['Mês']} • {row['Fornecedor']}: {formatar_valor_utils(row['Valor'], 'monetario')}")
+                logger.debug("  %s • %s: %s", row['Mês'], row['Fornecedor'], formatar_valor_utils(row['Valor'], 'monetario'))
         else:
-            print("  ⚠️  Não foi possível identificar colunas 'Fornecedor' e data.")
+            logger.debug("  ⚠️  Não foi possível identificar colunas 'Fornecedor' e data.")
 
     # ─ Tabela mensal resumida (Total, HC, etc.) ──────────────────────────── #
     if alim_mensal:
-        print("\nAlimentação — detalhamento mensal:")
+        logger.debug("\nAlimentação — detalhamento mensal:")
         for m in alim_mensal:
-            print(
-                f"  {m['Mes']:>7} | "
-                f"Tot.: {formatar_valor_utils(m['Alimentacao_Total'], 'monetario'):>8} | "
-                f"HC: {m['Headcount_Total']:>3} | "
-                f"Alim/pessoa: {formatar_valor_utils(m['Alim_por_Pessoa'], 'monetario'):>7} | "
-                f"HC Com.: {m['Headcount_Comercial']:>2} | "
-                f"Alim Com.: {formatar_valor_utils(m['Alimentacao_Comercial'], 'monetario')}"
+            logger.debug(
+                "  %s | Tot.: %s | HC: %s | Alim/pessoa: %s | HC Com.: %s | Alim Com.: %s",
+                f"{m['Mes']:>7}",
+                formatar_valor_utils(m['Alimentacao_Total'], 'monetario'),
+                f"{m['Headcount_Total']:>3}",
+                formatar_valor_utils(m['Alim_por_Pessoa'], 'monetario'),
+                f"{m['Headcount_Comercial']:>2}",
+                formatar_valor_utils(m['Alimentacao_Comercial'], 'monetario'),
             )
 # --------------------------------------------------------------------------- #
 # Execução direta                                                             #

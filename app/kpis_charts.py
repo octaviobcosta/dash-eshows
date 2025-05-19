@@ -6,10 +6,13 @@ import calendar
 from datetime import datetime
 import plotly.graph_objects as go
 import pandas as pd
+import logging
 from .utils import parse_valor_formatado      # ← função única, já corrigida
 from .hist import _format_tempo_casa # << IMPORTADO DE HIST
 from .config_data import HIST_KPI_MAP
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 # --- paleta mínima de apoio --------------------------------------------------
 COLOR_POS   = "#29B388"   # verde
@@ -25,41 +28,42 @@ def kpi_hist_data(kpi_name: str):
     """
     Retorna (labels, values) dos 12 últimos pontos históricos do KPI.
     """
-    print(f"\n--- [kpi_hist_data] INICIANDO para KPI: '{kpi_name}' ---")
+    logger.debug("\n--- [kpi_hist_data] INICIANDO para KPI: '%s' ---", kpi_name)
     
     if HIST_KPI_MAP is None:
-        print("[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data é None.")
+        logger.debug("[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data é None.")
         return None, None
     if not isinstance(HIST_KPI_MAP, dict):
-        print(f"[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data não é um dicionário, é {type(HIST_KPI_MAP)}.")
+        logger.debug("[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data não é um dicionário, é %s.", type(HIST_KPI_MAP))
         return None, None
     if not HIST_KPI_MAP:
-        print("[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data está VAZIO.")
+        logger.debug("[kpi_hist_data] ERRO FATAL: HIST_KPI_MAP importado de config_data está VAZIO.")
         return None, None
 
     hist = HIST_KPI_MAP.get(kpi_name)
     
     # Log para verificar se o KPI específico foi encontrado e algumas chaves do mapa
-    print(f"[kpi_hist_data] Verificando '{kpi_name}'. Encontrado em HIST_KPI_MAP (de config_data): {hist is not None}. Algumas chaves do mapa: {list(HIST_KPI_MAP.keys())[:5]}")
+    logger.debug("[kpi_hist_data] Verificando '%s'. Encontrado em HIST_KPI_MAP (de config_data): %s. Algumas chaves do mapa: %s",
+                 kpi_name, hist is not None, list(HIST_KPI_MAP.keys())[:5])
 
     if not hist:
-        print(f"[kpi_hist_data] KPI '{kpi_name}' não encontrado no HIST_KPI_MAP importado de config_data. Retornando None, None.")
+        logger.debug("[kpi_hist_data] KPI '%s' não encontrado no HIST_KPI_MAP importado de config_data. Retornando None, None.", kpi_name)
         return None, None
 
     raw = hist.get("raw_data")
     if not raw:
-        print(f"[kpi_hist_data] KPI: '{kpi_name}', 'raw_data' não encontrado ou vazio em hist. Verificando 'series' como fallback.")
+        logger.debug("[kpi_hist_data] KPI: '%s', 'raw_data' não encontrado ou vazio em hist. Verificando 'series' como fallback.", kpi_name)
         raw = hist.get("series")
 
     if not raw or not isinstance(raw, dict):
-        print(f"[kpi_hist_data] KPI: '{kpi_name}', nem 'raw_data' nem 'series' encontrados ou não são dict. Conteúdo de hist: {hist}. Retornando None, None.")
+        logger.debug("[kpi_hist_data] KPI: '%s', nem 'raw_data' nem 'series' encontrados ou não são dict. Conteúdo de hist: %s. Retornando None, None.", kpi_name, hist)
         return None, None
     
-    print(f"[kpi_hist_data] KPI: '{kpi_name}', raw_data obtido: {type(raw)}, {len(raw) if isinstance(raw, dict) else 'N/A'} items.")
+    logger.debug("[kpi_hist_data] KPI: '%s', raw_data obtido: %s, %s items.", kpi_name, type(raw), len(raw) if isinstance(raw, dict) else 'N/A')
 
     items  = list(raw.items())[-12:]
     if not items:
-        print(f"[kpi_hist_data] KPI: '{kpi_name}', raw_data foi encontrado mas está vazio após pegar os últimos 12 items. Retornando None, None.")
+        logger.debug("[kpi_hist_data] KPI: '%s', raw_data foi encontrado mas está vazio após pegar os últimos 12 items. Retornando None, None.", kpi_name)
         return None, None
         
     labels = [pd.to_datetime(d).strftime("%b/%y") for d, _ in items]
@@ -81,7 +85,7 @@ def kpi_hist_data(kpi_name: str):
                 current_value = float(parsed)
         values.append(current_value)
 
-    print(f"[kpi_hist_data] FINAL - KPI: '{kpi_name}', Labels: {labels}, Values: {values}\n---")
+    logger.debug("[kpi_hist_data] FINAL - KPI: '%s', Labels: %s, Values: %s\n---", kpi_name, labels, values)
     return labels, values
 
 
