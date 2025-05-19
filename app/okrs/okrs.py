@@ -2944,10 +2944,15 @@ def ler_todas_as_metas(ano: int,
                                                periodo, mes, custom_range)
 
     # ---------- Coluna do Excel → chave interna ----------
+    # Mapas de colunas: permitem tanto nomes com espaço quanto com underscore
+    # (ex.: "Novos_Clientes") para compatibilidade com a estrutura do Supabase.
     col_map: dict[str, str] = {
         "Novos Clientes": "NovosClientes",
+        "Novos_Clientes": "NovosClientes",
         "Key Account": "KeyAccount",
+        "Key_Account": "KeyAccount",
         "Outros Clientes": "OutrosClientes",
+        "Outros_Clientes": "OutrosClientes",
         "Plataforma": "Plataforma",
         "Fintech": "Fintech",
         "NRR": "NRR",
@@ -2955,16 +2960,26 @@ def ler_todas_as_metas(ano: int,
         "TurnOver": "TurnOver",
         "Lucratividade": "Lucratividade",
         "Crescimento Sustentável": "CrescimentoSustentavel",
+        "Crescimento_Sustentavel": "CrescimentoSustentavel",
         "Palcos Vazios": "PalcosVazios",
+        "Palcos_Vazios": "PalcosVazios",
         "InadimplenciaReal": "InadimplenciaReal",
+        "Inadimplencia_Real": "InadimplenciaReal",
         "Estabilidade": "Estabilidade",
         "Ef. Atendimento": "EficienciaAtendimento",
+        "Ef_Atendimento": "EficienciaAtendimento",
         "AutonomiaUsuario": "AutonomiaUsuario",
+        "Autonomia_Usuario": "AutonomiaUsuario",
         "Perdas Operacionais": "PerdasOperacionais",
+        "Perdas_Operacionais": "PerdasOperacionais",
         "ReceitaPorColaborador": "ReceitaPorColaborador",
+        "Receita_Por_Colaborador": "ReceitaPorColaborador",
         "LTV/CAC": "LtvCac",
+        "LTV_CAC": "LtvCac",
         "NPS Artistas": "NPSArtistas",
+        "NPS_Artistas": "NPSArtistas",
         "NPS Equipe": "NPSEquipe",
+        "NPS_Equipe": "NPSEquipe",
     }
 
     # metas que são SOMA (o resto recebe média)
@@ -3009,8 +3024,10 @@ def ler_todas_as_metas(ano: int,
             continue
 
         val = serie.sum() if key_meta in keys_to_sum else serie.mean()
-        if key_meta in percent_keys:
-            val = val / 100.0  # converte para fração
+        # A conversão de colunas percentuais para fração já ocorre em
+        # ``sanitize_metas_df`` (modulobase). Evita-se, portanto, dividir
+        # novamente por 100 aqui, garantindo que metas de porcentagem sejam
+        # lidas corretamente do Supabase.
 
         # Correções específicas de março / 1º T
         if (mes == 3 or periodo == "1° Trimestre" or
