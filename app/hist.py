@@ -1,23 +1,37 @@
 # hist.py
-import pandas as pd
-import plotly.express as px
-from dateutil.relativedelta import relativedelta
+import logging
+import random
+import gc
+from datetime import timedelta
 from collections import OrderedDict
+
+import numpy as np
+import pandas as pd
+from dateutil.relativedelta import relativedelta
+
 from .modulobase import (
     carregar_base_eshows,
-    carregar_base2 as base2,
+    carregar_base2,
     carregar_pessoas,
     carregar_ocorrencias,
     carregar_base_inad,
-    carregar_base_inadimplencia,
-    carregar_base2
 )
-from .utils import formatar_valor_utils, calcular_churn, obter_top5_grupos_ano_anterior, get_churn_ka_for_period, filtrar_periodo_principal, get_period_end, filtrar_novos_palcos_por_periodo, filtrar_novos_palcos_por_comparacao, calcular_churn_novos_palcos, faturamento_dos_grupos, novos_palcos_dos_grupos, ensure_grupo_col  # Função para formatação
-from datetime import timedelta
-import random
-import gc
-import numpy as np
-import calendar
+from .utils import (
+    formatar_valor_utils,
+    calcular_churn,
+    obter_top5_grupos_ano_anterior,
+    get_churn_ka_for_period,
+    filtrar_periodo_principal,
+    get_period_end,
+    filtrar_novos_palcos_por_periodo,
+    filtrar_novos_palcos_por_comparacao,
+    calcular_churn_novos_palcos,
+    faturamento_dos_grupos,
+    novos_palcos_dos_grupos,
+    ensure_grupo_col,
+)  # Função para formatação
+
+logger = logging.getLogger(__name__)
 
 # Colunas de Faturamento padrão
 COLUNAS_FATURAMENTO = [
@@ -29,6 +43,16 @@ COLUNAS_FATURAMENTO = [
     "SaaS Mensalidade",
     "Notas Fiscais"
 ]
+
+
+def sanitize_faturamento_cols(df: pd.DataFrame, cols=COLUNAS_FATURAMENTO) -> pd.DataFrame:
+    """Ensure revenue columns exist and are numeric."""
+    for col in cols:
+        if col not in df.columns:
+            df[col] = 0
+        else:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+    return df
 
 
 # --------------------------
@@ -188,8 +212,6 @@ def historical_rpc(months: int = 12) -> dict:
     gc.collect()
 
     return resultado
-
-import gc  # (mantenha no topo do hist.py se ainda não estiver)
 
 def historical_cmgr(months: int = 12) -> dict:
     """
@@ -513,51 +535,6 @@ def historical_ebitda(months: int = 12) -> dict:
     return resultado
 
 
-def historical_metric(df: pd.DataFrame, date_col: str, value_col: str, months=12, window=3):
-    """
-    Função genérica para calcular métricas históricas a partir de um DataFrame.
-    Se a coluna value_col não existir e value_col for 'Faturamento', ela é calculada a partir de COLUNAS_FATURAMENTO.
-    Retorna um dicionário com médias móveis, growth_rate, desvio padrão e últimos trimestre/semestre formatados.
-    """
-    df = df.copy()
-    if df.empty or date_col not in df.columns:
-        return {}
-    df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
-    df = df.dropna(subset=[date_col]).sort_values(date_col)
-    # Calcula 'Faturamento' se necessário
-    if value_col not in df.columns and value_col == 'Faturamento':
-        COLUNAS_FATURAMENTO = ["Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
-                               "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"]
-        for col in COLUNAS_FATURAMENTO:
-            if col not in df.columns:
-                df[col] = 0
-            else:
-                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-        df[value_col] = df[COLUNAS_FATURAMENTO].sum(axis=1)
-    if value_col not in df.columns:
-        return {}
-    df_monthly = df.groupby(pd.Grouper(key=date_col, freq='ME')).agg({value_col: 'sum'}).reset_index()
-    end_date = pd.to_datetime(df_monthly[date_col].max(), errors='coerce')
-    start_date, _ = get_date_range_for_period(end_date, months)
-    df_period = df_monthly[df_monthly[date_col] >= start_date]
-    if df_period.empty:
-        return {}
-    series = df_period.set_index(date_col)[value_col]
-    ma = moving_average(series, window=window)
-    gr = growth_rate(series)
-    std = std_deviation(series)
-    last_q, last_s = get_recent_metrics(series, fmt='monetario')
-    return {
-        "start_date": start_date.strftime("%Y-%m-%d"),
-        "end_date": pd.Timestamp(end_date).strftime("%Y-%m-%d"),
-        "moving_average": formatar_valor_utils(ma.iloc[-1], 'monetario'),
-        "growth_rate": formatar_valor_utils(gr * 100 if gr is not None else 0, 'percentual'),
-        "std_deviation": formatar_valor_utils(std, 'monetario'),
-        "last_quarter": last_q,
-        "last_semester": last_s,
-        "raw_data": {d.strftime("%Y-%m-%d"): formatar_valor_utils(v, 'monetario')
-                     for d, v in series.to_dict().items()}
-    }
 
 def historical_roll6m(months=12):
     """
@@ -573,13 +550,7 @@ def historical_roll6m(months=12):
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show']).sort_values('Data do Show')
     # Garante colunas de faturamento necessárias
-    COLUNAS_FATURAMENTO = ["Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
-                           "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"]
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_eshows.columns:
-            df_eshows[col] = 0
-        else:
-            df_eshows[col] = pd.to_numeric(df_eshows[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
     df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
     if df_monthly.empty or len(df_monthly) < 6:
@@ -693,13 +664,7 @@ def historical_nrr(months=12):
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show']).sort_values('Data do Show')
     # Calcula faturamento mensal total
-    COLUNAS_FATURAMENTO = ["Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
-                           "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"]
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_eshows.columns:
-            df_eshows[col] = 0
-        else:
-            df_eshows[col] = pd.to_numeric(df_eshows[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
     df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
     if df_monthly.empty:
@@ -1327,14 +1292,14 @@ def historical_crescimento_sustentavel(months=12):
     import pandas as pd
     from datetime import timedelta
 
-    print(">> Iniciando cálculo histórico de Crescimento Sustentável (agrupado por Ano e Mês).")
+    logger.debug(">> Iniciando cálculo histórico de Crescimento Sustentável (agrupado por Ano e Mês).")
     
     # 1) Carrega as bases
     df_eshows = carregar_base_eshows()
     df_base2 = carregar_base2()
     
     if df_eshows is None or df_eshows.empty or df_base2 is None or df_base2.empty:
-        print(">> Dados do eshows ou base2 estão vazios.")
+        logger.debug(">> Dados do eshows ou base2 estão vazios.")
         return {}
     
     # 2) Cria coluna 'Period' na BaseEshows a partir de 'Ano' e 'Mês'
@@ -1344,21 +1309,7 @@ def historical_crescimento_sustentavel(months=12):
     )
     
     # Define as colunas de faturamento conforme a função de variáveis
-    COLUNAS_FATURAMENTO = [
-        "Comissão B2B",
-        "Comissão B2C",
-        "Antecipação de Cachês",
-        "Curadoria",
-        "SaaS Percentual",
-        "SaaS Mensalidade",
-        "Notas Fiscais"
-    ]
-    # Garante que cada coluna exista e seja numérica
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_eshows.columns:
-            df_eshows[col] = 0
-        else:
-            df_eshows[col] = pd.to_numeric(df_eshows[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df_eshows)
     
     # Agrega faturamento por mês
     df_fat = df_eshows.groupby('Period')[COLUNAS_FATURAMENTO].sum()
@@ -1379,8 +1330,8 @@ def historical_crescimento_sustentavel(months=12):
     # 4) Mescla os dados mensais
     df_merged = pd.merge(df_fat, df_cst, on='Period', how='inner')
     df_merged = df_merged.sort_values('Period')
-    print(">> Dados mensais agregados:")
-    print(df_merged)
+    logger.debug(">> Dados mensais agregados:")
+    logger.debug(df_merged)
     
     # 5) Para comparar com o mesmo mês do ano anterior, crie uma versão "deslocada" dos dados:
     df_prev = df_merged.copy()
@@ -1404,8 +1355,8 @@ def historical_crescimento_sustentavel(months=12):
     )
     df_compare['Crescimento_Sustentavel'] = df_compare['Delta_Fat'] - df_compare['Delta_Cst']
     
-    print(">> Dados comparados com ano anterior:")
-    print(df_compare[['Period', 'Faturamento', 'Faturamento_prev', 'Custos', 'Custos_prev', 
+    logger.debug(">> Dados comparados com ano anterior:")
+    logger.debug(df_compare[['Period', 'Faturamento', 'Faturamento_prev', 'Custos', 'Custos_prev', 
                       'Delta_Fat', 'Delta_Cst', 'Crescimento_Sustentavel']])
     
     # 7) Selecione os últimos 'months' registros (apenas os períodos com comparação)
@@ -1415,7 +1366,7 @@ def historical_crescimento_sustentavel(months=12):
     cs_series = df_compare.set_index('Period')['Crescimento_Sustentavel']
     
     if cs_series.empty:
-        print(">> Nenhum período com dados do ano anterior encontrado.")
+        logger.debug(">> Nenhum período com dados do ano anterior encontrado.")
         return {}
     
     # 8) Calcula as métricas históricas (supondo que as funções auxiliares estão implementadas)
@@ -1436,8 +1387,8 @@ def historical_crescimento_sustentavel(months=12):
                      for d, v in cs_series.to_dict().items()}
     }
     
-    print(">> Resultado final histórico de Crescimento Sustentável:")
-    print(result)
+    logger.debug(">> Resultado final histórico de Crescimento Sustentável:")
+    logger.debug(result)
     return result
 
 def historical_inadimplencia_real(months=12):
@@ -1448,12 +1399,12 @@ def historical_inadimplencia_real(months=12):
     from datetime import timedelta
     import pandas as pd
 
-    print(">> Iniciando cálculo histórico da Inadimplência Real (método variáveis).")
+    logger.debug(">> Iniciando cálculo histórico da Inadimplência Real (método variáveis).")
 
     # 1) Carrega a base eshows e converte datas
     df_eshows = carregar_base_eshows()
     if df_eshows is None or df_eshows.empty:
-        print(">> Base de eshows vazia ou não carregada.")
+        logger.debug(">> Base de eshows vazia ou não carregada.")
         return {}
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
 
@@ -1461,34 +1412,34 @@ def historical_inadimplencia_real(months=12):
     overall_max = df_eshows["Data do Show"].max()
     overall_min = overall_max - pd.DateOffset(months=months)
     dates = pd.date_range(start=overall_min, end=overall_max, freq='ME')
-    print(f">> Período histórico: de {dates[0].strftime('%Y-%m-%d')} até {dates[-1].strftime('%Y-%m-%d')}")
+    logger.debug(f">> Período histórico: de {dates[0].strftime('%Y-%m-%d')} até {dates[-1].strftime('%Y-%m-%d')}")
 
     # 3) Carrega os dados de inadimplência (casas e artistas)
     df_inad_casas, df_inad_artistas = carregar_base_inad()
     
     # ADICIONAR ESTE BLOCO LOGO APÓS CARREGAR OS DADOS
-    print(f">> DIAGNÓSTICO: Colunas em df_inad_artistas: {df_inad_artistas.columns.tolist()}")
+    logger.debug(f">> DIAGNÓSTICO: Colunas em df_inad_artistas: {df_inad_artistas.columns.tolist()}")
     try:
         # Verificar se a função pode acessar ID_Boleto diretamente
         teste = df_inad_artistas["ID_Boleto"].iloc[0] if len(df_inad_artistas) > 0 else None
-        print(f">> TESTE OK: Conseguiu acessar ID_Boleto: {teste}")
+        logger.debug(f">> TESTE OK: Conseguiu acessar ID_Boleto: {teste}")
     except Exception as e:
-        print(f">> ERRO ao acessar ID_Boleto: {e}")
+        logger.debug(f">> ERRO ao acessar ID_Boleto: {e}")
         # Se não conseguir acessar ID_Boleto, tentar corrigir a situação
-        print(">> Tentando garantir que ID_Boleto exista no DataFrame...")
+        logger.debug(">> Tentando garantir que ID_Boleto exista no DataFrame...")
         df_inad_artistas = df_inad_artistas.copy()  # Criar uma cópia explícita
         
         # Verificar e corrigir as colunas necessárias
         if "ID_Boleto" not in df_inad_artistas.columns:
-            print(">> ID_Boleto não encontrado. Tentando criar...")
+            logger.debug(">> ID_Boleto não encontrado. Tentando criar...")
             # Tentar várias estratégias para criar ID_Boleto
             if "ID" in df_inad_artistas.columns:
                 df_inad_artistas["ID_Boleto"] = df_inad_artistas["ID"]
-                print(">> ID_Boleto criado a partir de ID")
+                logger.debug(">> ID_Boleto criado a partir de ID")
             else:
                 # Se não houver coluna ID, criar ID_Boleto do zero
                 df_inad_artistas["ID_Boleto"] = range(len(df_inad_artistas))
-                print(">> ID_Boleto criado sequencialmente (nenhuma coluna ID encontrada)")
+                logger.debug(">> ID_Boleto criado sequencialmente (nenhuma coluna ID encontrada)")
 
 
     # 4) Processa df_inad_casas: converte AnoVenc, MesVenc, DiaVenc e gera DataVenc
@@ -1509,7 +1460,7 @@ def historical_inadimplencia_real(months=12):
                 "day": df_casas["DiaVenc"].astype(int)
             }, errors="coerce")
         except Exception as e:
-            print(f">> Erro ao criar DataVenc: {e}")
+            logger.debug(f">> Erro ao criar DataVenc: {e}")
             df_casas["DataVenc"] = pd.NaT
 
     # 5) Processa df_inad_artistas: garante que Adiantamento esteja em minúsculas
@@ -1517,7 +1468,7 @@ def historical_inadimplencia_real(months=12):
     if "Adiantamento" in df_artistas.columns:
         df_artistas["Adiantamento"] = df_artistas["Adiantamento"].astype(str).str.lower().fillna("")
     else:
-        print(">> Coluna 'Adiantamento' não encontrada em df_artistas")
+        logger.debug(">> Coluna 'Adiantamento' não encontrada em df_artistas")
         df_artistas["Adiantamento"] = "não"
 
     # 6) Itera para cada mês no período e calcula a inadimplência real
@@ -1545,14 +1496,14 @@ def historical_inadimplencia_real(months=12):
 
         # 6.3) Filtra df_casas para o período e status inadimplente
         if "DataVenc" not in df_casas.columns:
-            print(">> Coluna 'DataVenc' não encontrada em df_casas")
+            logger.debug(">> Coluna 'DataVenc' não encontrada em df_casas")
             continue
             
         mask_casas = (df_casas["DataVenc"] >= dt_min) & (df_casas["DataVenc"] <= dt_max)
         df_casas_periodo = df_casas[mask_casas].copy()
         
         if "Status" not in df_casas_periodo.columns:
-            print(">> Coluna 'Status' não encontrada em df_casas_periodo")
+            logger.debug(">> Coluna 'Status' não encontrada em df_casas_periodo")
             continue
             
         status_inad = ["Vencido", "DUNNING_REQUESTED"]
@@ -1568,20 +1519,20 @@ def historical_inadimplencia_real(months=12):
         # 6.4) Filtra adiantamentos em artistas para os boletos inadimplentes
         # Garantir que ID_Boleto e Adiantamento existam em df_artistas
         if "ID_Boleto" not in df_artistas.columns or "Adiantamento" not in df_artistas.columns:
-            print(">> Colunas necessárias não encontradas em df_artistas")
+            logger.debug(">> Colunas necessárias não encontradas em df_artistas")
             continue
             
         df_adiant = df_artistas[(df_artistas["Adiantamento"] == "sim") &
                                 (df_artistas["ID_Boleto"].isin(df_inad["ID_Boleto"]))].copy()
                                 
         if "Valor Bruto" not in df_adiant.columns:
-            print(">> Coluna 'Valor Bruto' não encontrada em df_adiant")
+            logger.debug(">> Coluna 'Valor Bruto' não encontrada em df_adiant")
             continue
             
         df_adiant["Valor Bruto"] = pd.to_numeric(df_adiant["Valor Bruto"], errors='coerce').fillna(0)
         
         if "Valor Real" not in df_inad.columns:
-            print(">> Coluna 'Valor Real' não encontrada em df_inad")
+            logger.debug(">> Coluna 'Valor Real' não encontrada em df_inad")
             continue
             
         df_inad["Valor Real"] = pd.to_numeric(df_inad["Valor Real"], errors='coerce').fillna(0)
@@ -1608,12 +1559,12 @@ def historical_inadimplencia_real(months=12):
         inad_rate = (valor_adiantado_inad / fat) * 100
         inad_series[period_end] = inad_rate
 
-        print(f">> Período {period_start.strftime('%Y-%m-%d')} a {period_end.strftime('%Y-%m-%d')}:")
-        print(f"   Faturamento = {fat}, Valor adiantado inadimplente = {valor_adiantado_inad}, Taxa = {inad_rate:.2f}%")
+        logger.debug(f">> Período {period_start.strftime('%Y-%m-%d')} a {period_end.strftime('%Y-%m-%d')}:")
+        logger.debug(f"   Faturamento = {fat}, Valor adiantado inadimplente = {valor_adiantado_inad}, Taxa = {inad_rate:.2f}%")
 
     # 7) Converte a série para pandas e calcula métricas históricas
     if not inad_series:
-        print(">> Não foi possível calcular taxas de inadimplência para nenhum período")
+        logger.debug(">> Não foi possível calcular taxas de inadimplência para nenhum período")
         return {
             "start_date": dates[0].strftime("%Y-%m-%d") if len(dates) > 0 else "",
             "end_date": dates[-1].strftime("%Y-%m-%d") if len(dates) > 0 else "",
@@ -1643,8 +1594,8 @@ def historical_inadimplencia_real(months=12):
                      for d, v in inad_series_pd.to_dict().items()}
     }
 
-    print(">> Resultado final histórico Inadimplência Real:")
-    print(result)
+    logger.debug(">> Resultado final histórico Inadimplência Real:")
+    logger.debug(result)
     return result
 
 def historical_palcos_vazios(months=12):
@@ -1923,7 +1874,7 @@ def historical_fat_ka(months=12):
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
     df_eshows = ensure_grupo_col(df_eshows) # Garante a coluna 'Grupo'
     if 'Grupo' not in df_eshows.columns:
-        print("[hist.historical_fat_ka] Coluna 'Grupo' não encontrada após ensure_grupo_col.")
+        logger.debug("[hist.historical_fat_ka] Coluna 'Grupo' não encontrada após ensure_grupo_col.")
         return {"raw_data": OrderedDict()}
 
     # Determinar período e ano de referência para Top 5
@@ -1933,12 +1884,12 @@ def historical_fat_ka(months=12):
     period_starts = pd.date_range(end=last_month, periods=months, freq='MS') # Inícios de mês
 
     ano_referencia_top5 = last_month.year # Usa o ano do último mês como referência
-    print(f"[hist.historical_fat_ka] Ano de referência para Top 5: {ano_referencia_top5}")
+    logger.debug(f"[hist.historical_fat_ka] Ano de referência para Top 5: {ano_referencia_top5}")
     top5_list = obter_top5_grupos_ano_anterior(df_eshows, ano_referencia_top5)
     if not top5_list:
-        print("[hist.historical_fat_ka] Lista Top 5 está vazia.")
+        logger.debug("[hist.historical_fat_ka] Lista Top 5 está vazia.")
         return {"raw_data": OrderedDict()}
-    print(f"[hist.historical_fat_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
+    logger.debug(f"[hist.historical_fat_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
 
     # Calcular faturamento KA mensalmente
     serie_vals = OrderedDict()
@@ -1963,7 +1914,7 @@ def historical_fat_ka(months=12):
             fat_ka_mes = faturamento_dos_grupos(df_principal_iter, top5_list)
 
         serie_vals[month_start] = fat_ka_mes
-        print(f"[hist.historical_fat_ka] Fat KA para {ano_iter}-{mes_iter:02d}: {fat_ka_mes:.2f}")
+        logger.debug(f"[hist.historical_fat_ka] Fat KA para {ano_iter}-{mes_iter:02d}: {fat_ka_mes:.2f}")
 
     # Finalizar e formatar retorno
     if not serie_vals:
@@ -1985,7 +1936,7 @@ def historical_fat_ka(months=12):
     ma_last_val = ma.iloc[-1] if not ma.empty else 0
     gr_pct = (gr * 100.0) if gr is not None else 0.0
 
-    print(f"[hist.historical_fat_ka] Finalizando. Série: {serie.to_dict()}")
+    logger.debug(f"[hist.historical_fat_ka] Finalizando. Série: {serie.to_dict()}")
 
     return {
         "start_date":     serie.index.min().strftime("%Y-%m-%d") if not serie.empty else None,
@@ -2032,12 +1983,12 @@ def historical_take_rate_ka(months=12):
     period_starts = pd.date_range(end=last_month, periods=months, freq='MS')
 
     ano_referencia_top5 = last_month.year
-    print(f"[hist.historical_take_rate_ka] Ano de referência para Top 5: {ano_referencia_top5}")
+    logger.debug(f"[hist.historical_take_rate_ka] Ano de referência para Top 5: {ano_referencia_top5}")
     top5_list = obter_top5_grupos_ano_anterior(df_eshows, ano_referencia_top5)
     if not top5_list:
-        print("[hist.historical_take_rate_ka] Lista Top 5 está vazia.")
+        logger.debug("[hist.historical_take_rate_ka] Lista Top 5 está vazia.")
         return {"raw_data": OrderedDict()}
-    print(f"[hist.historical_take_rate_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
+    logger.debug(f"[hist.historical_take_rate_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
     grp_names = [g[0] for g in top5_list]
 
     # ---------- 3) Itera e calcula mensalmente ----------
@@ -2066,7 +2017,7 @@ def historical_take_rate_ka(months=12):
             take_rate_ka_mes = (fat_ka_mes / gmv_ka_mes * 100) if gmv_ka_mes > 0 else 0.0
 
         serie_vals[month_start] = take_rate_ka_mes
-        print(f"[hist.historical_take_rate_ka] Take Rate KA para {ano_iter}-{mes_iter:02d}: {take_rate_ka_mes:.2f}%")
+        logger.debug(f"[hist.historical_take_rate_ka] Take Rate KA para {ano_iter}-{mes_iter:02d}: {take_rate_ka_mes:.2f}%")
 
     # ---------- 4) Finaliza e formata retorno ----------
     if not serie_vals:
@@ -2087,7 +2038,7 @@ def historical_take_rate_ka(months=12):
     ma_last_val = ma.iloc[-1] if not ma.empty else 0
     gr_pct = (gr * 100.0) if gr is not None else 0.0
 
-    print(f"[hist.historical_take_rate_ka] Finalizando. Série: {serie.to_dict()}")
+    logger.debug(f"[hist.historical_take_rate_ka] Finalizando. Série: {serie.to_dict()}")
 
     return {
         "start_date":     serie.index.min().strftime("%Y-%m-%d") if not serie.empty else None,
@@ -2377,15 +2328,7 @@ def historical_lucro_liquido(months=12):
     df_eshows = carregar_base_eshows()
     if df_eshows is None or df_eshows.empty:
         return {}
-    COLUNAS_FATURAMENTO = [
-         "Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
-         "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"
-    ]
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_eshows.columns:
-            df_eshows[col] = 0
-        else:
-            df_eshows[col] = pd.to_numeric(df_eshows[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.sort_values('Data do Show')
@@ -2441,11 +2384,7 @@ def historical_faturamento_eshows(months=12):
          "Comissão B2B", "Comissão B2C", "Antecipação de Cachês",
          "Curadoria", "SaaS Percentual", "SaaS Mensalidade", "Notas Fiscais"
     ]
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df.columns:
-            df[col] = 0
-        else:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df)
     df['Faturamento'] = df[COLUNAS_FATURAMENTO].sum(axis=1)
     df['Data do Show'] = pd.to_datetime(df['Data do Show'], errors='coerce')
     df = df.sort_values('Data do Show')
@@ -2608,9 +2547,7 @@ def historical_fat_novos_palcos(months: int = 12):
         return {"raw_data": OrderedDict()}
 
     # ---------- faturamento linha-a-linha ------------------------------
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_novos.columns:
-            df_novos[col] = 0.0
+    sanitize_faturamento_cols(df_novos)
     df_novos["FatLinha"] = df_novos[COLUNAS_FATURAMENTO].sum(axis=1)
 
     # ---------- agrega por mês ----------------------------------------
@@ -2665,7 +2602,7 @@ def historical_churn_novos_palcos(months: int = 12, dias_sem_show: int = 45):
         if df_eshows is None or df_casas_earliest is None: raise NameError # Força o carregamento se não definidos
     except NameError:
         # Carrega se não forem globais ou se forem None
-        print("[hist.historical_churn_novos_palcos] Carregando bases df_eshows e df_casas_earliest...")
+        logger.debug("[hist.historical_churn_novos_palcos] Carregando bases df_eshows e df_casas_earliest...")
         df_eshows = carregar_base_eshows()
         if df_eshows is not None and not df_eshows.empty:
             df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
@@ -2673,11 +2610,11 @@ def historical_churn_novos_palcos(months: int = 12, dias_sem_show: int = 45):
             df_casas_earliest = df_eshows.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow")
         else:
             df_casas_earliest = pd.DataFrame(columns=["Id da Casa", "EarliestShow"])
-        print("[hist.historical_churn_novos_palcos] Bases carregadas.")
+        logger.debug("[hist.historical_churn_novos_palcos] Bases carregadas.")
 
 
     if df_eshows is None or df_eshows.empty or df_casas_earliest is None: # df_casas_earliest pode estar vazio, mas não None
-        print("[hist.historical_churn_novos_palcos] Erro: df_eshows ou df_casas_earliest não puderam ser carregados ou estão vazios.")
+        logger.debug("[hist.historical_churn_novos_palcos] Erro: df_eshows ou df_casas_earliest não puderam ser carregados ou estão vazios.")
         return {"raw_data": OrderedDict()}
 
     # ---------- 2) Eixo temporal (últimos N meses) ----------------------
@@ -2695,7 +2632,7 @@ def historical_churn_novos_palcos(months: int = 12, dias_sem_show: int = 45):
         mes_iter = month_start.month
         periodo_ytd_iter = 'YTD' # <<< MUDANÇA: Considera palcos novos desde o início do ano até o mês atual
 
-        print(f"[hist.historical_churn_novos_palcos] Calculando para: {ano_iter}-{mes_iter:02d}")
+        logger.debug(f"[hist.historical_churn_novos_palcos] Calculando para: {ano_iter}-{mes_iter:02d}")
 
         # Filtra os palcos que se tornaram "novos" DESDE O INÍCIO DO ANO até este mês
         df_new_period_iter = filtrar_novos_palcos_por_periodo(
@@ -2721,12 +2658,12 @@ def historical_churn_novos_palcos(months: int = 12, dias_sem_show: int = 45):
         )
 
         serie_vals[month_start] = churn_count_mes
-        print(f"[hist.historical_churn_novos_palcos] Resultado para {ano_iter}-{mes_iter:02d}: {churn_count_mes}")
+        logger.debug(f"[hist.historical_churn_novos_palcos] Resultado para {ano_iter}-{mes_iter:02d}: {churn_count_mes}")
 
 
     # ---------- 4) Finaliza e formata retorno --------------------------
     if not serie_vals:
-         print("[hist.historical_churn_novos_palcos] Nenhum dado calculado.")
+         logger.debug("[hist.historical_churn_novos_palcos] Nenhum dado calculado.")
          return {"raw_data": OrderedDict()}
 
     serie = pd.Series(serie_vals).sort_index()
@@ -2745,7 +2682,7 @@ def historical_churn_novos_palcos(months: int = 12, dias_sem_show: int = 45):
     ma_last_val = ma.iloc[-1] if not ma.empty else 0
     gr_pct = (gr * 100.0) if gr is not None else 0.0
 
-    print(f"[hist.historical_churn_novos_palcos] Finalizando cálculo. Série: {serie.to_dict()}")
+    logger.debug(f"[hist.historical_churn_novos_palcos] Finalizando cálculo. Série: {serie.to_dict()}")
 
     return {
         "start_date":     serie.index.min().strftime("%Y-%m-%d") if not serie.empty else None,
@@ -2773,7 +2710,7 @@ def historical_novos_palcos_ka(months=12):
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
     df_eshows = ensure_grupo_col(df_eshows)
     if 'Grupo' not in df_eshows.columns:
-        print("[hist.historical_novos_palcos_ka] Coluna 'Grupo' não encontrada.")
+        logger.debug("[hist.historical_novos_palcos_ka] Coluna 'Grupo' não encontrada.")
         return {"raw_data": OrderedDict()}
 
     # Earliest show (necessário para filtrar novos palcos)
@@ -2786,12 +2723,12 @@ def historical_novos_palcos_ka(months=12):
     period_starts = pd.date_range(end=last_month, periods=months, freq='MS')
 
     ano_referencia_top5 = last_month.year
-    print(f"[hist.historical_novos_palcos_ka] Ano de referência para Top 5: {ano_referencia_top5}")
+    logger.debug(f"[hist.historical_novos_palcos_ka] Ano de referência para Top 5: {ano_referencia_top5}")
     top5_list = obter_top5_grupos_ano_anterior(df_eshows, ano_referencia_top5)
     if not top5_list:
-        print("[hist.historical_novos_palcos_ka] Lista Top 5 está vazia.")
+        logger.debug("[hist.historical_novos_palcos_ka] Lista Top 5 está vazia.")
         return {"raw_data": OrderedDict()}
-    print(f"[hist.historical_novos_palcos_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
+    logger.debug(f"[hist.historical_novos_palcos_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
 
     # ---------- 3) Itera e calcula mensalmente ----------
     serie_vals = OrderedDict()
@@ -2814,7 +2751,7 @@ def historical_novos_palcos_ka(months=12):
         np_ka_mes = novos_palcos_dos_grupos(df_new_period_iter, df_principal_iter, top5_list)
 
         serie_vals[month_start] = np_ka_mes
-        print(f"[hist.historical_novos_palcos_ka] Novos Palcos KA para {ano_iter}-{mes_iter:02d}: {np_ka_mes}")
+        logger.debug(f"[hist.historical_novos_palcos_ka] Novos Palcos KA para {ano_iter}-{mes_iter:02d}: {np_ka_mes}")
 
     # ---------- 4) Finaliza e formata retorno ----------
     if not serie_vals:
@@ -2835,7 +2772,7 @@ def historical_novos_palcos_ka(months=12):
     ma_last_val = ma.iloc[-1] if not ma.empty else 0
     gr_pct = (gr * 100.0) if gr is not None else 0.0
 
-    print(f"[hist.historical_novos_palcos_ka] Finalizando. Série: {serie.to_dict()}")
+    logger.debug(f"[hist.historical_novos_palcos_ka] Finalizando. Série: {serie.to_dict()}")
 
     return {
         "start_date":     serie.index.min().strftime("%Y-%m-%d") if not serie.empty else None,
@@ -2863,7 +2800,7 @@ def historical_churn_ka(months=12, dias_sem_show=45):
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
     df_eshows = ensure_grupo_col(df_eshows)
     if 'Grupo' not in df_eshows.columns:
-        print("[hist.historical_churn_ka] Coluna 'Grupo' não encontrada.")
+        logger.debug("[hist.historical_churn_ka] Coluna 'Grupo' não encontrada.")
         return {"raw_data": OrderedDict()}
 
     # ---------- 2) Determina Top 5 e Período ----------
@@ -2873,12 +2810,12 @@ def historical_churn_ka(months=12, dias_sem_show=45):
     period_starts = pd.date_range(end=last_month, periods=months, freq='MS')
 
     ano_referencia_top5 = last_month.year
-    print(f"[hist.historical_churn_ka] Ano de referência para Top 5: {ano_referencia_top5}")
+    logger.debug(f"[hist.historical_churn_ka] Ano de referência para Top 5: {ano_referencia_top5}")
     top5_list = obter_top5_grupos_ano_anterior(df_eshows, ano_referencia_top5)
     if not top5_list:
-        print("[hist.historical_churn_ka] Lista Top 5 está vazia.")
+        logger.debug("[hist.historical_churn_ka] Lista Top 5 está vazia.")
         return {"raw_data": OrderedDict()}
-    print(f"[hist.historical_churn_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
+    logger.debug(f"[hist.historical_churn_ka] Top 5 Grupos: {[g[0] for g in top5_list]}")
 
     # ---------- 3) Itera e calcula mensalmente ----------
     serie_vals = OrderedDict()
@@ -2899,7 +2836,7 @@ def historical_churn_ka(months=12, dias_sem_show=45):
         )
 
         serie_vals[month_start] = churn_ka_mes
-        print(f"[hist.historical_churn_ka] Churn KA para {ano_iter}-{mes_iter:02d}: {churn_ka_mes}")
+        logger.debug(f"[hist.historical_churn_ka] Churn KA para {ano_iter}-{mes_iter:02d}: {churn_ka_mes}")
 
     # ---------- 4) Finaliza e formata retorno ----------
     if not serie_vals:
@@ -2920,7 +2857,7 @@ def historical_churn_ka(months=12, dias_sem_show=45):
     ma_last_val = ma.iloc[-1] if not ma.empty else 0
     gr_pct = (gr * 100.0) if gr is not None else 0.0
 
-    print(f"[hist.historical_churn_ka] Finalizando. Série: {serie.to_dict()}")
+    logger.debug(f"[hist.historical_churn_ka] Finalizando. Série: {serie.to_dict()}")
 
     return {
         "start_date":     serie.index.min().strftime("%Y-%m-%d") if not serie.empty else None,
@@ -3010,14 +2947,14 @@ def historical_tempo_medio_casa(months=12):
     dates = pd.date_range(start=start_date, end=end_date, freq="ME") # Month End
 
     series_vals = OrderedDict()
-    print(f"[hist.historical_tempo_medio_casa] Calculando de {start_date.date()} a {end_date.date()}")
+    logger.debug(f"[hist.historical_tempo_medio_casa] Calculando de {start_date.date()} a {end_date.date()}")
 
     for month_end_dt in dates:
-        print(f"Processing month ending: {month_end_dt.date()}")
+        logger.debug(f"Processing month ending: {month_end_dt.date()}")
         df_empregados_ate_mes = df_p[df_p["DataInicio"] <= month_end_dt].copy()
 
         if df_empregados_ate_mes.empty:
-            print("  No employees started by this month.")
+            logger.debug("  No employees started by this month.")
             series_vals[month_end_dt.replace(day=1)] = 0.0
             continue
 
@@ -3044,11 +2981,11 @@ def historical_tempo_medio_casa(months=12):
         df_empregados_ate_mes = df_empregados_ate_mes[df_empregados_ate_mes["TempoDias"] >= 0]
 
         if df_empregados_ate_mes.empty:
-             print("  No valid tenure calculated for this month.")
+             logger.debug("  No valid tenure calculated for this month.")
              media_dias = 0.0
         else:
             media_dias = df_empregados_ate_mes["TempoDias"].mean()
-            print(f"  Avg tenure (days): {media_dias:.2f} for {len(df_empregados_ate_mes)} employees")
+            logger.debug(f"  Avg tenure (days): {media_dias:.2f} for {len(df_empregados_ate_mes)} employees")
 
         series_vals[month_end_dt.replace(day=1)] = media_dias if pd.notna(media_dias) else 0.0
 
@@ -3098,9 +3035,7 @@ def historical_receita_por_colaborador(months=12):
     # Prepara Faturamento
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_eshows.columns: df_eshows[col] = 0
-        else: df_eshows[col] = pd.to_numeric(df_eshows[col], errors='coerce').fillna(0)
+    sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
     df_fat_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME'))['Faturamento'].sum()
 
@@ -3309,7 +3244,7 @@ def historical_take_rate(months=12):
 
     # Garantir colunas necessárias e tipos
     if "Data do Show" not in df.columns:
-        print("[hist.historical_take_rate] Coluna 'Data do Show' não encontrada.")
+        logger.debug("[hist.historical_take_rate] Coluna 'Data do Show' não encontrada.")
         return {"raw_data": OrderedDict()}
     df['Data do Show'] = pd.to_datetime(df['Data do Show'], errors='coerce')
     df = df.dropna(subset=['Data do Show'])
@@ -3355,11 +3290,11 @@ def historical_take_rate(months=12):
     last_q, last_s = get_recent_metrics(serie_numeric, fmt="percentual")
 
     # Formata retorno
-    raw_data_numeric = OrderedDict() # Guarda números primeiro
-    print(f"\n[hist.historical_take_rate] Gerando raw_data_numeric para {months} meses:") # DEBUG
+    raw_data_numeric = OrderedDict()  # Guarda números primeiro
+    logger.debug(f"\n[hist.historical_take_rate] Gerando raw_data_numeric para {months} meses:")
     for d, v in serie.items():
-        raw_data_numeric[d.replace(day=1).strftime("%Y-%m-%d")] = v # Guarda valor numérico percentual
-        print(f"  Data: {d.replace(day=1).strftime('%Y-%m-%d')}, Valor NUMÉRICO para raw_data: {v}") # DEBUG
+        raw_data_numeric[d.replace(day=1).strftime("%Y-%m-%d")] = v  # Guarda valor numérico percentual
+        logger.debug(f"  Data: {d.replace(day=1).strftime('%Y-%m-%d')}, Valor NUMÉRICO para raw_data: {v}")
 
     ma_last_val = ma.iloc[-1] if not ma.empty else np.nan
     gr_pct = (gr * 100.0) if gr is not None else 0.0
