@@ -251,6 +251,12 @@ def get_period_start(ano: int, periodo: str, mes: int | None, custom_range=None)
 # AJUSTE FINAL  –  get_period_end
 # =====================================================================
 def get_period_end(ano: int, periodo: str, mes: int | None, custom_range=None):
+    import pandas as pd
+    # ------------------------------------------------------------------
+    # Normaliza se vier um pandas.Period (caso tenha vazado do agrupamento)
+    # ------------------------------------------------------------------
+    if isinstance(mes, pd.Period):
+        mes = mes.month          #  Period('2025-01', 'M')  →  1
     """
     Retorna a data final do intervalo.
 

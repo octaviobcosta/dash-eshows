@@ -257,7 +257,9 @@ CENTS_MAPPING: Dict[str, List[str]] = {
         "Valor Bruto",      # <- adicionar
     ],
     "custosabertos": [
-        "valor", "Valor",   # ← NOVO
+        "valor",
+        "Valor",
+        "VALOR",
     ],
 }
 
