@@ -1395,13 +1395,7 @@ def register_callbacks(app):
         return all_cards, updated_indicators
 
 
-    # Exemplo de logging (opcional)
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+
 
     import ast
     @app.callback(

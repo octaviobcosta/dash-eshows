@@ -13,6 +13,9 @@ from dotenv import load_dotenv, find_dotenv
 # tenta carregar .env; se não existir, carrega .env.example
 load_dotenv(find_dotenv(".env") or ".env.example")
 
+# inicializa logging global
+import logging_config  # noqa: F401
+
 # ==============================================================================
 # 1) IMPORTS
 # ==============================================================================
@@ -87,10 +90,6 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 # ― Logger ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
 
 # ― Warnings & Pandas -----------------------------------------------------------
 warnings.filterwarnings("ignore", category=UserWarning)

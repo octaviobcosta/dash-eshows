@@ -35,8 +35,6 @@ from .data_manager import (
 from .column_mapping import rename_columns, SUPPLIER_TO_SETOR, PERCENT_COLS
 
 logger = logging.getLogger("modulobase")
-if not logger.handlers:  # evita handlers duplicados em reload
-    logging.basicConfig(level=logging.INFO)
 
 # ─────────────────────────── Helper genérico ────────────────────────────
 
