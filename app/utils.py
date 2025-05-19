@@ -1,13 +1,19 @@
-import pandas as pd
-import json
 import os
-import numbers
-from datetime import datetime, timedelta
-import calendar
-import pandas as pd
-import calendar
-from datetime import datetime
 import sys
+import json
+import numbers
+import calendar
+import logging
+import re
+import math
+import unicodedata
+import ast
+import textwrap
+from datetime import datetime, timedelta
+import gc
+
+import pandas as pd
+import numpy as np
 from dateutil.relativedelta import relativedelta
 
 # =================================================================================
@@ -22,6 +28,8 @@ from .modulobase import (
     carregar_pessoas,
     carregar_npsartistas
 )
+
+logger = logging.getLogger(__name__)
 
 # =================================================================================
 # CARREGAMENTO DAS BASES GERAIS (removido uso de variáveis globais duplicadas)
@@ -112,7 +120,7 @@ def filtrar_base2(df_b2, ano, periodo, mes, custom_range=None):
                 if df_temp.empty: # Se o filtro por custom_range zerar o DF, não há o que somar
                     return 0.0
             except Exception as e:
-                print(f"Erro ao aplicar custom_range em filtrar_base2: {e}")
+                logger.debug("Erro ao aplicar custom_range em filtrar_base2: %s", e)
                 # Decide se retorna None/0.0 ou continua para filtro por ano/mês
                 # Por ora, continua, mas o resultado pode ser inesperado se o custom_range era mandatório.
 
@@ -183,13 +191,10 @@ def filtrar_base2_op_shows_compare(df_b2, ano, periodo, mes, comparar_opcao):
 # =================================================================================
 # FUNÇÕES DE CÁLCULO DE PERÍODO
 # =================================================================================
-from datetime import datetime
-import calendar
-import pandas as pd
+
 
 def _is_valid_range(rng):
     """True se rng for (start, end) válido."""
-    import pandas as pd
     return (
         isinstance(rng, (list, tuple))
         and len(rng) == 2
@@ -213,8 +218,10 @@ def get_period_start(ano: int, periodo: str, mes: int | None, custom_range=None)
             return pd.to_datetime(start_d, errors="coerce")
         # << FALLBACK SE custom_range é inválido mas periodo é 'custom-range' >>
         elif periodo == "custom-range":
-             print("[get_period_start] Aviso: 'custom-range' selecionado mas data inicial inválida. Usando início do ano.")
-             return datetime(ano, 1, 1) # Fallback
+            logger.debug(
+                "[get_period_start] Aviso: 'custom-range' selecionado mas data inicial inválida. Usando início do ano."
+            )
+            return datetime(ano, 1, 1)  # Fallback
 
     # ------------------------------------------------------------------
     # Demais opções de período
@@ -251,12 +258,6 @@ def get_period_start(ano: int, periodo: str, mes: int | None, custom_range=None)
 # AJUSTE FINAL  –  get_period_end
 # =====================================================================
 def get_period_end(ano: int, periodo: str, mes: int | None, custom_range=None):
-    import pandas as pd
-    # ------------------------------------------------------------------
-    # Normaliza se vier um pandas.Period (caso tenha vazado do agrupamento)
-    # ------------------------------------------------------------------
-    if isinstance(mes, pd.Period):
-        mes = mes.month          #  Period('2025-01', 'M')  →  1
     """
     Retorna a data final do intervalo.
 
@@ -267,9 +268,7 @@ def get_period_end(ano: int, periodo: str, mes: int | None, custom_range=None):
         ‣ Caso contrário (usuário escolheu Jan–Abr manualmente) ➜ usa o mês dado.
     • Mantém regras originais p/ Mês Aberto, Trimestres, Ano Completo.
     """
-    import calendar
-    from datetime import datetime
-    import pandas as pd
+
 
     # helper interno (validador de custom_range)
     def _is_valid_range(rng):
@@ -345,19 +344,32 @@ def filtrar_periodo_principal(df, ano, periodo, mes, custom_range):
     ② Se não encontrar, usa combinação 'Ano' + 'Mês'.  
     ③ Caso contrário, devolve DataFrame vazio.
     """
-    import pandas as pd
 
     if df is None or df.empty:
-        print(f"[filtrar_periodo_principal] DataFrame vazio para ano={ano}, "
-              f"periodo={periodo}, mes={mes}, custom_range={custom_range}")
+        logger.debug(
+            "[filtrar_periodo_principal] DataFrame vazio para ano=%s, periodo=%s, mes=%s, custom_range=%s",
+            ano,
+            periodo,
+            mes,
+            custom_range,
+        )
         return pd.DataFrame()
 
     # calcula limites
     start_d = get_period_start(ano, periodo, mes, custom_range)
     end_d   = get_period_end(ano, periodo, mes, custom_range)
-    print(f"[filtrar_periodo_principal] ano={ano}, periodo={periodo}, "
-          f"mes={mes}, custom_range={custom_range}")
-    print(f"[filtrar_periodo_principal] start_d={start_d}, end_d={end_d}")
+    logger.debug(
+        "[filtrar_periodo_principal] ano=%s, periodo=%s, mes=%s, custom_range=%s",
+        ano,
+        periodo,
+        mes,
+        custom_range,
+    )
+    logger.debug(
+        "[filtrar_periodo_principal] start_d=%s, end_d=%s",
+        start_d,
+        end_d,
+    )
 
     df_ = df.copy()
     linhas_antes = len(df_)
@@ -369,8 +381,12 @@ def filtrar_periodo_principal(df, ano, periodo, mes, custom_range):
             df_[col] = pd.to_datetime(df_[col], errors="coerce")
             mask = (df_[col] >= start_d) & (df_[col] <= end_d)
             df_filtrado = df_[mask].copy()
-            print(f"[filtrar_periodo_principal] (via '{col}') Linhas antes: "
-                  f"{linhas_antes}, depois: {len(df_filtrado)}")
+            logger.debug(
+                "[filtrar_periodo_principal] (via '%s') Linhas antes: %s, depois: %s",
+                col,
+                linhas_antes,
+                len(df_filtrado),
+            )
             return df_filtrado
     # ──────────────────────────────────────────────────────────────
 
@@ -385,12 +401,14 @@ def filtrar_periodo_principal(df, ano, periodo, mes, custom_range):
         max_val = end_ano   * 100 + end_mes
         df_filtrado = df_[(df_["AnoMes"] >= min_val) &
                           (df_["AnoMes"] <= max_val)].copy()
-        print(f"[filtrar_periodo_principal] (via Ano/Mês) Linhas antes: "
-              f"{linhas_antes}, depois: {len(df_filtrado)}")
+        logger.debug(
+            "[filtrar_periodo_principal] (via Ano/Mês) Linhas antes: %s, depois: %s",
+            linhas_antes,
+            len(df_filtrado),
+        )
         return df_filtrado
 
-    print("[filtrar_periodo_principal] DataFrame sem colunas de data válidas. "
-          "Retornando vazio.")
+    logger.debug("[filtrar_periodo_principal] DataFrame sem colunas de data válidas. Retornando vazio.")
     return pd.DataFrame()
 
 
@@ -453,8 +471,6 @@ def filtrar_periodo_comparacao(df, ano, periodo, mes, comparar_opcao, datas_comp
     start_date_principal_obj = get_period_start(ano, periodo, mes, datas_comparacao if periodo == 'custom-range' else None)
     end_date_principal_obj   = get_period_end(ano, periodo, mes, datas_comparacao if periodo == 'custom-range' else None)
 
-    # print(f"[DEBUG utils.filtrar_periodo_comparacao] Principal: {start_date_principal_obj} a {end_date_principal_obj} para ano={ano}, periodo={periodo}, mes={mes}")
-
 
     if comparar_opcao == "ano_anterior":
         ano_comp = ano - 1
@@ -465,10 +481,8 @@ def filtrar_periodo_comparacao(df, ano, periodo, mes, comparar_opcao, datas_comp
         if periodo == "custom-range" and start_date_principal_obj and end_date_principal_obj:
             start_date_compare = start_date_principal_obj - pd.DateOffset(years=1)
             end_date_compare = end_date_principal_obj - pd.DateOffset(years=1)
-            # print(f"[DEBUG utils.fp_comp] custom-range + ano_anterior: {start_date_compare} a {end_date_compare}")
             return filtrar_periodo_principal(df, ano_comp, periodo_comp, mes_comp, (start_date_compare, end_date_compare))
         else:
-            # print(f"[DEBUG utils.fp_comp] NÂO custom-range + ano_anterior")
             return filtrar_periodo_principal(df, ano_comp, periodo_comp, mes_comp, None)
 
     elif comparar_opcao == "periodo_anterior":
@@ -479,21 +493,17 @@ def filtrar_periodo_comparacao(df, ano, periodo, mes, comparar_opcao, datas_comp
             duration = end_date_principal_obj - start_date_principal_obj
             end_date_compare = start_date_principal_obj - pd.Timedelta(days=1)
             start_date_compare = end_date_compare - duration
-            # print(f"[DEBUG utils.fp_comp] custom-range + periodo_anterior: {start_date_compare} a {end_date_compare}")
             # Usamos o ano e mês do start_date_compare para que get_period_start/end funcione corretamente dentro de filtrar_periodo_principal
             # ou passamos diretamente o range.
             return filtrar_periodo_principal(df, start_date_compare.year, 'custom-range', start_date_compare.month, (start_date_compare, end_date_compare))
         else:
-            # print(f"[DEBUG utils.fp_comp] NÂO custom-range + periodo_anterior")
             return filtrar_periodo_principal(df, ano_comp, periodo_comp, mes_comp, None)
             
     elif comparar_opcao == "custom-compare":
         if datas_comparacao and datas_comparacao[0] and datas_comparacao[1]:
-            # print(f"[DEBUG utils.fp_comp] custom-compare: {datas_comparacao[0]} a {datas_comparacao[1]}")
             # Para custom-compare, o ano e mes não importam tanto quanto o range explícito
             return filtrar_periodo_principal(df, ano, "custom-range", mes, datas_comparacao)
         else:
-            # print(f"[DEBUG utils.fp_comp] custom-compare SEM DATAS VÁLIDAS")
             return pd.DataFrame() # Retorna DataFrame vazio se não houver datas válidas
 
     return pd.DataFrame() # Fallback
@@ -575,7 +585,7 @@ def carregar_kpi_descriptions(caminho_relativo='data/kpi_descriptions.json'):
     diretorio_atual = os.path.dirname(os.path.abspath(__file__))
     caminho_absoluto = os.path.join(diretorio_atual, caminho_relativo)
 
-    print(f"Carregando kpi_descriptions.json de: {caminho_absoluto}")  # Para depuração
+    logger.debug("Carregando kpi_descriptions.json de: %s", caminho_absoluto)
 
     if not os.path.exists(caminho_absoluto):
         raise FileNotFoundError(f"O arquivo {caminho_absoluto} não foi encontrado.")
@@ -589,23 +599,18 @@ def carregar_kpi_descriptions(caminho_relativo='data/kpi_descriptions.json'):
 # TOP5 GRUPOS
 # =================================================================================
 def obter_top5_grupos_ano_anterior(df, ano):
-    print(f"\n--- [obter_top5_grupos_ano_anterior] Iniciando para ano base: {ano} ---") # DEBUG
-    sys.stdout.flush()
+    logger.debug("[obter_top5_grupos_ano_anterior] Iniciando para ano base: %s", ano)
     if df is None or df.empty:
-        print("[obter_top5_grupos_ano_anterior] Erro: DataFrame de entrada está vazio ou None.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Erro: DataFrame de entrada está vazio ou None.")
         return []
     if "Grupo" not in df.columns:
-        print("[obter_top5_grupos_ano_anterior] Erro: Coluna 'Grupo' não encontrada no DataFrame.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Erro: Coluna 'Grupo' não encontrada no DataFrame.")
         return []
 
     prev_year = ano - 1
-    print(f"[obter_top5_grupos_ano_anterior] Filtrando para o ano anterior: {prev_year}") # DEBUG
-    sys.stdout.flush()
+    logger.debug("[obter_top5_grupos_ano_anterior] Filtrando para o ano anterior: %s", prev_year)
     if "Ano" not in df.columns:
-        print("[obter_top5_grupos_ano_anterior] Erro: Coluna 'Ano' não encontrada para filtrar.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Erro: Coluna 'Ano' não encontrada para filtrar.")
         return []
 
     # Garantir que 'Ano' seja numérico antes de filtrar
@@ -613,11 +618,13 @@ def obter_top5_grupos_ano_anterior(df, ano):
     df_prev = df[df["Ano"] == prev_year].copy()
 
     if df_prev.empty:
-        print(f"[obter_top5_grupos_ano_anterior] Nenhum dado encontrado para o ano {prev_year}.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Nenhum dado encontrado para o ano %s.", prev_year)
         return []
-    print(f"[obter_top5_grupos_ano_anterior] Dados encontrados para {prev_year}: {len(df_prev)} linhas.") # DEBUG
-    sys.stdout.flush()
+    logger.debug(
+        "[obter_top5_grupos_ano_anterior] Dados encontrados para %s: %s linhas.",
+        prev_year,
+        len(df_prev),
+    )
 
     colunas_fat = [
         "Comissão B2B","Comissão B2C","Antecipação de Cachês",
@@ -625,28 +632,29 @@ def obter_top5_grupos_ano_anterior(df, ano):
     ]
     valid_cols = [c for c in colunas_fat if c in df_prev.columns]
     if not valid_cols:
-        print("[obter_top5_grupos_ano_anterior] Erro: Nenhuma coluna de faturamento válida encontrada.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Erro: Nenhuma coluna de faturamento válida encontrada.")
         return []
-    print(f"[obter_top5_grupos_ano_anterior] Colunas de faturamento válidas: {valid_cols}") # DEBUG
-    sys.stdout.flush()
+    logger.debug(
+        "[obter_top5_grupos_ano_anterior] Colunas de faturamento válidas: %s",
+        valid_cols,
+    )
 
     for c in valid_cols:
         df_prev[c] = pd.to_numeric(df_prev[c], errors='coerce').fillna(0)
     df_prev["FatGrupo"] = df_prev[valid_cols].sum(axis=1)
 
-    print("[obter_top5_grupos_ano_anterior] Agrupando faturamento por Grupo...") # DEBUG
-    sys.stdout.flush()
+    logger.debug("[obter_top5_grupos_ano_anterior] Agrupando faturamento por Grupo...")
     df_gp = df_prev.groupby("Grupo")["FatGrupo"].sum().reset_index()
     df_gp.sort_values("FatGrupo", ascending=False, inplace=True)
 
-    print(f"[obter_top5_grupos_ano_anterior] Faturamento por grupo (Top 10): {df_gp.head(10)}") # DEBUG
-    sys.stdout.flush()
+    logger.debug(
+        "[obter_top5_grupos_ano_anterior] Faturamento por grupo (Top 10): %s",
+        df_gp.head(10),
+    )
 
     top5 = df_gp.head(5)
     if top5.empty:
-        print("[obter_top5_grupos_ano_anterior] Top 5 grupos está vazio após agregação.") # DEBUG
-        sys.stdout.flush()
+        logger.debug("[obter_top5_grupos_ano_anterior] Top 5 grupos está vazio após agregação.")
         return []
 
     ret = []
@@ -655,8 +663,7 @@ def obter_top5_grupos_ano_anterior(df, ano):
         if pd.notna(row["Grupo"]) and row["FatGrupo"] > 0:
              ret.append((row["Grupo"], row["FatGrupo"]))
 
-    print(f"[obter_top5_grupos_ano_anterior] Retornando top 5: {ret}") # DEBUG
-    sys.stdout.flush()
+    logger.debug("[obter_top5_grupos_ano_anterior] Retornando top 5: %s", ret)
     return ret
 
 def faturamento_dos_grupos(df_, list_grp):
@@ -682,8 +689,8 @@ def faturamento_dos_grupos(df_, list_grp):
 def novos_palcos_dos_grupos(df_new_period, df_principal, list_grp):
     if not list_grp or df_new_period is None or df_new_period.empty or df_principal is None or df_principal.empty: # Check 1: Inputs valid
         return 0
-    if "Id da Casa" not in df_new_period.columns or "Id da Casa" not in df_principal.columns or "Grupo" not in df_principal.columns: # Check 2: Columns exist
-        print("[novos_palcos_dos_grupos] Missing required columns ('Id da Casa' or 'Grupo')")
+    if "Id da Casa" not in df_new_period.columns or "Id da Casa" not in df_principal.columns or "Grupo" not in df_principal.columns:  # Check 2: Columns exist
+        logger.debug("[novos_palcos_dos_grupos] Missing required columns ('Id da Casa' or 'Grupo')")
         return 0
     grp_names = [item[0] for item in list_grp]
     new_ids = df_new_period["Id da Casa"].unique()
@@ -708,27 +715,22 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     Returns:
         Número de casas KA cujo churn técnico ocorreu no período.
     """
-    import pandas as pd
-    from .modulobase import carregar_base_eshows
-    import gc
-    from datetime import timedelta
-
     # Verificação de parâmetros
     if not top5_list:
-        print("[get_churn_ka_for_period] Lista de Key Accounts está vazia")
+        logger.debug("[get_churn_ka_for_period] Lista de Key Accounts está vazia")
         return 0
     grupos_ka = [g[0] for g in top5_list]
     
     # Carregar dados da base, aplicando filtros iniciais para economizar memória
-    print("[get_churn_ka_for_period] Carregando dados e aplicando filtros iniciais...")
+    logger.debug("[get_churn_ka_for_period] Carregando dados e aplicando filtros iniciais...")
     df = carregar_base_eshows()
     if df is None or df.empty:
-        print("[get_churn_ka_for_period] Base de dados vazia ou None")
+        logger.debug("[get_churn_ka_for_period] Base de dados vazia ou None")
         return 0
     required_cols = ["Data do Show", "Id da Casa", "Grupo"]
     if not all(col in df.columns for col in required_cols):
         missing = [col for col in required_cols if col not in df.columns]
-        print(f"[get_churn_ka_for_period] Colunas faltando: {missing}")
+        logger.debug("[get_churn_ka_for_period] Colunas faltando: %s", missing)
         return 0
     df_reduced = df[required_cols].copy()
     df = None; gc.collect()
@@ -736,7 +738,7 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     df_ka = df_reduced[df_reduced["Grupo"].isin(grupos_ka)].copy()
     del df_reduced; gc.collect()
     if df_ka.empty:
-        print("[get_churn_ka_for_period] Nenhum show encontrado para os grupos KA.")
+        logger.debug("[get_churn_ka_for_period] Nenhum show encontrado para os grupos KA.")
         return 0
 
     # Definir intervalo de datas EXATO para o período/mês solicitado
@@ -745,7 +747,7 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     periodo_end = get_period_end(ano, periodo, mes, (start_date_main, end_date_main))
 
     if periodo_start is None or periodo_end is None:
-        print("[get_churn_ka_for_period] Não foi possível determinar o período de análise.")
+        logger.debug("[get_churn_ka_for_period] Não foi possível determinar o período de análise.")
         return 0
 
     # 1. Calcular LastShow GLOBALMENTE para todos os palcos KA
@@ -761,7 +763,6 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     ].copy()
 
     if churn_candidates_month.empty:
-        #print(f"[get_churn_ka_for_period] Nenhum churn técnico no período {periodo_start.date()} a {periodo_end.date()}")
         return 0
 
     # 4. Verificar se esses candidatos realmente não retornaram APÓS LastShow
@@ -787,15 +788,18 @@ def get_churn_ka_for_period(ano, periodo, mes, top5_list, start_date_main=None, 
     # Contagem final: candidatos do mês que não retornaram
     churn_count_final = churn_candidates_month[churn_candidates_month["Id da Casa"].isin(casas_nao_retornaram)]["Id da Casa"].nunique()
 
-    print(f"[get_churn_ka_for_period] Período: {periodo_start.date()} a {periodo_end.date()}, Churns ocorridos: {churn_count_final}")
+    logger.debug(
+        "[get_churn_ka_for_period] Período: %s a %s, Churns ocorridos: %s",
+        periodo_start.date(),
+        periodo_end.date(),
+        churn_count_final,
+    )
 
     del df_ka, df_last_show, churn_candidates_month, df_shows_cand, df_check, df_status
     gc.collect()
 
     return churn_count_final
 
-import pandas as pd
-import numbers
 
 def formatar_valor_utils(valor, tipo='numero'):
     """
@@ -820,8 +824,6 @@ def formatar_valor_utils(valor, tipo='numero'):
     
     - Se valor for NaN ou não for numérico, retorna "N/A".
     """
-    import numbers, pandas as pd
-
     # Se valor for NaN ou None, retorna "N/A"
     if pd.isna(valor):
         return "N/A"
@@ -896,10 +898,6 @@ def formatar_valor_utils(valor, tipo='numero'):
 # Funções de Apoio
 ##################################
 # utils.py  ⇢  único ponto alterado: função parse_valor_formatado
-import re, math, unicodedata, json, calendar, numbers, ast, textwrap
-from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
 
 # ------------------------------------------------------------------
 # Funções de Apoio – **CORRIGIDA / UNIFICADA**
@@ -1071,9 +1069,6 @@ def floatify_hist_data(data):
     - Valores numpy (float64, int64, etc.) para float/int nativo.
     - Trata dicionários e listas.
     """
-    import numpy as np
-    import pandas as pd
-
     if isinstance(data, dict):
         new_dict = {}
         for k, v in data.items():
@@ -1173,35 +1168,54 @@ def filtrar_novos_palcos_por_periodo(df_earliest, ano, periodo, mes, custom_rang
     Considera apenas casas com EarliestShow >= 2022-04-01 e filtra pela data
     do EarliestShow dentro do período selecionado.
     """
-    import pandas as pd
     if df_earliest is None or df_earliest.empty:
-        print(f"[filtrar_novos_palcos_por_periodo] DataFrame vazio para ano={ano}, periodo={periodo}, mes={mes}, custom_range={custom_range}")
+        logger.debug(
+            "[filtrar_novos_palcos_por_periodo] DataFrame vazio para ano=%s, periodo=%s, mes=%s, custom_range=%s",
+            ano,
+            periodo,
+            mes,
+            custom_range,
+        )
         return pd.DataFrame()
     linhas_antes = len(df_earliest)
     df_novos = df_earliest[df_earliest["EarliestShow"] >= pd.to_datetime("2022-04-01")]
     if df_novos.empty:
-        print(f"[filtrar_novos_palcos_por_periodo] Nenhum novo palco após 2022-04-01.")
+        logger.debug("[filtrar_novos_palcos_por_periodo] Nenhum novo palco após 2022-04-01.")
         return df_novos
     df_temp = df_novos.rename(columns={"EarliestShow": "Data"}).copy()
     df_filt = filtrar_periodo_principal(df_temp, ano, periodo, mes, custom_range)
     df_filt.rename(columns={"Data": "EarliestShow"}, inplace=True)
-    print(f"[filtrar_novos_palcos_por_periodo] Linhas antes: {linhas_antes}, depois: {len(df_filt)}")
+    logger.debug(
+        "[filtrar_novos_palcos_por_periodo] Linhas antes: %s, depois: %s",
+        linhas_antes,
+        len(df_filt),
+    )
     return df_filt
 
 def filtrar_novos_palcos_por_comparacao(df_earliest, ano, periodo, mes, comparar_opcao, custom_range_compare):
-    import pandas as pd
     if df_earliest is None or df_earliest.empty:
-        print(f"[filtrar_novos_palcos_por_comparacao] DataFrame vazio para ano={ano}, periodo={periodo}, mes={mes}, comparar_opcao={comparar_opcao}, custom_range_compare={custom_range_compare}")
+        logger.debug(
+            "[filtrar_novos_palcos_por_comparacao] DataFrame vazio para ano=%s, periodo=%s, mes=%s, comparar_opcao=%s, custom_range_compare=%s",
+            ano,
+            periodo,
+            mes,
+            comparar_opcao,
+            custom_range_compare,
+        )
         return pd.DataFrame()
     linhas_antes = len(df_earliest)
     df_novos = df_earliest[df_earliest["EarliestShow"] >= pd.to_datetime("2022-04-01")]
     if df_novos.empty:
-        print(f"[filtrar_novos_palcos_por_comparacao] Nenhum novo palco após 2022-04-01.")
+        logger.debug("[filtrar_novos_palcos_por_comparacao] Nenhum novo palco após 2022-04-01.")
         return df_novos
     df_temp = df_novos.rename(columns={"EarliestShow": "Data"}).copy()
     df_filt = filtrar_periodo_comparacao(df_temp, ano, periodo, mes, comparar_opcao, custom_range_compare)
     df_filt.rename(columns={"Data": "EarliestShow"}, inplace=True)
-    print(f"[filtrar_novos_palcos_por_comparacao] Linhas antes: {linhas_antes}, depois: {len(df_filt)}")
+    logger.debug(
+        "[filtrar_novos_palcos_por_comparacao] Linhas antes: %s, depois: %s",
+        linhas_antes,
+        len(df_filt),
+    )
     return df_filt
 
 def calcular_variacao_percentual(atual, anterior, *, infinito_com_div_zero=True):
