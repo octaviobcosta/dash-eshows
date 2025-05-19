@@ -1,0 +1,60 @@
+2025-05-19 17:57:40 | INFO     | column_mapping: column_mapping importado.
+2025-05-19 17:57:40 | INFO     | data_manager: Cliente Supabase inicializado.
+2025-05-19 17:58:02 | INFO     | data_manager: [baseeshows] baixado: 194869 linhas × 26 col
+2025-05-19 17:58:03 | INFO     | data_manager: [base2] baixado: 37 linhas × 53 col
+2025-05-19 17:58:03 | INFO     | modulobase: [modulobase] Base2 carregada: (36, 56)
+2025-05-19 17:58:04 | ERROR    | data_manager: [ocorrencias] página 1: relation "public.ocorrencias" does not exist
+2025-05-19 17:58:05 | INFO     | data_manager: [boletocasas] baixado: 16191 linhas × 12 col
+2025-05-19 17:58:15 | INFO     | data_manager: [boletoartistas] baixado: 138608 linhas × 10 col
+2025-05-19 17:58:15 | INFO     | data_manager: [pessoas] baixado: 93 linhas × 35 col
+2025-05-19 17:58:15 | INFO     | modulobase: [modulobase] Pessoas carregada: (93, 40)
+2025-05-19 17:58:15 | INFO     | data_manager: [npsartistas] baixado: 259 linhas × 8 col
+2025-05-19 17:58:20 | INFO     | __main__: Carregando bases do Supabase…
+2025-05-19 17:58:20 | INFO     | __main__: Bases carregadas com sucesso.
+2025-05-19 17:58:20 | INFO     | __main__: Coleta de lixo executada.
+2025-05-19 17:58:21 | INFO     | dash.dash: Dash is running on http://127.0.0.1:8050/
+
+2025-05-19 17:58:22 | INFO     | column_mapping: column_mapping importado.
+2025-05-19 17:58:22 | INFO     | data_manager: Cliente Supabase inicializado.
+2025-05-19 17:58:42 | INFO     | data_manager: [baseeshows] baixado: 194869 linhas × 26 col
+2025-05-19 17:58:44 | INFO     | data_manager: [base2] baixado: 37 linhas × 53 col
+2025-05-19 17:58:44 | INFO     | modulobase: [modulobase] Base2 carregada: (36, 56)
+2025-05-19 17:58:44 | ERROR    | data_manager: [ocorrencias] página 1: relation "public.ocorrencias" does not exist
+2025-05-19 17:58:46 | INFO     | data_manager: [boletocasas] baixado: 16191 linhas × 12 col
+2025-05-19 17:58:56 | INFO     | data_manager: [boletoartistas] baixado: 138608 linhas × 10 col
+2025-05-19 17:58:57 | INFO     | data_manager: [pessoas] baixado: 93 linhas × 35 col
+2025-05-19 17:58:57 | INFO     | modulobase: [modulobase] Pessoas carregada: (93, 40)
+2025-05-19 17:58:57 | INFO     | data_manager: [npsartistas] baixado: 259 linhas × 8 col
+2025-05-19 17:59:01 | INFO     | __main__: Carregando bases do Supabase…
+2025-05-19 17:59:01 | INFO     | __main__: Bases carregadas com sucesso.
+2025-05-19 17:59:01 | INFO     | __main__: Coleta de lixo executada.
+2025-05-19 18:02:24 | INFO     | __main__: --- [atualizar_waterfall_chart] Iniciando para ano=2025, periodo=YTD, mes=5 ---
+2025-05-19 18:02:25 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:02:25 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:02:25 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:02:25 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:02:27 | INFO     | __main__: --- [atualizar_waterfall_chart] Iniciando para ano=2025, periodo=YTD, mes=5 ---
+2025-05-19 18:02:28 | INFO     | __main__: [atualizar_kpis] INICIANDO CÁLCULO KPIs KA
+2025-05-19 18:02:28 | INFO     | __main__: [atualizar_kpis] INICIANDO CÁLCULO KPIs KA
+2025-05-19 18:09:38 | INFO     | column_mapping: column_mapping importado.
+2025-05-19 18:09:39 | INFO     | data_manager: Cliente Supabase inicializado.
+2025-05-19 18:09:59 | INFO     | data_manager: [baseeshows] baixado: 194869 linhas × 26 col
+2025-05-19 18:10:00 | INFO     | data_manager: [base2] baixado: 37 linhas × 53 col
+2025-05-19 18:10:00 | INFO     | modulobase: [modulobase] Base2 carregada: (36, 56)
+2025-05-19 18:10:00 | ERROR    | data_manager: [ocorrencias] página 1: relation "public.ocorrencias" does not exist
+2025-05-19 18:10:01 | INFO     | data_manager: [boletocasas] baixado: 16191 linhas × 12 col
+2025-05-19 18:10:11 | INFO     | data_manager: [boletoartistas] baixado: 138608 linhas × 10 col
+2025-05-19 18:10:11 | INFO     | data_manager: [pessoas] baixado: 93 linhas × 35 col
+2025-05-19 18:10:11 | INFO     | modulobase: [modulobase] Pessoas carregada: (93, 40)
+2025-05-19 18:10:12 | INFO     | data_manager: [npsartistas] baixado: 259 linhas × 8 col
+2025-05-19 18:10:16 | INFO     | __main__: Carregando bases do Supabase…
+2025-05-19 18:10:16 | INFO     | __main__: Bases carregadas com sucesso.
+2025-05-19 18:10:16 | INFO     | __main__: Coleta de lixo executada.
+2025-05-19 18:10:18 | INFO     | __main__: --- [atualizar_waterfall_chart] Iniciando para ano=2025, periodo=YTD, mes=5 ---
+2025-05-19 18:10:18 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:10:18 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:10:18 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:10:18 | INFO     | data_manager: [metas] baixado: 15 linhas × 28 col
+2025-05-19 18:10:20 | INFO     | __main__: --- [atualizar_waterfall_chart] Iniciando para ano=2025, periodo=YTD, mes=5 ---
+2025-05-19 18:10:21 | INFO     | __main__: [atualizar_kpis] INICIANDO CÁLCULO KPIs KA
+2025-05-19 18:10:21 | INFO     | __main__: [atualizar_kpis] INICIANDO CÁLCULO KPIs KA
