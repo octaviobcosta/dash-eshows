@@ -1,6 +1,4 @@
-# ──────────────────────────────────────────────────────────────
-# kpis/kpis.py   –  Imports corrigidos
-# ──────────────────────────────────────────────────────────────
+# kpis.py
 import dash
 import dash_bootstrap_components as dbc
 from dash import html, dcc, Input, Output, State, ALL, callback_context
@@ -16,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ── IMPORTS DO PROJETO (todos voltam um nível: "..") ──────────
-from ..controles        import kpi_area_mapping, sanitize_id
+from ..controles        import kpi_area_mapping, sanitize_id, get_kpi_status
 from ..kpi_interpreter  import KPIInterpreter
 from ..modulobase       import (
     carregar_base_eshows,
@@ -31,10 +29,12 @@ from ..utils            import (
     mes_nome_intervalo,
     carregar_kpi_descriptions,
     kpi_bases_mapping,          # dicionário de mapeamento de bases
-    calcular_variacao_percentual, 
+    calcular_variacao_percentual,
     get_period_start,
     get_period_end,
-    filtrar_periodo_principal  
+    filtrar_periodo_principal,
+    parse_valor_formatado,
+    get_strategy_info
 )
 from ..variacoes        import (
     get_cmgr_variables,
@@ -86,91 +86,10 @@ colors = {
     'indefinido': {'color': '#808080'}
 }
 
+
 ##################################
 # Funções de Apoio
 ##################################
-def parse_valor_formatado(valor_str):
-    """
-    Converte strings de valor em float. Exemplo:
-      - "R$8.8k" -> 8800
-      - "R$3.95M" -> 3950000
-      - "12.3%" -> 12.3
-      - "N/A" -> 0.0
-    """
-    if isinstance(valor_str, (int, float)):
-        return float(valor_str)
-    v = valor_str.strip()
-
-    # Remove prefixos/sufixos
-    v = (v.replace('R$', '')
-         .replace('%', '')
-         .replace(',', '.')
-         .replace(' ', '')
-         .lower())  # => "8.8k" ou "3.95m"
-
-    multiplicador = 1.0
-
-    # Se contiver "k" => milhar
-    if 'k' in v:
-        v = v.replace('k', '')
-        multiplicador = 1000.0
-
-    # Se contiver "m" => milhão
-    if 'm' in v:
-        v = v.replace('m', '')
-        multiplicador = 1_000_000.0
-
-    try:
-        return float(v) * multiplicador
-    except:
-        return 0.0
-
-
-# Extrair conteúdo do PDF
-def extract_pdf_content(pdf_name, folder="assets"):
-    import os
-    try:
-        import PyPDF2
-    except ImportError:
-        raise RuntimeError("PyPDF2 não está instalado. Execute 'pip install PyPDF2'.")
-    pdf_path = os.path.join(folder, pdf_name)
-    try:
-        with open(pdf_path, 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
-            text = ""
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-        return text
-    except Exception as e:
-        logger.debug("Erro ao ler o PDF %s: %s", pdf_name, e)
-        return ""
-
-def parse_strategy_and_pillars(pdf_text):
-    estrategia = ""
-    pilares = ""
-    
-    lines = pdf_text.split('\n')
-    current_section = None
-    for line in lines:
-        line = line.strip()
-        if "Estratégia" in line:
-            current_section = 'estrategia'
-            continue
-        elif "Pilares" in line:
-            current_section = 'pilares'
-            continue
-        
-        if current_section == 'estrategia':
-            estrategia += line + " "
-        elif current_section == 'pilares':
-            pilares += line + " "
-    
-    return {
-        'estrategia': estrategia.strip(),
-        'pilares': pilares.strip()
-    }
 
 # Função para parsear valores de controle
 def parse_control_values(control_values):
@@ -182,84 +101,6 @@ def parse_control_values(control_values):
         ]
     return control_values
 
-# Carregando PDF e extraindo sua estratégia/pilares
-pdf_name = "OKRs25.pdf"
-pdf_folder = "assets"
-pdf_text = extract_pdf_content(pdf_name, pdf_folder)
-strategy_info = parse_strategy_and_pillars(pdf_text)
-
-
-def get_kpi_status(kpi_name, kpi_value, kpi_descriptions):
-    if kpi_name not in kpi_descriptions:
-        return None, None
-
-    zona = kpi_descriptions[kpi_name]
-    comportamento = zona.get('behavior', 'Positivo')
-    control_values = zona.get('control_values', {})
-
-    def parse_limit(value):
-        if value == "Infinity":
-            return float('inf')
-        elif value == "-Infinity":
-            return float('-inf')
-        else:
-            return float(value)
-
-    try:
-        kpi_value = float(kpi_value)
-    except ValueError:
-        kpi_value = 0.0
-
-    intervals = {}
-    for key, val in control_values.items():
-        start = parse_limit(val[0])
-        end = parse_limit(val[1])
-        intervals[key] = (start, end)
-
-    def valor_entre(valor, intervalo):
-        return intervalo[0] <= valor < intervalo[1]
-
-    if comportamento == 'Positivo':
-        if valor_entre(kpi_value, intervals['critico']):
-            status = 'critico'
-        elif valor_entre(kpi_value, intervals['ruim']):
-            status = 'ruim'
-        elif valor_entre(kpi_value, intervals['controle']):
-            status = 'controle'
-        elif valor_entre(kpi_value, intervals['bom']):
-            status = 'bom'
-        elif valor_entre(kpi_value, intervals['excelente']):
-            status = 'excelente'
-        else:
-            status = 'indefinido'
-    else:
-        # Para comportamento Negativo
-        if valor_entre(kpi_value, intervals['excelente']):
-            status = 'excelente'
-        elif valor_entre(kpi_value, intervals['bom']):
-            status = 'bom'
-        elif valor_entre(kpi_value, intervals['controle']):
-            status = 'controle'
-        elif valor_entre(kpi_value, intervals['ruim']):
-            status = 'ruim'
-        elif valor_entre(kpi_value, intervals['critico']):
-            status = 'critico'
-        else:
-            status = 'indefinido'
-
-    status_to_icon = {
-       'critico': 'critico.png',
-       'ruim': 'ruim.png',
-       'controle': 'controle.png',
-       'bom': 'bom.png',
-       'excelente': 'excelente.png',
-       'indefinido': 'indefinido.png'
-    }
-
-    icon_filename = status_to_icon.get(status, 'indefinido.png')
-    return status, icon_filename
-
-
 ##################################
 # Termômetro e Modal
 ##################################
@@ -268,6 +109,10 @@ def create_enhanced_thermometer(kpi_name, resultado_num):
     kpi_info = kpi_descriptions.get(kpi_name, {})
     control_values = kpi_info.get('control_values', {})
     kpi_format = kpi_info.get('format', 'number')  # 'percent', 'monetary' ou 'number'
+
+    display_value = resultado_num
+    if resultado_num is None or (isinstance(resultado_num, float) and math.isnan(resultado_num)):
+        resultado_num = 0.0
 
     def parse_limit(value):
         if isinstance(value, (int, float)):
@@ -357,13 +202,13 @@ def create_enhanced_thermometer(kpi_name, resultado_num):
         updated_intervals[zona] = (new_start, new_end)
 
     if kpi_format == 'percent':
-        kpi_str = formatar_valor_utils(resultado_num, 'percentual')
+        kpi_str = formatar_valor_utils(display_value, 'percentual')
     elif kpi_format == 'monetary':
-        kpi_str = formatar_valor_utils(resultado_num, 'monetario')
+        kpi_str = formatar_valor_utils(display_value, 'monetario')
     else:
-        kpi_str = formatar_valor_utils(resultado_num, 'numero')
+        kpi_str = formatar_valor_utils(display_value, 'numero')
 
-    status, _ = get_kpi_status(kpi_name, resultado_num, kpi_descriptions)
+    status, _ = get_kpi_status(kpi_name, display_value, kpi_descriptions)
     if status is None:
         status = 'indefinido'
     status_color = colors[status]['color']
@@ -1198,8 +1043,6 @@ def register_callbacks(app):
     # kpi_functions["Churn "] = kpi_functions["Churn"] 
     # kpi_functions["Net Revenue Retention "] = kpi_functions["Net Revenue Retention"]
 
-    df_eshows_global = carregar_base_eshows()
-    df_base2_global = carregar_base2()
 
     @app.callback(
         [Output('kpis-cards-container', 'children'),
@@ -1276,11 +1119,11 @@ def register_callbacks(app):
 
         # bases em memória --------------------------------------------------
         bases_available = {
-            "eshows": df_eshows_global,
-            "base2":  df_base2_global,
+            "eshows": carregar_base_eshows(),
+            "base2": carregar_base2(),
             "pessoas": carregar_pessoas(),
             "ocorrencias": carregar_ocorrencias(),
-            "inad": carregar_base_inad()
+            "inad": carregar_base_inad(),
         }
 
         all_cards         = []
@@ -1358,20 +1201,20 @@ def register_callbacks(app):
             if comparar_opcao == "periodo_anterior":
                 label_comp = mes_nome_intervalo(
                     filtrar_periodo_principal(
-                        df_eshows_global,
+                        bases_available["eshows"],
                         ano_comp, periodo_comp, mes_comp,
-                        custom_range_comparacao_tuple
+                        custom_range_comparacao_tuple,
                     ),
-                    periodo_comp
+                    periodo_comp,
                 )
             elif comparar_opcao == "custom-compare":
                 label_comp = mes_nome_intervalo(
                     filtrar_periodo_principal(
-                        df_eshows_global,
+                        bases_available["eshows"],
                         ano_comp, periodo_comp, mes_comp,
-                        custom_range_comparacao_tuple
+                        custom_range_comparacao_tuple,
                     ),
-                    "custom-range"
+                    "custom-range",
                 )
             else:  # ano anterior
                 label_comp = f"{periodo} {ano-1}"
@@ -1414,17 +1257,16 @@ def register_callbacks(app):
         if not ctx.triggered:
             raise dash.exceptions.PreventUpdate
 
-        # --- DataFrames needed ---
-        # Reference the globally loaded dataframe (ensure df_eshows_global is loaded globally)
-        # df_eshows_global = df_eshows_global # No need to reassign if it's truly global and loaded before
-
-        # Calculate earliest/latest based on the global df_eshows_global
-        # Ensure df_eshows_global is accessible here (should be if loaded globally)
         logger.debug("DEBUG: Calculando earliest/latest dentro de update_kpi_selected_data")
-        df_casas_earliest = df_eshows_global.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow") if df_eshows_global is not None and not df_eshows_global.empty else None
-        df_casas_latest = df_eshows_global.groupby("Id da Casa")["Data do Show"].max().reset_index(name="LastShow") if df_eshows_global is not None and not df_eshows_global.empty else None
-        # Also ensure df_base2_global is accessible if needed later (e.g., for LTV/CAC call)
-        # ------------------------------------------------------------------
+        df_eshows = carregar_base_eshows()
+        df_casas_earliest = (
+            df_eshows.groupby("Id da Casa")["Data do Show"].min().reset_index(name="EarliestShow")
+            if df_eshows is not None and not df_eshows.empty else None
+        )
+        df_casas_latest = (
+            df_eshows.groupby("Id da Casa")["Data do Show"].max().reset_index(name="LastShow")
+            if df_eshows is not None and not df_eshows.empty else None
+        )
 
         triggered_id = ctx.triggered[0]['prop_id'].split('.')[0]
         if triggered_id.startswith("{") and 'type' in triggered_id:
@@ -1463,11 +1305,11 @@ def register_callbacks(app):
                         if kpi_name == 'Eficiência Comercial':
                             kpi_values = func_to_call(
                                 ano=ano, periodo=periodo, mes=mes,
-                                df_eshows_global=df_eshows_global, # Use the global one
-                                df_base2_global=df_base2_global,   # Use the global df_base2_global
-                                df_casas_earliest_global=df_casas_earliest, # Use calculated one
-                                df_casas_latest_global=df_casas_latest,     # Use calculated one
-                                custom_range=current_custom_range # Adicionado custom_range
+                                df_eshows_global=bases_available["eshows"],
+                                df_base2_global=bases_available["base2"],
+                                df_casas_earliest_global=df_casas_earliest,
+                                df_casas_latest_global=df_casas_latest,
+                                custom_range=current_custom_range,
                             )
                         # Adicione elif para outros KPIs com assinaturas diferentes
                         # elif kpi_name == 'OutroKPI': ...
@@ -1476,20 +1318,24 @@ def register_callbacks(app):
                              # Mapeia quais bases injetar baseado no nome
                             needed_bases = kpi_bases_mapping.get(kpi_name, [])
                             kwargs_for_kpi = {}
-                            bases_available = { # Define bases disponíveis no escopo
-                                "eshows": df_eshows_global, # Use global
-                                "base2": df_base2_global,   # Use global
-                                "pessoas": carregar_pessoas(), # Carrega se necessário
-                                "ocorrencias": carregar_ocorrencias(), # Carrega se necessário
-                                "inad": carregar_base_inad() # Carrega se necessário
+                            bases_for_kpi = {
+                                "eshows": bases_available["eshows"],
+                                "base2": bases_available["base2"],
+                                "pessoas": bases_available["pessoas"],
+                                "ocorrencias": bases_available["ocorrencias"],
+                                "inad": bases_available["inad"],
                             }
                             for base_tag in needed_bases:
-                                if base_tag == "eshows": kwargs_for_kpi["df_eshows_global"] = bases_available["eshows"]
-                                elif base_tag == "base2": kwargs_for_kpi["df_base2_global"] = bases_available["base2"]
-                                elif base_tag == "pessoas": kwargs_for_kpi["df_pessoas_global"] = bases_available["pessoas"]
-                                elif base_tag == "ocorrencias": kwargs_for_kpi["df_ocorrencias_global"] = bases_available["ocorrencias"]
-                                elif base_tag == "inad": 
-                                    casas, artistas = bases_available["inad"]
+                                if base_tag == "eshows":
+                                    kwargs_for_kpi["df_eshows_global"] = bases_for_kpi["eshows"]
+                                elif base_tag == "base2":
+                                    kwargs_for_kpi["df_base2_global"] = bases_for_kpi["base2"]
+                                elif base_tag == "pessoas":
+                                    kwargs_for_kpi["df_pessoas_global"] = bases_for_kpi["pessoas"]
+                                elif base_tag == "ocorrencias":
+                                    kwargs_for_kpi["df_ocorrencias_global"] = bases_for_kpi["ocorrencias"]
+                                elif base_tag == "inad":
+                                    casas, artistas = bases_for_kpi["inad"]
                                     kwargs_for_kpi["df_inad_casas"] = casas
                                     kwargs_for_kpi["df_inad_artistas"] = artistas
                                 # Passe custom_range se a função o aceitar
@@ -1578,43 +1424,6 @@ def register_callbacks(app):
         # Remove texto que por vezes acompanha "Copiar código"
         text = text.replace('Copiar código', '')
         return textwrap.dedent(text).strip()
-
-
-    def parse_valor_formatado(valor_str):
-        """
-        Converte strings de valor em float. Exemplo:
-        - "R$8.8k" -> 8800
-        - "R$3.95M" -> 3950000
-        - "12.3%" -> 12.3
-        - "N/A" -> 0.0
-        """
-        if isinstance(valor_str, (int, float)):
-            return float(valor_str)
-        v = valor_str.strip()
-
-        # Remove prefixos/sufixos
-        v = (v.replace('R$', '')
-            .replace('%', '')
-            .replace(',', '.')
-            .replace(' ', '')
-            .lower())  # => "8.8k" ou "3.95m"
-
-        multiplicador = 1.0
-
-        # Se contiver "k" => milhar
-        if 'k' in v:
-            v = v.replace('k', '')
-            multiplicador = 1000.0
-
-        # Se contiver "m" => milhão
-        if 'm' in v:
-            v = v.replace('m', '')
-            multiplicador = 1_000_000.0
-
-        try:
-            return float(v) * multiplicador
-        except:
-            return 0.0
 
 
     def to_float_percent_local(valor_str):
@@ -2847,6 +2656,8 @@ $$
             painel_data = {}
         if dashboard_data is None:
             dashboard_data = {}
+        if not strategy_info:
+            strategy_info = get_strategy_info()
         all_indicators_merged = {**painel_data, **dashboard_data}
         interpretation = interpreter.generate_kpi_interpretation_claude(
             kpi_name=kpi_name,
