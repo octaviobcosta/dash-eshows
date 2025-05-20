@@ -11,6 +11,7 @@ import ast
 import textwrap
 from datetime import datetime, timedelta
 import gc
+from functools import lru_cache
 
 import pandas as pd
 import numpy as np
@@ -64,6 +65,96 @@ def ensure_grupo_col(df):
     else:
         df['Grupo'] = None
     return df
+
+# --------------------------------------------------------------
+# Colunas de faturamento e ajustes de nomes
+# --------------------------------------------------------------
+
+ALT_MAP_FATURAMENTO = [
+    ("Comissao B2B", "Comissão B2B"),
+    ("Comissao B2C", "Comissão B2C"),
+    ("Antecipacao de Caches", "Antecipação de Cachês"),
+]
+
+def sanitize_faturamento_cols(df: pd.DataFrame, cols=None, alt_map=ALT_MAP_FATURAMENTO) -> pd.DataFrame:
+    """Garante que colunas de faturamento existam e sejam numéricas."""
+    if cols is None:
+        cols = [
+            "Comissão B2B",
+            "Comissão B2C",
+            "Antecipação de Cachês",
+            "Curadoria",
+            "SaaS Percentual",
+            "SaaS Mensalidade",
+            "Notas Fiscais",
+        ]
+
+    for alt, orig in alt_map:
+        if alt in df.columns and orig not in df.columns:
+            df.rename(columns={alt: orig}, inplace=True)
+
+    for col in cols:
+        if col not in df.columns:
+            df[col] = 0
+        else:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+    return df
+
+
+def ensure_ano_mes(df: pd.DataFrame, col_data: str = "Data") -> pd.DataFrame:
+    """Cria colunas 'Ano' e 'Mês' se não existirem."""
+    if "Ano" not in df.columns:
+        df["Ano"] = pd.to_datetime(df[col_data], errors="coerce").dt.year
+    if "Mês" not in df.columns:
+        df["Mês"] = pd.to_datetime(df[col_data], errors="coerce").dt.month
+    return df
+
+
+# --------------------------------------------------------------
+# Estratégia e pilares (PDF)
+# --------------------------------------------------------------
+
+def extract_pdf_content(pdf_name: str, folder: str = "assets") -> str:
+    """Lê o PDF e retorna todo o texto."""
+    try:
+        import PyPDF2
+    except ImportError:
+        raise RuntimeError("PyPDF2 não está instalado. Execute 'pip install PyPDF2'.")
+
+    pdf_path = os.path.join(folder, pdf_name)
+    try:
+        with open(pdf_path, "rb") as file:
+            reader = PyPDF2.PdfReader(file)
+            text = "".join(page.extract_text() or "" for page in reader.pages)
+        return text
+    except Exception as e:
+        logger.debug("Erro ao ler o PDF %s: %s", pdf_name, e)
+        return ""
+
+
+def parse_strategy_and_pillars(pdf_text: str) -> dict:
+    estrategia = ""
+    pilares = ""
+    current_section = None
+    for line in pdf_text.splitlines():
+        line = line.strip()
+        if "Estratégia" in line:
+            current_section = "estrategia"
+            continue
+        if "Pilares" in line:
+            current_section = "pilares"
+            continue
+        if current_section == "estrategia":
+            estrategia += line + " "
+        elif current_section == "pilares":
+            pilares += line + " "
+    return {"estrategia": estrategia.strip(), "pilares": pilares.strip()}
+
+
+@lru_cache(maxsize=1)
+def get_strategy_info(pdf_name: str = "OKRs25.pdf", folder: str = "assets") -> dict:
+    """Carrega e processa o PDF apenas na primeira chamada."""
+    return parse_strategy_and_pillars(extract_pdf_content(pdf_name, folder))
 
 # ===============================
 # Mapeamento de Bases dos KPIs
@@ -948,7 +1039,7 @@ def parse_valor_formatado(valor_str):
         elif 'M' in s_upper:
             val = float(s_cleaned.upper().replace("M", "").replace(",", ".").strip()) * 1000000
         elif '%' in s_upper:
-            val = float(s_cleaned.replace("%", "").replace(",", ".").strip()) / 100.0
+            val = float(s_cleaned.replace("%", "").replace(",", ".").strip())
         else:
             # Tratar números que não são K, M, ou %
             # s_cleaned está sem R$, e o sinal negativo já foi tratado por is_negative
