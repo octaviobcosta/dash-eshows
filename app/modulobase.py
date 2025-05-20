@@ -397,23 +397,27 @@ def sanitize_inad_df(df_raw: pd.DataFrame, tabela: str) -> pd.DataFrame:
 # ╭───────────────  SANITIZE Metas  ─────────────────────────╮ 
 def sanitize_metas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
     """
-    • Converte todas as colunas de PERCENT_COLS de 0–100 → 0–1
+    Limpa e padroniza o DataFrame de metas.
+
+    • Renomeia colunas conforme o mapa de 'metas'.
+    • Converte as colunas de PERCENT_COLS para float32,
+      mantendo a escala original (0–100).
+    • Devolve o DataFrame com tipos otimizados.
     """
+    # ──────────────────────────────────────────────────────────────────
     df = rename_columns(dedup(df_raw), "metas").copy()
 
     for col in PERCENT_COLS:
         if col in df.columns:
-            # to_numeric resolve texto ('70%') ou '70,00'
+            # to_numeric trata strings "70%", "70,00", etc.
             s = pd.to_numeric(
-                    df[col]
-                    .astype(str)
-                    .str.replace('%', '', regex=False)
-                    .str.replace(',', '.', regex=False),
-                errors="coerce"
+                df[col]
+                .astype(str)
+                .str.replace("%", "", regex=False)
+                .str.replace(",", ".", regex=False),
+                errors="coerce",
             )
-            # frações já corridas (<1) ficam como estão; >1 divide por 100
-            mask = s.notna() & (s >= 1)
-            s.loc[mask] = s.loc[mask] / 100.0
+            # Mantemos 0–100 (não dividimos mais por 100)
             df[col] = s.astype("float32")
 
     return otimizar_tipos(df.reset_index(drop=True))
