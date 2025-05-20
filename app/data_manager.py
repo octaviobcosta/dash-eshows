@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime as _dt
 import logging
 import os
+import gc
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -14,6 +15,9 @@ from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
 
 # ────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger(__name__)
+
+# Permite desativar o cache em RAM via variável de ambiente.
+CACHE_RAM = os.getenv("CACHE_RAM", "1") == "1"
 
 # ───────────────────────  cache em Parquet  ────────────────────────
 CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
@@ -127,17 +131,21 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
     table = table.lower()
     logger.info("carregando %s…", table)
 
-    if not force_reload and table in _cache:
+    if CACHE_RAM and not force_reload and table in _cache:
         return _cache[table]
 
     if not force_reload:
         if (df_disk := _load_parquet(table)) is not None:
-            _cache[table] = df_disk
+            if CACHE_RAM:
+                _cache[table] = df_disk
             logger.info("[%s] carregado do Parquet (%s linhas)", table, len(df_disk))
             return df_disk
 
     df_live = _fetch(table)
-    _cache[table] = df_live
+    if CACHE_RAM:
+        _cache[table] = df_live
+    else:
+        logger.debug("RAM cache desativado, dados não permanecem em memória.")
     _save_parquet(table, df_live)
     return df_live
 
@@ -154,6 +162,7 @@ def get_df_npsartistas()   -> pd.DataFrame:                      return _get("np
 
 def reset_all_data(clear_disk: bool = False):
     _cache.clear()
+    gc.collect()
     if clear_disk:
         for p in CACHE_DIR.glob("*.parquet"):
             try:
