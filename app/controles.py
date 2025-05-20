@@ -322,6 +322,12 @@ def get_kpi_status(kpi_name, kpi_value, kpi_descriptions=None):
     Returns:
         tuple: (status, icon_filename)
     """
+    # ------------------------------------------------------------------
+    # Valor ausente → status indefinido
+    # ------------------------------------------------------------------
+    if kpi_value is None or (isinstance(kpi_value, float) and math.isnan(kpi_value)):
+        return "indefinido", "indefinido.png"
+
     # Se não for fornecido kpi_descriptions, usar zonas_de_controle
     if kpi_descriptions is None:
         if kpi_name not in zonas_de_controle:

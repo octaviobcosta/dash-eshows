@@ -29,6 +29,7 @@ from .utils import (
     faturamento_dos_grupos,
     novos_palcos_dos_grupos,
     ensure_grupo_col,
+    sanitize_faturamento_cols,
 )  # Função para formatação
 
 logger = logging.getLogger(__name__)
@@ -44,15 +45,6 @@ COLUNAS_FATURAMENTO = [
     "Notas Fiscais"
 ]
 
-
-def sanitize_faturamento_cols(df: pd.DataFrame, cols=COLUNAS_FATURAMENTO) -> pd.DataFrame:
-    """Ensure revenue columns exist and are numeric."""
-    for col in cols:
-        if col not in df.columns:
-            df[col] = 0
-        else:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-    return df
 
 
 # --------------------------
