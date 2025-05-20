@@ -25,6 +25,7 @@ from ..modulobase       import (
     carregar_ocorrencias,
     carregar_base_inad,
     carregar_eshows_excluidos,
+    carregar_custosabertos,
 )
 from ..utils            import (
     formatar_valor_utils,
@@ -1467,6 +1468,8 @@ def register_callbacks(app):
                                 df_base2_global=df_base2_global,   # Use the global df_base2_global
                                 df_casas_earliest_global=df_casas_earliest, # Use calculated one
                                 df_casas_latest_global=df_casas_latest,     # Use calculated one
+                                df_pessoas_global=carregar_pessoas(),
+                                df_custosabertos_global=carregar_custosabertos(),                                
                                 custom_range=current_custom_range # Adicionado custom_range
                             )
                         # Adicione elif para outros KPIs com assinaturas diferentes
