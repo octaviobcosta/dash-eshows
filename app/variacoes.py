@@ -39,7 +39,9 @@ from .utils import (
     calcular_churn,
     calcular_churn_novos_palcos,
     filtrar_novos_palcos_por_periodo,
-    parse_valor_formatado
+    parse_valor_formatado,
+    sanitize_faturamento_cols,
+    ensure_ano_mes,
 )
 
 # Carrega descrições de KPI
@@ -404,27 +406,12 @@ def get_cmgr_variables(
         }
 
     # 3) Padroniza colunas de faturamento -------------------------------
-    alt_map = [
-        ("Comissao B2B", "Comissão B2B"),
-        ("Comissao B2C", "Comissão B2C"),
-        ("Antecipacao de Caches", "Antecipação de Cachês"),
-    ]
-    for alt, orig in alt_map:
-        if alt in df_principal.columns and orig not in df_principal.columns:
-            df_principal.rename(columns={alt: orig}, inplace=True)
-
-    for col in COLUNAS_FATURAMENTO:
-        df_principal[col] = pd.to_numeric(
-            df_principal.get(col, 0), errors="coerce"
-        ).fillna(0)
+    sanitize_faturamento_cols(df_principal, COLUNAS_FATURAMENTO)
 
     df_principal["Faturamento"] = df_principal[COLUNAS_FATURAMENTO].sum(axis=1)
 
     # 4) Garante colunas Ano / Mês --------------------------------------
-    if "Ano" not in df_principal.columns:
-        df_principal["Ano"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.year
-    if "Mês" not in df_principal.columns:
-        df_principal["Mês"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.month
+    ensure_ano_mes(df_principal, "Data")
 
     # 5) Agrupa por Ano/Mês ---------------------------------------------
     df_agrup = (
@@ -594,28 +581,12 @@ def get_lucratividade_variables(
     # --------------------------------------------------------------- #
     # 3) Ajusta colunas de faturamento e calcula Receita
     # --------------------------------------------------------------- #
-    alt_map = [
-        ("Comissao B2B", "Comissão B2B"),
-        ("Comissao B2C", "Comissão B2C"),
-        ("Antecipacao de Caches", "Antecipação de Cachês"),
-    ]
-    for alt, orig in alt_map:
-        if alt in df_principal.columns and orig not in df_principal.columns:
-            df_principal.rename(columns={alt: orig}, inplace=True)
-
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_principal.columns:
-            df_principal[col] = 0
-        else:
-            df_principal[col] = pd.to_numeric(df_principal[col], errors="coerce").fillna(0)
+    sanitize_faturamento_cols(df_principal, COLUNAS_FATURAMENTO)
 
     df_principal["Receita"] = df_principal[COLUNAS_FATURAMENTO].sum(axis=1)
 
     # garante Ano / Mês
-    if "Ano" not in df_principal.columns:
-        df_principal["Ano"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.year
-    if "Mês" not in df_principal.columns:
-        df_principal["Mês"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.month
+    ensure_ano_mes(df_principal, "Data")
 
     g_rec = df_principal.groupby(["Ano", "Mês"], as_index=False)["Receita"].sum()
 
@@ -629,10 +600,7 @@ def get_lucratividade_variables(
     else:
         df_b2_princ["Custos"] = pd.to_numeric(df_b2_princ["Custos"], errors="coerce").fillna(0)
 
-    if "Ano" not in df_b2_princ.columns:
-        df_b2_princ["Ano"] = pd.to_datetime(df_b2_princ["Data"], errors="coerce").dt.year
-    if "Mês" not in df_b2_princ.columns:
-        df_b2_princ["Mês"] = pd.to_datetime(df_b2_princ["Data"], errors="coerce").dt.month
+    ensure_ano_mes(df_b2_princ, "Data")
 
     g_cst = df_b2_princ.groupby(["Ano", "Mês"], as_index=False)["Custos"].sum()
 
@@ -885,20 +853,7 @@ def get_ebitda_variables(
     # ------------------------------------------------------------------ #
     # 3) Calcula ReceitaEBTIDA
     # ------------------------------------------------------------------ #
-    alt_map = [
-        ("Comissao B2B", "Comissão B2B"),
-        ("Comissao B2C", "Comissão B2C"),
-        ("Antecipacao de Caches", "Antecipação de Cachês"),
-    ]
-    for alt, orig in alt_map:
-        if alt in df_principal.columns and orig not in df_principal.columns:
-            df_principal.rename(columns={alt: orig}, inplace=True)
-
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_principal.columns:
-            df_principal[col] = 0
-        else:
-            df_principal[col] = pd.to_numeric(df_principal[col], errors="coerce").fillna(0)
+    sanitize_faturamento_cols(df_principal, COLUNAS_FATURAMENTO)
 
     df_principal["FatTotal"] = df_principal[COLUNAS_FATURAMENTO].sum(axis=1)
 
@@ -918,10 +873,7 @@ def get_ebitda_variables(
     df_principal["ReceitaEBTIDA"] = df_principal["FatTotal"] - df_principal["NotasF"]
 
     # Ano / Mês
-    if "Ano" not in df_principal.columns:
-        df_principal["Ano"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.year
-    if "Mês" not in df_principal.columns:
-        df_principal["Mês"] = pd.to_datetime(df_principal["Data"], errors="coerce").dt.month
+    ensure_ano_mes(df_principal, "Data")
 
     g_ebt_rec = df_principal.groupby(["Ano", "Mês"], as_index=False)["ReceitaEBTIDA"].sum()
 
@@ -943,10 +895,7 @@ def get_ebitda_variables(
     total_imposto = float(df_b2_princ["Imposto"].sum())
     # -----------------------------------------------------------
 
-    if "Ano" not in df_b2_princ.columns:
-        df_b2_princ["Ano"] = pd.to_datetime(df_b2_princ["Data"], errors="coerce").dt.year
-    if "Mês" not in df_b2_princ.columns:
-        df_b2_princ["Mês"] = pd.to_datetime(df_b2_princ["Data"], errors="coerce").dt.month
+    ensure_ano_mes(df_b2_princ, "Data")
 
     g_ebt_cst = df_b2_princ.groupby(["Ano", "Mês"], as_index=False)["CustosEBTIDA"].sum()
 
@@ -1059,19 +1008,7 @@ def get_rpc_variables(
             "variables_values": {},
         }
     # 3) Normaliza colunas de faturamento e calcula faturamento total no período
-    alt_map = [
-        ("Comissao B2B", "Comissão B2B"),
-        ("Comissao B2C", "Comissão B2C"),
-        ("Antecipacao de Caches", "Antecipação de Cachês"),
-    ]
-    for alt, orig in alt_map:
-        if alt in df_principal.columns and orig not in df_principal.columns:
-            df_principal.rename(columns={alt: orig}, inplace=True)
-    for col in COLUNAS_FATURAMENTO:
-        if col not in df_principal.columns:
-            df_principal[col] = 0
-        else:
-            df_principal[col] = pd.to_numeric(df_principal[col], errors="coerce").fillna(0)
+    sanitize_faturamento_cols(df_principal, COLUNAS_FATURAMENTO)
     df_principal["Faturamento"] = df_principal[COLUNAS_FATURAMENTO].sum(axis=1)
     total_fat = float(df_principal["Faturamento"].sum())
     # 4) Determina intervalo de datas efetivo do período analisado
