@@ -82,21 +82,8 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 # ― Logger ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
-try:
-    import resource
-except ImportError:  # Windows nao possui o modulo `resource`
-    resource = None
-    import psutil
 
-def log_memory_usage(etapa: str) -> None:
-    """Registra no logger o uso de memória atual em MB."""
-    if resource is not None:
-        mem_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        mem_mb = mem_kb / 1024
-    else:  # fallback para plataformas sem `resource`
-        proc = psutil.Process(os.getpid())
-        mem_mb = proc.memory_info().rss / (1024 * 1024)
-    logger.info("[mem] %s: %.1f MB", etapa, mem_mb)
+from .mem_utils import log_memory_usage
 
 log_memory_usage("inicio")
 
