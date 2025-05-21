@@ -82,6 +82,15 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 # ― Logger ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
+import resource
+
+def log_memory_usage(etapa: str) -> None:
+    """Registra no logger o uso de memória atual em MB."""
+    mem_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    mem_mb = mem_kb / 1024
+    logger.info("[mem] %s: %.1f MB", etapa, mem_mb)
+
+log_memory_usage("inicio")
 
 # ― Warnings & Pandas -----------------------------------------------------------
 
@@ -333,10 +342,15 @@ external_stylesheets = [
 # 6) CARREGAMENTO DAS BASES PRINCIPAIS
 # ==============================================================================
 logger.info("Carregando bases do Supabase…")
+log_memory_usage("antes_bases")
 df_eshows = carregar_base_eshows()
+log_memory_usage("apos_df_eshows")
 df_base2 = carregar_base2()
+log_memory_usage("apos_df_base2")
 df_ocorrencias = carregar_ocorrencias()
+log_memory_usage("apos_df_ocorrencias")
 logger.info("Bases carregadas com sucesso.")
+log_memory_usage("bases_carregadas")
 
 # ― Ajustes auxiliares para Novos Clientes -------------------------------------
 if df_eshows is not None and not df_eshows.empty:
