@@ -9,6 +9,5 @@ node_modules/
 app/_cache_parquet/
 
 # ↓ arquivos/dirs só para uso local
-.env.backup
-.venv_test/
-requirements_download.txt
+logs/**
+

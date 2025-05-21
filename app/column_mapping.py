@@ -11,7 +11,7 @@ import logging
 from typing import Dict, List
 import pandas as pd
 
-logger = logging.getLogger("column_mapping")
+logger = logging.getLogger(__name__)
 logger.info("column_mapping importado.")
 
 # ────────────────────────────────────────────────────────────
@@ -158,10 +158,31 @@ _PESSOAS: Dict[str, str] = {
     "cargo": "Cargo",
 }
 
-# ────────────────────────────────────────────────────────────
-# 5) METAS  –  (somente se houver renomes necessários)
-# ────────────────────────────────────────────────────────────
-_METAS: Dict[str, str] = {}
+# 5) METAS ────────────────
+_METAS: Dict[str, str] = {
+    # calendário
+    "ano": "Ano",
+    "mes": "Mês",          # <-- precisamos deste alias!
+
+    # metas de volume
+    "novos_clientes":   "NovosClientes",
+    "key_account":      "KeyAccount",
+    "outros_clientes":  "OutrosClientes",
+    "plataforma":       "Plataforma",
+    "fintech":          "Fintech",
+
+    # percentuais / índices
+    "nrr":                 "NRR",
+    "churn":               "Churn",
+    "turnover":            "TurnOver",
+    "lucratividade":       "Lucratividade",
+    "inadimplenciareal":   "InadimplenciaReal",
+    "estabilidade":        "Estabilidade",
+    "eficienciaatendimento":"EficienciaAtendimento",
+    "autonomiausuario":    "AutonomiaUsuario",
+    "perdasoperacionais":  "PerdasOperacionais",
+    # ... acrescente o que faltar
+}
 
 # ────────────────────────────────────────────────────────────
 # 6) CUSTOSABERTOS  –  nova tabela (custos em aberto)
@@ -255,7 +276,9 @@ CENTS_MAPPING: Dict[str, List[str]] = {
         "Valor Bruto",      # <- adicionar
     ],
     "custosabertos": [
-        "valor", "Valor",   # ← NOVO
+        "valor",
+        "Valor",
+        "VALOR",
     ],
 }
 

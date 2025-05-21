@@ -8,10 +8,8 @@ modulobase.py — processamento, sanitização e cache dos DataFrames
       – Ocorrências
       – Inadimplência  (boleto­­casas + boleto­­artistas)
       – Metas
-      – Custos Abertos
-      – NPS Artistas
 • Cache em RAM para acelerar chamadas repetidas.
-• Otimização de memória: down‑cast numéricos e object→category quando útil.
+• Otimização de memória: down-cast numéricos e object→category quando útil.
 """
 
 from __future__ import annotations
@@ -19,7 +17,6 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
-from pathlib import Path
 from typing import Tuple
 
 import numpy as np
@@ -27,48 +24,20 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 from .data_manager import (
+    get_df_eshows,
+    get_df_base2,
+    get_df_ocorrencias,
+    get_df_pessoas,
+    get_df_inadimplencia,
+    get_df_metas,
+    get_df_custosabertos,          # NOVO
     dedup,
-    _fetch,
-    _parquet_path,
-    supa,
+    get_df_npsartistas,            # NOVO
 )
 from .column_mapping import rename_columns, SUPPLIER_TO_SETOR, PERCENT_COLS
 
-logger = logging.getLogger("modulobase")
-
-# ─────────────────────────── Helper genérico ────────────────────────────
-
-def _load_or_cache(table: str, force: bool = False) -> pd.DataFrame:
-    """Obtém *raw* DataFrame.
-
-    • Se **online** (``supa`` válido) baixa do Supabase via ``_fetch``; grava/atualiza
-      ``app/_cache_parquet/{table}.parquet``.
-    • Se offline ou vazio, tenta ler o Parquet local.
-    • Se nenhum dos dois existe, levanta ``FileNotFoundError``.
-    """
-    path: Path = _parquet_path(table)
-
-    # 1) tenta Supabase
-    if supa is not None:
-        try:
-            df_online = _fetch(table, force)
-        except Exception as exc:  # perda de conexão, etc.
-            logger.warning("[%s] Fetch falhou: %s — usando cache se existir", table, exc)
-            df_online = pd.DataFrame()
-        if not df_online.empty:
-            path.parent.mkdir(parents=True, exist_ok=True)
-            df_online.to_parquet(path, index=False)
-            return df_online
-
-    # 2) cache local
-    if path.exists():
-        return pd.read_parquet(path)
-
-    # 3) nada disponível
-    raise FileNotFoundError(
-        f"[{table}] Nem Supabase nem cache_parquet disponível — "
-        "rode o app online ao menos uma vez para gerar o cache."
-    )
+# ─────────────────────────────  logging  ────────────────────────────
+logger = logging.getLogger(__name__)
 
 # ────────────────────────────  caches  ──────────────────────────────
 _df_eshows_cache:            pd.DataFrame | None = None
@@ -79,18 +48,16 @@ _df_ocorrencias_cache:       pd.DataFrame | None = None
 _inad_casas_cache:           pd.DataFrame | None = None
 _inad_artistas_cache:        pd.DataFrame | None = None
 _df_metas_cache:             pd.DataFrame | None = None
-_df_custosabertos_cache:     pd.DataFrame | None = None
-_df_npsartistas_cache:       pd.DataFrame | None = None
+_df_custosabertos_cache:     pd.DataFrame | None = None          # NOVO
+_df_npsartistas_cache:       pd.DataFrame | None = None          # NOVO
 
 # ╭───────────────────────────  helpers  ─────────────────────────────╮
-
 def _slug(text: str) -> str:
     text = unicodedata.normalize("NFD", str(text))
     return re.sub(r"[^0-9a-zA-Z]+", "_", text).strip("_").lower()
 
 
 def otimizar_tipos(df: pd.DataFrame) -> pd.DataFrame:
-    """Down‑cast numéricos e converte strings com pouca cardinalidade → category."""
     if df.empty:
         return df
 
@@ -430,36 +397,48 @@ def sanitize_inad_df(df_raw: pd.DataFrame, tabela: str) -> pd.DataFrame:
 # ╭───────────────  SANITIZE Metas  ─────────────────────────╮ 
 def sanitize_metas_df(df_raw: pd.DataFrame) -> pd.DataFrame:
     """
-    • Converte todas as colunas de PERCENT_COLS de 0–100 → 0–1
+    Limpa e padroniza o DataFrame de metas.
+
+    • Renomeia colunas conforme o mapa de 'metas'.
+    • Converte as colunas de PERCENT_COLS para float32,
+      mantendo a escala original (0–100).
+    • Devolve o DataFrame com tipos otimizados.
     """
+    # ──────────────────────────────────────────────────────────────────
     df = rename_columns(dedup(df_raw), "metas").copy()
 
     for col in PERCENT_COLS:
         if col in df.columns:
-            # to_numeric resolve texto ('70%') ou '70,00'
+            # to_numeric trata strings "70%", "70,00", etc.
             s = pd.to_numeric(
-                    df[col]
-                    .astype(str)
-                    .str.replace('%', '', regex=False)
-                    .str.replace(',', '.', regex=False),
-                errors="coerce"
+                df[col]
+                .astype(str)
+                .str.replace("%", "", regex=False)
+                .str.replace(",", ".", regex=False),
+                errors="coerce",
             )
-            # frações já corridas (<1) ficam como estão; >1 divide por 100
-            mask = s.notna() & (s >= 1)
-            s.loc[mask] = s.loc[mask] / 100.0
+            # Mantemos 0–100 (não dividimos mais por 100)
             df[col] = s.astype("float32")
 
     return otimizar_tipos(df.reset_index(drop=True))
-# ╭──────────────────────────  loaders  ──────────────────────────────╮
 
+# ╭──────────────────────────  loaders  ──────────────────────────────╮
 def carregar_base_eshows(force_reload: bool = False) -> pd.DataFrame:
     global _df_eshows_cache, _df_eshows_excluidos_cache
+
     if _df_eshows_cache is not None and not force_reload:
         return _df_eshows_cache
 
-    df_raw = _load_or_cache("baseeshows", force_reload)
+    df_raw = get_df_eshows()
+    if df_raw.empty:
+        raise ValueError("[BaseEshows] Supabase retornou vazio!")
+
     df_clean, df_excl = sanitize_eshows_df(df_raw)
-    _df_eshows_cache, _df_eshows_excluidos_cache = df_clean, df_excl
+    logger.info("[BaseEshows] Linhas finais: %s | Excluídas: %s",
+                len(df_clean), len(df_excl))
+
+    _df_eshows_cache = otimizar_tipos(df_clean)
+    _df_eshows_excluidos_cache = df_excl
     return _df_eshows_cache
 
 
@@ -467,50 +446,65 @@ def carregar_eshows_excluidos() -> pd.DataFrame:
     global _df_eshows_excluidos_cache
     if _df_eshows_excluidos_cache is None:
         carregar_base_eshows()
-    return _df_eshows_excluidos_cache
+    return _df_eshows_excluidos_cache.copy()
 
 
 def carregar_base2(force_reload: bool = False) -> pd.DataFrame:
+    """
+    Baixa a Base-2 do Supabase, aplica o sanitizador e mantém cache em RAM.
+    """
     global _df_base2_cache
     if _df_base2_cache is not None and not force_reload:
         return _df_base2_cache
 
-    _df_base2_cache = sanitize_base2_df(_load_or_cache("base2", force_reload))
+    df_raw = dedup(get_df_base2())          # 37 × 53 atualmente
+    df_clean = sanitize_base2_df(df_raw)
+    _df_base2_cache = df_clean
     logger.info("[modulobase] Base2 carregada: %s", _df_base2_cache.shape)
     return _df_base2_cache
 
 
-def carregar_pessoas(force_reload: bool = False) -> pd.DataFrame:
+def carregar_pessoas() -> pd.DataFrame:
     global _df_pessoas_cache
-    if _df_pessoas_cache is not None and not force_reload:
+    if _df_pessoas_cache is not None:
         return _df_pessoas_cache
 
-    _df_pessoas_cache = sanitize_pessoas_df(_load_or_cache("pessoas", force_reload))
+    _df_pessoas_cache = sanitize_pessoas_df(dedup(get_df_pessoas()))
     logger.info("[modulobase] Pessoas carregada: %s", _df_pessoas_cache.shape)
     return _df_pessoas_cache
 
 
-def carregar_ocorrencias(force_reload: bool = False) -> pd.DataFrame:
+def carregar_ocorrencias() -> pd.DataFrame:
     global _df_ocorrencias_cache
-    if _df_ocorrencias_cache is not None and not force_reload:
-        return _df_ocorrencias_cache
-
-    _df_ocorrencias_cache = otimizar_tipos(_load_or_cache("ocorrencias", force_reload))
+    if _df_ocorrencias_cache is None:
+        try:
+            _df_ocorrencias_cache = dedup(get_df_ocorrencias())
+        except Exception:
+            _df_ocorrencias_cache = pd.DataFrame()
     return _df_ocorrencias_cache
 
 
-def carregar_base_inadimplencia(force_reload: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def carregar_base_inadimplencia(
+    force_reload: bool = False,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     global _inad_casas_cache, _inad_artistas_cache
-    if (not force_reload and _inad_casas_cache is not None and _inad_artistas_cache is not None):
+    if (not force_reload
+            and _inad_casas_cache is not None
+            and _inad_artistas_cache is not None):
         return _inad_casas_cache, _inad_artistas_cache
 
-    _inad_casas_cache = sanitize_inad_df(_load_or_cache("boletocasas", force_reload), "boletocasas")
-    _inad_artistas_cache = sanitize_inad_df(_load_or_cache("boletoartistas", force_reload), "boletoartistas")
+    df_casas_raw, df_art_raw = get_df_inadimplencia()
+    _inad_casas_cache = sanitize_inad_df(df_casas_raw, "boletocasas")
+    _inad_artistas_cache = sanitize_inad_df(df_art_raw, "boletoartistas")
+
+    logger.info("[modulobase] Inad – casas %s | artistas %s",
+                _inad_casas_cache.shape, _inad_artistas_cache.shape)
     return _inad_casas_cache, _inad_artistas_cache
 
 
-def carregar_base_inad(force_reload: bool = False):  # alias legado
-    return carregar_base_inadimplencia(force_reload)
+def carregar_base_inad() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Alias legado."""
+    return carregar_base_inadimplencia()
 
 
 def carregar_metas(force_reload: bool = False) -> pd.DataFrame:
@@ -518,30 +512,41 @@ def carregar_metas(force_reload: bool = False) -> pd.DataFrame:
     if _df_metas_cache is not None and not force_reload:
         return _df_metas_cache
 
-    _df_metas_cache = sanitize_metas_df(_load_or_cache("metas", force_reload))
+    raw = get_df_metas()
+    _df_metas_cache = sanitize_metas_df(raw)
     return _df_metas_cache
 
 
+# ╭──────────────────────  loader Custos Abertos  ────────────────────╮
 def carregar_custosabertos(force_reload: bool = False) -> pd.DataFrame:
     global _df_custosabertos_cache
     if _df_custosabertos_cache is not None and not force_reload:
         return _df_custosabertos_cache
 
-    raw = _load_or_cache("custosabertos", force_reload)
-    _df_custosabertos_cache = sanitize_custosabertos_df(raw) if not raw.empty else raw
+    df_raw = get_df_custosabertos()
+    if df_raw.empty:
+        logger.warning("[custosabertos] Supabase retornou vazio.")
+        _df_custosabertos_cache = pd.DataFrame()
+        return _df_custosabertos_cache
+
+    _df_custosabertos_cache = sanitize_custosabertos_df(df_raw)
+    logger.info("[modulobase] CustosAbertos carregado: %s",
+                _df_custosabertos_cache.shape)
     return _df_custosabertos_cache
 
-
+# ───────────────────── loader NPS Artistas ────────────────────────
 def carregar_npsartistas(force_reload: bool = False) -> pd.DataFrame:
     global _df_npsartistas_cache
     if _df_npsartistas_cache is not None and not force_reload:
         return _df_npsartistas_cache
 
-    raw = _load_or_cache("npsartistas", force_reload)
-    _df_npsartistas_cache = sanitize_npsartistas_df(raw) if not raw.empty else raw
-    return _df_npsartistas_cache
+    df_raw = get_df_npsartistas()
+    if df_raw.empty:
+        logger.warning("[npsartistas] Supabase retornou vazio.")
+        _df_npsartistas_cache = pd.DataFrame()
+        return _df_npsartistas_cache
 
-# ─────────────────────────────────────────────────────────────────────
-#  Qualquer novo loader deve seguir o padrão: 1) _load_or_cache(raw) →
-#  2) sanitize → 3) cache em RAM e retornar.
-# ─────────────────────────────────────────────────────────────────────
+    _df_npsartistas_cache = sanitize_npsartistas_df(df_raw)
+    logger.info("[modulobase] NPSArtistas carregado: %s",
+                _df_npsartistas_cache.shape)
+    return _df_npsartistas_cache

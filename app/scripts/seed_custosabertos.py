@@ -14,6 +14,9 @@ from pathlib import Path
 import os
 import pandas as pd
 from supabase import create_client
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ──────────────────────────────────────────────────────────────
 # 1) Configurações
@@ -43,7 +46,7 @@ if not CSV_PATH.exists():
 df = pd.read_csv(CSV_PATH)
 records = df.to_dict("records")
 total = len(records)
-print(f"🔹 Lidas {total} linhas de {CSV_PATH.relative_to(Path.cwd())}")
+logger.debug("🔹 Lidas %s linhas de %s", total, CSV_PATH.relative_to(Path.cwd()))
 
 # ──────────────────────────────────────────────────────────────
 # 3) Conectar na Supabase

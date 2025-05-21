@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime as _dt
 import logging
 import os
+import gc
 from pathlib import Path
 from typing import Dict, Tuple
 
@@ -13,21 +14,16 @@ from postgrest import APIError
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
 
 # ────────────────────────────  logging  ────────────────────────────
-logger = logging.getLogger("data_manager")
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("supabase_py").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
+
+# Permite desativar o cache em RAM via variável de ambiente.
+CACHE_RAM = os.getenv("CACHE_RAM", "1") == "1"
 
 # ───────────────────────  cache em Parquet  ────────────────────────
 CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
 CACHE_DIR.mkdir(exist_ok=True)
 
 CACHE_EXPIRY_HOURS: int | None = 12
-
-# -----------------------------------------------------------------------------
-# helper compatível com modulobase
-def _parquet_path(table: str) -> Path:
-    """Retorna app/_cache_parquet/{table}.parquet (wrapper para _cache_path)."""
-    return _cache_path(table)
 
 def _cache_path(table: str) -> Path:
     return CACHE_DIR / f"{table.lower()}.parquet"
@@ -58,10 +54,9 @@ def _save_parquet(table: str, df: pd.DataFrame) -> None:
         pass
 
 # ────────────────────────  Supabase client  ────────────────────────
-supa = None  # singleton
+supa = None  # lazily-instantiated singleton
 
 def _init_supabase():
-    """Cria o cliente se houver URL+KEY; caso contrário, sinaliza MODO OFFLINE."""
     global supa
     if supa is not None:
         return supa
@@ -71,8 +66,7 @@ def _init_supabase():
 
     url, key = os.getenv("SUPABASE_URL", ""), os.getenv("SUPABASE_KEY", "")
     if not (url and key):
-        logger.warning("Rodando em MODO OFFLINE – cache Parquet será usado.")
-        supa = None
+        logger.error("SUPABASE_URL/KEY não encontrados.")
         return None
 
     try:
@@ -80,8 +74,7 @@ def _init_supabase():
         supa = create_client(url, key)
         logger.info("Cliente Supabase inicializado.")
     except Exception as e:
-        logger.error("Falha ao criar cliente Supabase: %s – entrando em MODO OFFLINE", e)
-        supa = None
+        logger.error("Falha ao criar cliente Supabase: %s", e)
 
     return supa
 
@@ -96,19 +89,7 @@ def dedup(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 # ────────────────────────  download + limpeza  ─────────────────────
-# -----------------------------------------------------------------------------
-def _fetch(table: str, force: bool = False) -> pd.DataFrame:
-    """
-    Baixa a tabela do Supabase.
-
-    Parameters
-    ----------
-    table : str
-        Nome da tabela.
-    force : bool, default False
-        Reservado para compatibilidade; ignorado aqui porque o data_manager
-        já decide se baixa ou usa cache conforme chamado.
-    """
+def _fetch(table: str) -> pd.DataFrame:
     if supa is None:
         return pd.DataFrame()
 
@@ -118,7 +99,7 @@ def _fetch(table: str, force: bool = False) -> pd.DataFrame:
         try:
             q = supa.table(table).select("*")
             if table.lower() == "baseeshows":
-                q = q.gte("Data", "2022-01-01")  # corte opcional
+                q = q.gte("Data", "2022-01-01")
             resp = q.range(start, end).execute()
         except APIError as err:
             logger.error("[%s] página %s: %s", table, page + 1, err.message)
@@ -150,17 +131,21 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
     table = table.lower()
     logger.info("carregando %s…", table)
 
-    if not force_reload and table in _cache:
+    if CACHE_RAM and not force_reload and table in _cache:
         return _cache[table]
 
     if not force_reload:
         if (df_disk := _load_parquet(table)) is not None:
-            _cache[table] = df_disk
+            if CACHE_RAM:
+                _cache[table] = df_disk
             logger.info("[%s] carregado do Parquet (%s linhas)", table, len(df_disk))
             return df_disk
 
     df_live = _fetch(table)
-    _cache[table] = df_live
+    if CACHE_RAM:
+        _cache[table] = df_live
+    else:
+        logger.debug("RAM cache desativado, dados não permanecem em memória.")
     _save_parquet(table, df_live)
     return df_live
 
@@ -177,6 +162,7 @@ def get_df_npsartistas()   -> pd.DataFrame:                      return _get("np
 
 def reset_all_data(clear_disk: bool = False):
     _cache.clear()
+    gc.collect()
     if clear_disk:
         for p in CACHE_DIR.glob("*.parquet"):
             try:

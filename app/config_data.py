@@ -18,8 +18,11 @@ from .hist import (
 )
 import gc
 import pandas as pd # Adicionado para pd.Timestamp em alguns históricos
+import logging
 
-print("[config_data.py] Calculando todos os históricos para HIST_KPI_MAP...")
+logger = logging.getLogger(__name__)
+
+logger.debug("[config_data.py] Calculando todos os históricos para HIST_KPI_MAP...")
 
 rpc_historico = historical_rpc(months=12)
 cmgr_historico = historical_cmgr(months=12)
@@ -69,7 +72,7 @@ custo_medio_colab_historico = historical_custo_medio_colaborador(months=12)
 artistas_ativos_historico = historical_artistas_ativos(months=12)
 
 gc.collect()
-print("[config_data.py] Coleta de lixo executada após cálculos históricos.")
+logger.debug("[config_data.py] Coleta de lixo executada após cálculos históricos.")
 
 HIST_KPI_MAP = {
     "GMV": gmv_historico,
@@ -118,7 +121,7 @@ HIST_KPI_MAP = {
     "NPS Artistas": nps_artistas_historico,
     "NPS Equipe": nps_equipe_historico
 }
-print("[config_data.py] HIST_KPI_MAP definido.")
+logger.debug("[config_data.py] HIST_KPI_MAP definido.")
 
 # Adicionar uma função para obter o mapa, para garantir que ele seja acessado após a definição
 def get_hist_kpi_map():

@@ -2944,10 +2944,15 @@ def ler_todas_as_metas(ano: int,
                                                periodo, mes, custom_range)
 
     # ---------- Coluna do Excel → chave interna ----------
+    # Mapas de colunas: permitem tanto nomes com espaço quanto com underscore
+    # (ex.: "Novos_Clientes") para compatibilidade com a estrutura do Supabase.
     col_map: dict[str, str] = {
         "Novos Clientes": "NovosClientes",
+        "Novos_Clientes": "NovosClientes",
         "Key Account": "KeyAccount",
+        "Key_Account": "KeyAccount",
         "Outros Clientes": "OutrosClientes",
+        "Outros_Clientes": "OutrosClientes",
         "Plataforma": "Plataforma",
         "Fintech": "Fintech",
         "NRR": "NRR",
@@ -2955,16 +2960,26 @@ def ler_todas_as_metas(ano: int,
         "TurnOver": "TurnOver",
         "Lucratividade": "Lucratividade",
         "Crescimento Sustentável": "CrescimentoSustentavel",
+        "Crescimento_Sustentavel": "CrescimentoSustentavel",
         "Palcos Vazios": "PalcosVazios",
+        "Palcos_Vazios": "PalcosVazios",
         "InadimplenciaReal": "InadimplenciaReal",
+        "Inadimplencia_Real": "InadimplenciaReal",
         "Estabilidade": "Estabilidade",
         "Ef. Atendimento": "EficienciaAtendimento",
+        "Ef_Atendimento": "EficienciaAtendimento",
         "AutonomiaUsuario": "AutonomiaUsuario",
+        "Autonomia_Usuario": "AutonomiaUsuario",
         "Perdas Operacionais": "PerdasOperacionais",
+        "Perdas_Operacionais": "PerdasOperacionais",
         "ReceitaPorColaborador": "ReceitaPorColaborador",
+        "Receita_Por_Colaborador": "ReceitaPorColaborador",
         "LTV/CAC": "LtvCac",
+        "LTV_CAC": "LtvCac",
         "NPS Artistas": "NPSArtistas",
+        "NPS_Artistas": "NPSArtistas",
         "NPS Equipe": "NPSEquipe",
+        "NPS_Equipe": "NPSEquipe",
     }
 
     # metas que são SOMA (o resto recebe média)
@@ -2980,17 +2995,18 @@ def ler_todas_as_metas(ano: int,
         "Estabilidade", "EficienciaAtendimento", "AutonomiaUsuario"
     }
 
-    # ---------- dicionário-base (todos os campos) ----------
+    # app/okrs/okrs.py
     metas_default = {
         "NovosClientes": 0.0, "KeyAccount": 0.0, "OutrosClientes": 0.0,
         "Plataforma": 0.0, "Fintech": 0.0,
-        # valores default percentuais já em FRAÇÃO
-        "NRR": 0.10, "Churn": 0.08, "TurnOver": 0.10, "Lucratividade": 0.10,
-        "CrescimentoSustentavel": 0.05, "PalcosVazios": 0.0,
-        "InadimplenciaReal": 0.05, "Estabilidade": 0.90,
-        "EficienciaAtendimento": 0.80, "AutonomiaUsuario": 0.30,
-        "PerdasOperacionais": 0.15, "ReceitaPorColaborador": 12_500.0,
-        "LtvCac": 2.0, "NPSArtistas": 30.0, "NPSEquipe": 70.0
+        # --- percentuais agora em escala 0-100 ---
+        "NRR": 10.0, "Churn": 8.0, "TurnOver": 10.0, "Lucratividade": 10.0,
+        "CrescimentoSustentavel": 5.0, "PalcosVazios": 0.0,
+        "InadimplenciaReal": 5.0, "Estabilidade": 90.0,
+        "EficienciaAtendimento": 80.0, "AutonomiaUsuario": 30.0,
+        "PerdasOperacionais": 15.0,
+        "ReceitaPorColaborador": 12_500.0,
+        "LtvCac": 2.0, "NPSArtistas": 30.0, "NPSEquipe": 70.0,
     }
 
     # ---------- se não há linhas no período, retorna defaults ----------
@@ -3009,8 +3025,10 @@ def ler_todas_as_metas(ano: int,
             continue
 
         val = serie.sum() if key_meta in keys_to_sum else serie.mean()
-        if key_meta in percent_keys:
-            val = val / 100.0  # converte para fração
+        # A conversão de colunas percentuais para fração já ocorre em
+        # ``sanitize_metas_df`` (modulobase). Evita-se, portanto, dividir
+        # novamente por 100 aqui, garantindo que metas de porcentagem sejam
+        # lidas corretamente do Supabase.
 
         # Correções específicas de março / 1º T
         if (mes == 3 or periodo == "1° Trimestre" or
@@ -3672,6 +3690,21 @@ def register_okrs_callbacks(app):
             # Converte a string formatada em float
             resultado_valor = parse_valor_formatado(resultado_str)
 
+            # AJUSTE DE ESCALA PARA KPIs PERCENTUAIS FRACIONADOS
+            kpis_percentuais_conhecidos = {
+                "Net Revenue Retention", "Churn %", "Turn Over", "Lucratividade",
+                "Crescimento Sustentável", "Inadimplência Real", "Estabilidade",
+                "Eficiência de Atendimento", "Autonomia do Usuário", "Perdas Operacionais",
+                "NPS Artistas", "NPS Equipe" # Adicionando KPIs de NPS que também são percentuais
+            }
+            if nome_kpi in kpis_percentuais_conhecidos and isinstance(resultado_str, str) and "%" in resultado_str:
+                # Se o valor numérico parseado for < 1.0 (e não zero), e a string original tinha '%',
+                # assume-se que está fracionado (ex: 0.15 para 15%).
+                if abs(resultado_valor) < 1.0 and resultado_valor != 0:
+                    logger.info(f"KPI {nome_kpi}: valor {resultado_valor} (de string '{resultado_str}') ajustado para {resultado_valor * 100.0}.")
+                    resultado_valor *= 100.0
+            # FIM AJUSTE DE ESCALA
+
             # Status e cor (usando o mapeamento definido no callback)
             status = kpi_data.get("status", "controle")
             cor = status_color_map.get(status, "danger")
@@ -4228,8 +4261,14 @@ def register_okrs_callbacks(app):
             df_nps_global=df_base2_global
         )
         try:
-            val_art = float(nps_art_data["resultado"].replace("%", ""))
-        except:
+            # Ajuste aqui para usar parse_valor_formatado e depois escalar se necessário
+            val_art_str = nps_art_data.get("resultado", "0")
+            val_art = parse_valor_formatado(val_art_str)
+            if val_art is None: val_art = 0.0
+            if isinstance(val_art_str, str) and "%" in val_art_str and abs(val_art) < 1.0 and val_art != 0:
+                val_art *= 100.0
+        except Exception as e:
+            logger.warning(f"Erro ao parsear NPS Artistas: {e}. Valor usado: 0.0")
             val_art = 0.0
                 
         # Usando a função calcular_progresso_kpi_com_historico para consistência com outros objetivos
@@ -4258,8 +4297,14 @@ def register_okrs_callbacks(app):
             df_nps_global=df_base2_global
         )
         try:
-            val_eq = float(nps_eq_data["resultado"].replace("%", ""))
-        except:
+            # Ajuste aqui para usar parse_valor_formatado e depois escalar se necessário
+            val_eq_str = nps_eq_data.get("resultado", "0")
+            val_eq = parse_valor_formatado(val_eq_str)
+            if val_eq is None: val_eq = 0.0
+            if isinstance(val_eq_str, str) and "%" in val_eq_str and abs(val_eq) < 1.0 and val_eq != 0:
+                val_eq *= 100.0
+        except Exception as e:
+            logger.warning(f"Erro ao parsear NPS Equipe: {e}. Valor usado: 0.0")
             val_eq = 0.0
                 
         # Usando a função calcular_progresso_kpi_com_historico para consistência

@@ -2,6 +2,9 @@
 import pandas as pd
 from pathlib import Path
 import csv, re
+import logging
+
+logger = logging.getLogger(__name__)
 
 FILE_IN  = Path("dados.xlsx")
 FILE_OUT = Path("dados_limpo.csv")
@@ -53,4 +56,4 @@ df.to_csv(
     line_terminator="\n",
 )
 
-print(f"Arquivo salvo em {FILE_OUT.resolve()}")
+logger.debug("Arquivo salvo em %s", FILE_OUT.resolve())

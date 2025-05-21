@@ -1,20 +1,9 @@
 """
-app.main – Entry point do Dash da Eshows
-=======================================
+app.py – Entry point do Dash da Eshows
+====================================
 Organizado em blocos lógicos, com títulos claros e comentários de contexto.  
 Comentários extensos e código morto foram removidos para facilitar a leitura.
 """
-
-# ==============================================================================
-# 0) CARREGA VARIÁVEIS DE AMBIENTE (.env ou .env.example)
-# ==============================================================================
-from dotenv import load_dotenv, find_dotenv
-
-# tenta carregar .env; se não existir, carrega .env.example
-load_dotenv(find_dotenv(".env") or ".env.example")
-
-# inicializa logging global
-import logging_config  # noqa: F401
 
 # ==============================================================================
 # 1) IMPORTS
@@ -25,13 +14,13 @@ import sys
 import gc
 import json
 import logging
+from dotenv import load_dotenv
 import unicodedata
 from pathlib import Path
 from datetime import datetime, timedelta
 import calendar
 
-# ― Terceiros ------------------------------------------------------------------
-import warnings
+# ― Terceiros -------------------------------------------------------------------
 
 import pandas as pd
 import numpy as np
@@ -45,7 +34,10 @@ from dateutil.relativedelta import relativedelta
 import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
 
-# ― Módulos internos -----------------------------------------------------------
+load_dotenv()
+import logging_config  # noqa: F401
+
+# ― Módulos internos ------------------------------------------------------------
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
     carregar_base_eshows,
@@ -78,7 +70,7 @@ from .utils import (
     filtrar_novos_palcos_por_periodo,
     calcular_churn_novos_palcos,
     calcular_variacao_percentual,
-    ensure_grupo_col,
+    ensure_grupo_col
 )
 from .kpis_charts import generate_kpi_figure
 
@@ -92,14 +84,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 logger = logging.getLogger(__name__)
 
 # ― Warnings & Pandas -----------------------------------------------------------
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings(
-    "ignore",
-    message="Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated",
-)
 
-pd.options.mode.chained_assignment = None
 
 # ― Constantes visuais ----------------------------------------------------------
 TEXT_COLOR = "#122046"

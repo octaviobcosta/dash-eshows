@@ -9,6 +9,9 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import numpy as np
 import gc # <--- ADICIONADO
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Imports do seu projeto
 from .modulobase import (
@@ -18,7 +21,8 @@ from .modulobase import (
     carregar_base_inad,
     carregar_ocorrencias,
     carregar_pessoas,
-    carregar_npsartistas
+    carregar_npsartistas,
+    carregar_custosabertos
 )
 from .controles import get_kpi_status
 from .utils import (
@@ -2594,6 +2598,387 @@ def get_churn_variables(
         "status": st
     }
 
+# ======================================================================
+# KPI: CAC (Customer Acquisition Cost)
+# ======================================================================
+def get_cac_variables(
+    ano: int,
+    periodo: str,
+    mes: int,
+    custom_range=None,
+    df_custosabertos_global=None,
+    df_eshows_global=None,        # NOVO
+    df_pessoas_global=None,       # NOVO
+    df_casas_earliest_global=None # NOVO
+) -> dict:
+    """
+    Calcula o Custo de Aquisição de Cliente (CAC).
+    CAC = (Total de Custos de Marketing e Vendas) / (Número de Novos Clientes Adquiridos)
+
+    Custos de Marketing e Vendas são compostos por:
+    1. Soma de "Valor" de fornecedores mapeados para "Comercial" no SUPPLIER_TO_SETOR (período por "Data Competencia").
+    2. Soma de "Valor" onde "Nivel 1" é 'Visitas a Clientes' (período por "Data Vencimento").
+    3. Custo de alimentação proporcional para o comercial:
+       ((Soma "Valor" de TEMPUS FUGIT e Flash) / Total Funcionários Ativos) * Funcionários do Comercial.
+       (Alimentação por "Data Competencia", Funcionários do Comercial por "Data Competencia").
+    """
+    from .modulobase import (
+        carregar_custosabertos,
+        carregar_base_eshows, # <<< CORRIGIDO AQUI
+        carregar_pessoas
+    )
+    from .utils import (
+        filtrar_periodo_principal,
+        get_period_start,
+        get_period_end,
+        mes_nome_intervalo,
+        filtrar_novos_palcos_por_periodo
+    )
+    from .column_mapping import SUPPLIER_TO_SETOR
+    from dateutil.relativedelta import relativedelta # Para cálculo de funcionários ativos
+    import pandas as pd
+    import numpy as np # Para np.mean em funcionários ativos
+
+    # ------------------------------------------------------------------ #
+    # 1) Carrega bases (ou usa as injetadas)                             #
+    # ------------------------------------------------------------------ #
+    df_custos = (
+        df_custosabertos_global.copy()
+        if df_custosabertos_global is not None
+        else carregar_custosabertos().copy()
+    )
+    df_eshows = (
+        df_eshows_global.copy()
+        if df_eshows_global is not None
+        else carregar_base_eshows().copy() # <<< E AQUI
+    )
+    df_pessoas = (
+        df_pessoas_global.copy()
+        if df_pessoas_global is not None
+        else carregar_pessoas().copy()
+    )
+
+    if df_custos is not None and not df_custos.empty:
+        df_custos = df_custos.loc[:, ~df_custos.columns.duplicated()]
+    if df_eshows is not None and not df_eshows.empty:
+        df_eshows = df_eshows.loc[:, ~df_eshows.columns.duplicated()]
+        # df_casas_earliest é derivado de df_eshows
+        df_casas_earliest = (
+            df_casas_earliest_global.copy()
+            if df_casas_earliest_global is not None
+            else df_eshows.groupby("Id da Casa")["Data do Show"].min().reset_index().rename(columns={"Data do Show": "EarliestShow"})
+        )
+    else: # df_eshows está vazio
+        df_casas_earliest = pd.DataFrame(columns=["Id da Casa", "EarliestShow"])
+
+
+    if df_pessoas is not None and not df_pessoas.empty:
+        df_pessoas = df_pessoas.loc[:, ~df_pessoas.columns.duplicated()]
+        # Converte colunas de data em df_pessoas para datetime
+        df_pessoas["DataInicio"] = pd.to_datetime(df_pessoas.get("DataInicio"), errors='coerce')
+        df_pessoas["DataSaida"] = pd.to_datetime(df_pessoas.get("DataSaida"), errors='coerce')
+
+
+    # Label do período (usado no retorno)
+    # Tenta criar um label a partir do df_eshows (mais provável ter datas representativas)
+    # ou df_custos se df_eshows estiver vazio.
+    df_para_label = df_eshows if not df_eshows.empty else df_custos
+    label_periodo_calculado = "Sem dados suficientes para determinar período"
+    if not df_para_label.empty:
+        # Precisamos de um df minimamente filtrado para mes_nome_intervalo funcionar
+        # Se custom_range for fornecido, usamos ele diretamente.
+        # Caso contrário, fazemos um filtro genérico apenas para obter o label.
+        if custom_range:
+             # Para custom_range, o ideal é formatar as datas diretamente, se possível
+            try:
+                label_periodo_calculado = f"{pd.to_datetime(custom_range[0]):%d/%m/%y} a {pd.to_datetime(custom_range[1]):%d/%m/%y}"
+            except: # Fallback se custom_range não for datelike
+                 df_temp_label = filtrar_periodo_principal(df_para_label.copy(), ano, periodo, mes, custom_range)
+                 label_periodo_calculado = mes_nome_intervalo(df_temp_label, periodo)
+        else:
+            df_temp_label = filtrar_periodo_principal(df_para_label.copy(), ano, periodo, mes, custom_range)
+            label_periodo_calculado = mes_nome_intervalo(df_temp_label, periodo)
+
+
+    # Se a base de custos estiver vazia, não há como calcular CAC.
+    if df_custos is None or df_custos.empty:
+        return {
+            "periodo": label_periodo_calculado,
+            "resultado": "R$0.00",
+            "status": "controle",
+            "variables_values": {
+                "Total Custos Mkt & Vendas": 0,
+                "Novos Clientes": 0,
+                "Debug": "Base de custos vazia ou não carregada."
+            }
+        }
+
+    # Garante que as colunas de valor e data existam e sejam do tipo correto em df_custos
+    df_custos["Valor"] = pd.to_numeric(df_custos.get("Valor"), errors='coerce').fillna(0)
+    df_custos["Data Competencia"] = pd.to_datetime(df_custos.get("Data Competencia"), errors='coerce')
+    df_custos["Data Vencimento"] = pd.to_datetime(df_custos.get("Data Vencimento"), errors='coerce')
+
+    # ------------------------------------------------------------------ #
+    # 2) Filtra df_custos pelo período principal (separado por data)     #
+    # ------------------------------------------------------------------ #
+    # Preserva o df_custos original para diferentes filtros de data
+    df_custos_original = df_custos.copy()
+
+    # Filtro por "Data Competencia"
+    # Renomeia temporariamente para "Data" para usar filtrar_periodo_principal
+    df_custos_para_filtro_competencia = df_custos_original.rename(columns={"Data Competencia": "Data"}).copy() # Adicionado .copy()
+    # Garante que a coluna "Data" seja datetime, não categórica, e remove NaTs
+    df_custos_para_filtro_competencia["Data"] = pd.to_datetime(df_custos_para_filtro_competencia["Data"], errors='coerce')
+    if pd.api.types.is_categorical_dtype(df_custos_para_filtro_competencia["Data"]):
+        df_custos_para_filtro_competencia["Data"] = df_custos_para_filtro_competencia["Data"].astype(object)
+        df_custos_para_filtro_competencia["Data"] = pd.to_datetime(df_custos_para_filtro_competencia["Data"], errors='coerce')
+    df_custos_para_filtro_competencia.dropna(subset=["Data"], inplace=True)
+
+    df_custos_filtrado_competencia = filtrar_periodo_principal(
+        df_custos_para_filtro_competencia, ano, periodo, mes, custom_range
+    )
+
+    # Filtro por "Data Vencimento"
+    # Renomeia temporariamente para "Data" para usar filtrar_periodo_principal
+    df_custos_para_filtro_vencimento = df_custos_original.rename(columns={"Data Vencimento": "Data"}).copy() # Adicionado .copy()
+    # Garante que a coluna "Data" seja datetime, não categórica, e remove NaTs
+    df_custos_para_filtro_vencimento["Data"] = pd.to_datetime(df_custos_para_filtro_vencimento["Data"], errors='coerce')
+    if pd.api.types.is_categorical_dtype(df_custos_para_filtro_vencimento["Data"]):
+        df_custos_para_filtro_vencimento["Data"] = df_custos_para_filtro_vencimento["Data"].astype(object)
+        df_custos_para_filtro_vencimento["Data"] = pd.to_datetime(df_custos_para_filtro_vencimento["Data"], errors='coerce')
+    df_custos_para_filtro_vencimento.dropna(subset=["Data"], inplace=True)
+
+    df_custos_filtrado_vencimento = filtrar_periodo_principal(
+        df_custos_para_filtro_vencimento, ano, periodo, mes, custom_range
+    )
+    
+    # Inicializa variáveis de custo
+    custo_fornecedores_comercial_valor = 0.0
+    custo_visitas_clientes_valor = 0.0
+    custo_alimentacao_proporcional_comercial_valor = 0.0
+    
+    # Debugging outputs
+    debug_info = {
+        "Filtro_Competencia_Linhas": len(df_custos_filtrado_competencia),
+        "Filtro_Vencimento_Linhas": len(df_custos_filtrado_vencimento),
+    }
+
+    # Adiciona DataFrames ao debug_info (completos)
+    debug_info["df_custos_filtrado_competencia_full_df"] = df_custos_filtrado_competencia.to_dict('records') if not df_custos_filtrado_competencia.empty else []
+    debug_info["df_custos_filtrado_vencimento_full_df"] = df_custos_filtrado_vencimento.to_dict('records') if not df_custos_filtrado_vencimento.empty else []
+
+
+    # ------------------------------------------------------------------ #
+    # 3.1) Custo de Fornecedores do Setor Comercial                      #
+    # ------------------------------------------------------------------ #
+    fornecedores_comerciais = [
+        f for f, setor in SUPPLIER_TO_SETOR.items() if setor == "Comercial"
+    ]
+    debug_info["Fornecedores_Comerciais_Mapeados"] = fornecedores_comerciais
+
+    if not df_custos_filtrado_competencia.empty and fornecedores_comerciais:
+        custos_fornec_comercial_df = df_custos_filtrado_competencia[
+            df_custos_filtrado_competencia["Fornecedor"].isin(fornecedores_comerciais)
+        ]
+        custo_fornecedores_comercial_valor = custos_fornec_comercial_df["Valor"].sum()
+        debug_info["Custo_Fornecedores_Comercial_DF_Linhas"] = len(custos_fornec_comercial_df)
+        debug_info["custos_fornec_comercial_full_df"] = custos_fornec_comercial_df.to_dict('records') if not custos_fornec_comercial_df.empty else []
+    
+    debug_info["Custo_Fornecedores_Comercial_Soma"] = custo_fornecedores_comercial_valor
+
+    # ------------------------------------------------------------------ #
+    # 3.2) Custo de "Visitas a Clientes"                                 #
+    # ------------------------------------------------------------------ #
+    if not df_custos_filtrado_vencimento.empty and "Nivel 1" in df_custos_filtrado_vencimento.columns:
+        custos_visitas_df = df_custos_filtrado_vencimento[
+            df_custos_filtrado_vencimento["Nivel 1"] == "Visitas a Clientes"
+        ]
+        custo_visitas_clientes_valor = custos_visitas_df["Valor"].sum()
+        debug_info["Custo_Visitas_Clientes_DF_Linhas"] = len(custos_visitas_df)
+        debug_info["custos_visitas_full_df"] = custos_visitas_df.to_dict('records') if not custos_visitas_df.empty else []
+
+    debug_info["Custo_Visitas_Clientes_Soma"] = custo_visitas_clientes_valor
+    
+    # ------------------------------------------------------------------ #
+    # 3.3) Alimentação proporcional — cálculo mês a mês                  #
+    # ------------------------------------------------------------------ #
+    df_alim = df_custos_filtrado_competencia[
+        df_custos_filtrado_competencia["Nivel 2"] == "MDO Alimentação Funcionário"
+    ].copy()
+
+    # ───────────────────────── NORMALIZA NOMES DE COLUNAS ───────────────────────
+    df_alim.columns = df_alim.columns.str.strip()
+
+    # Corrige fornecedor se vier digitado errado
+    if "Forneceedor" in df_alim.columns and "Fornecedor" not in df_alim.columns:
+        df_alim.rename(columns={"Forneceedor": "Fornecedor"}, inplace=True)
+
+    # Descobre/renomeia a coluna de data
+    if "Data Competencia" in df_alim.columns:
+        date_col_alim = "Data Competencia"
+    elif "Data Competência" in df_alim.columns:
+        df_alim.rename(columns={"Data Competência": "Data Competencia"}, inplace=True)
+        date_col_alim = "Data Competencia"
+    elif "Data" in df_alim.columns:
+        df_alim.rename(columns={"Data": "Data Competencia"}, inplace=True)
+        date_col_alim = "Data Competencia"
+    else:
+        # Sem coluna de data legível — registra e zera custos
+        debug_info["Alimentacao_Erro"] = "Coluna de data não encontrada em df_alim"
+        debug_info["Alimentacao_Mensal_Detalhe"] = []
+        custo_alimentacao_proporcional_comercial_valor = 0.0
+        date_col_alim = None
+
+    if date_col_alim and not df_alim.empty:
+        # Prepara datas
+        df_alim[date_col_alim] = pd.to_datetime(df_alim[date_col_alim], errors="coerce")
+        df_alim["Mês"] = df_alim[date_col_alim].dt.to_period("M")
+
+        # ─ Headcount total por mês ────────────────────────────────────────────
+        df_p_tmp = df_pessoas.copy()
+        df_p_tmp["DataInicio"] = pd.to_datetime(df_p_tmp["DataInicio"], errors="coerce")
+        df_p_tmp["DataSaida"]  = pd.to_datetime(df_p_tmp["DataSaida"],  errors="coerce")
+
+        def headcount_mes(mes: pd.Period) -> int:
+            last_day = (mes.to_timestamp() + relativedelta(months=1)) - pd.DateOffset(days=1)
+            ativos = (df_p_tmp["DataInicio"] <= last_day) & (
+                df_p_tmp["DataSaida"].isna() | (df_p_tmp["DataSaida"] > last_day)
+            )
+            return int(ativos.sum())
+
+        # ─ Funcionários do Comercial por mês ────────────────────────────────
+        comercial_fornec = ["MDO PJ Fixo", "MDO Pró-Labore"]
+        df_comercial = df_custos_filtrado_competencia[
+            (df_custos_filtrado_competencia["Fornecedor"].isin(fornecedores_comerciais))
+            & (df_custos_filtrado_competencia["Nivel 2"].isin(comercial_fornec))
+        ].copy()
+
+        # Normaliza nomes de coluna
+        df_comercial.columns = df_comercial.columns.str.strip()
+
+        # Detecta/renomeia a coluna de data
+        if "Data Competencia" in df_comercial.columns:
+            date_col_com = "Data Competencia"
+        elif "Data Competência" in df_comercial.columns:
+            df_comercial.rename(columns={"Data Competência": "Data Competencia"}, inplace=True)
+            date_col_com = "Data Competencia"
+        elif "Data" in df_comercial.columns:
+            df_comercial.rename(columns={"Data": "Data Competencia"}, inplace=True)
+            date_col_com = "Data Competencia"
+        else:
+            debug_info["Comercial_Erro"] = "Coluna de data não encontrada em df_comercial"
+            date_col_com = None
+
+        # Converte para datetime e gera a coluna Mês (Period[M])
+        if date_col_com:
+            df_comercial[date_col_com] = pd.to_datetime(df_comercial[date_col_com], errors="coerce")
+            df_comercial["Mês"] = df_comercial[date_col_com].dt.to_period("M")
+            func_comercial_mes = (
+                df_comercial.groupby("Mês")["Fornecedor"].nunique().to_dict()
+            )
+        else:
+            df_comercial["Mês"] = pd.NaT
+            func_comercial_mes = {}
+
+        # ─ Alimentação proporcional mês a mês ───────────────────────────────
+        detalhes_alim = []
+        alim_comercial_total = 0.0
+
+        for mes, df_mes in df_alim.groupby("Mês"):
+            alim_total_mes = df_mes["Valor"].sum()
+            hc_total_mes   = headcount_mes(mes)
+            hc_com_mes     = func_comercial_mes.get(mes, 0)
+
+            alim_pp_mes    = alim_total_mes / hc_total_mes if hc_total_mes else 0
+            alim_com_mes   = alim_pp_mes * hc_com_mes
+
+            detalhes_alim.append({
+                "Mes": mes.strftime("%b/%y"),
+                "Alimentacao_Total": float(alim_total_mes),
+                "Headcount_Total": hc_total_mes,
+                "Alim_por_Pessoa": float(alim_pp_mes),
+                "Headcount_Comercial": hc_com_mes,
+                "Alimentacao_Comercial": float(alim_com_mes),
+            })
+            alim_comercial_total += alim_com_mes
+
+        # ------------------------------------------------------------------ #
+        # Consolida valores para facilitar o resumo e outros relatórios      #
+        # ------------------------------------------------------------------ #
+        debug_info["Alimentacao_Mensal_Detalhe"] = detalhes_alim
+        debug_info["Custo_Alimentacao_Proporcional_Comercial_Soma"] = alim_comercial_total
+        debug_info["Custo_Alimentacao_TempusFlash_Soma"] = float(df_alim["Valor"].sum())
+        debug_info["Custo_Alimentacao_Por_Pessoa_Total_Calculado"] = (
+            float(np.mean([d["Alim_por_Pessoa"] for d in detalhes_alim])) if detalhes_alim else 0.0
+        )
+        debug_info["Num_Total_Funcionarios_Ativos_Media"] = (
+            int(np.mean([d["Headcount_Total"] for d in detalhes_alim])) if detalhes_alim else 0
+        )
+        debug_info["Num_Funcionarios_Comercial_Contagem"] = (
+            int(np.mean([d["Headcount_Comercial"] for d in detalhes_alim])) if detalhes_alim else 0
+        )
+
+        # Valor final que entra no CAC
+        custo_alimentacao_proporcional_comercial_valor = alim_comercial_total
+
+    # ------------------------------------------------------------------ #
+    # 4) Total Custos de Marketing e Vendas                              #
+    # ------------------------------------------------------------------ #
+    total_custos_mkt_vendas = (
+        custo_fornecedores_comercial_valor +
+        custo_visitas_clientes_valor +
+        custo_alimentacao_proporcional_comercial_valor
+    )
+    debug_info["Total_Custos_Mkt_Vendas_Soma"] = total_custos_mkt_vendas
+
+    # ------------------------------------------------------------------ #
+    # 5) Número de Novos Clientes Adquiridos                             #
+    # ------------------------------------------------------------------ #
+    novos_clientes_df = filtrar_novos_palcos_por_periodo(
+        df_casas_earliest, ano, periodo, mes, custom_range
+    )
+    numero_novos_clientes = 0
+    if novos_clientes_df is not None and not novos_clientes_df.empty:
+        numero_novos_clientes = novos_clientes_df["Id da Casa"].nunique()
+    debug_info["Novos_Clientes_DF_Linhas"] = len(novos_clientes_df) if novos_clientes_df is not None else 0
+    debug_info["Novos_Clientes_Contagem"] = numero_novos_clientes
+    debug_info["novos_clientes_full_df"] = novos_clientes_df.to_dict('records') if novos_clientes_df is not None and not novos_clientes_df.empty else []
+    
+    # ------------------------------------------------------------------ #
+    # 6) Cálculo do CAC                                                  #
+    # ------------------------------------------------------------------ #
+    cac_valor = 0.0
+    if numero_novos_clientes > 0:
+        cac_valor = total_custos_mkt_vendas / numero_novos_clientes
+    else:
+        # Se não houver novos clientes, o CAC é indefinido ou infinito.
+        # Para exibição, podemos mostrar 0 ou o próprio custo total se ele for > 0.
+        # Por ora, se custo > 0 e clientes = 0, CAC pode ser o próprio custo.
+        # Se custo = 0 e clientes = 0, CAC = 0.
+        if total_custos_mkt_vendas > 0:
+            cac_valor = total_custos_mkt_vendas # Ou float('inf') dependendo da interpretação
+            debug_info["CAC_Calculo_Observacao"] = "CAC igual ao custo total pois não houve novos clientes."
+        else:
+            cac_valor = 0.0
+            debug_info["CAC_Calculo_Observacao"] = "CAC zero pois não houve custos nem novos clientes."
+
+
+    status_cac = "controle" # Adicionar lógica de status se necessário
+    # Exemplo:
+    # if cac_valor > X: status_cac = "ruim"
+    # elif cac_valor < Y: status_cac = "bom"
+
+    return {
+        "periodo": label_periodo_calculado,
+        "resultado": formatar_valor_utils(cac_valor, "monetario"),
+        "status": status_cac,
+        "variables_values": {
+            "Total Custos Mkt & Vendas": float(total_custos_mkt_vendas),
+            "Novos Clientes": int(numero_novos_clientes),
+            "CAC Calculado Raw": float(cac_valor),
+            "Debug Info": debug_info # Inclui todas as variáveis de debug
+        }
+    }
 
 # --------------------------------------------------------------------------- #
 # _compute_ltv_cac  •  calcula LTV/CAC p/ um único intervalo                  #
@@ -2604,9 +2989,11 @@ def _compute_ltv_cac(
     mes: int,
     custom_range,
     df_eshows: pd.DataFrame,
-    df_base2: pd.DataFrame,
+    df_base2: pd.DataFrame, # Mantido por enquanto, mas o CAC virá de get_cac_variables
     df_first: pd.DataFrame,   # EarliestShow  por casa
     df_last:  pd.DataFrame,   # LastShow      por casa
+    df_custosabertos: pd.DataFrame, # NOVO para get_cac_variables
+    df_pessoas: pd.DataFrame,       # NOVO para get_cac_variables
 ) -> tuple[dict, bool]:
     """
     Retorna (resultado_dict, ok_bool).
@@ -2627,8 +3014,8 @@ def _compute_ltv_cac(
             ini, fim = custom_range
             label_periodo_calc = f"{pd.to_datetime(ini):%d/%m/%y} – {pd.to_datetime(fim):%d/%m/%y}"
         except Exception as e:
-            print(f"Erro ao formatar custom_range para label em _compute_ltv_cac: {e}")
-            label_periodo_calc = mes_nome_intervalo(df_per, periodo) # Fallback
+            logger.debug("Erro ao formatar custom_range para label em _compute_ltv_cac: %s", e)
+            label_periodo_calc = mes_nome_intervalo(df_per, periodo)  # Fallback
     else:
         label_periodo_calc = mes_nome_intervalo(df_per, periodo)
     # Fim TASK D
@@ -2754,18 +3141,40 @@ def _compute_ltv_cac(
     # ------------------------------------------------------------------ #
     # 6) CAC                                                             #
     # ------------------------------------------------------------------ #
-    df_b2_per = filtrar_periodo_principal(df_base2, ano, periodo, mes, custom_range)
-    cac_total = 0.0
-    if "CAC" in df_b2_per.columns and not df_b2_per.empty:
-        df_b2_per["CAC"] = pd.to_numeric(df_b2_per["CAC"], errors="coerce").fillna(0)
-        cac_total = df_b2_per["CAC"].sum()
+    # O CAC agora virá de get_cac_variables
+    cac_vars = get_cac_variables(
+        ano=ano,
+        periodo=periodo,
+        mes=mes,
+        custom_range=custom_range,
+        df_custosabertos_global=df_custosabertos,
+        df_eshows_global=df_eshows,
+        df_pessoas_global=df_pessoas,
+        df_casas_earliest_global=df_first # df_first é o df_casas_earliest
+    )
 
-    if cac_total == 0:            # se não há CAC, dados insuficientes
+    cac_total_calculado = cac_vars.get("variables_values", {}).get("Total Custos Mkt & Vendas", 0.0)
+    # cac_medio_mensal_calculado = cac_vars.get("variables_values", {}).get("CAC Médio Mensal", 0.0) # Não existe mais no retorno de get_cac_variables
+    
+    # Mantemos a lógica de novos_ct para o denominador do CAC por cliente
+    if novos_ct == 0:
+        # Se não há novos palcos, LTV/CAC não pode ser calculado de forma significativa
+        # ou o CAC por cliente seria infinito. Retornamos False para fallback.
         return ({"periodo": label_periodo_calc, "resultado": "0", "status": "controle",
-                 "variables_values": {"Novos Palcos": novos_ct}}, False)
+                 "variables_values": {"Novos Palcos": novos_ct, "LTV": float(ltv_mean), "CAC Por Cliente": 0}}, False)
 
-    cac_por_cliente = cac_total / novos_ct
-    cac_mensal      = df_b2_per["CAC"].mean()
+    cac_por_cliente = cac_total_calculado / novos_ct if novos_ct > 0 else 0.0
+    
+    # Verifica se o CAC total é zero, indicando dados insuficientes para o cálculo do CAC.
+    if cac_total_calculado == 0 and novos_ct > 0 : # Se tem novos clientes mas CAC é zero, pode ser falta de dados de custo
+        return ({"periodo": label_periodo_calc, "resultado": "0", "status": "controle",
+                 "variables_values": {
+                     "Novos Palcos": novos_ct, 
+                     "LTV": float(ltv_mean), 
+                     "CAC Por Cliente": float(cac_por_cliente),
+                     "Debug": "CAC total foi zero, indicando possível falta de dados de custos."
+                     }}, False)
+
 
     # ------------------------------------------------------------------ #
     # 7) LTV/CAC + status                                                #
@@ -2780,8 +3189,8 @@ def _compute_ltv_cac(
         "variables_values": {
             "LTV": float(ltv_mean),
             "CAC Por Cliente": float(cac_por_cliente),
-            "CAC Total Acumulado": float(cac_total),
-            "CAC Médio Mensal": float(cac_mensal),
+            "CAC Total Acumulado": float(cac_total_calculado), # Usando o CAC de get_cac_variables
+            # "CAC Médio Mensal": float(cac_medio_mensal_calculado), # Removido pois não está mais no get_cac_variables
             "LTV/CAC": float(ratio),
             "Novos Palcos": int(novos_ct),
             "Churn": int(len(churn_list)),
@@ -2802,9 +3211,11 @@ def get_ltv_cac_variables(
     mes: int,
     custom_range=None,
     df_eshows_global=None,
-    df_base2_global=None,
+    df_base2_global=None, # Mantido para compatibilidade, mas CAC não vem mais daqui diretamente
     df_casas_earliest_global=None,
     df_casas_latest_global=None,
+    df_custosabertos_global=None, # NOVO
+    df_pessoas_global=None      # NOVO
 ) -> dict:
     """
     Mesma assinatura de antes, mas agora:
@@ -2819,7 +3230,10 @@ def get_ltv_cac_variables(
 
     # Carrega bases apenas uma vez para reutilizar
     df_eshows = df_eshows_global if df_eshows_global is not None else carregar_base_eshows()
-    df_base2  = df_base2_global  if df_base2_global  is not None else carregar_base2()
+    df_base2  = df_base2_global  if df_base2_global  is not None else carregar_base2() # Mantido, pode ser usado por outras partes do fallback ou debug
+    df_custosabertos = df_custosabertos_global if df_custosabertos_global is not None else carregar_custosabertos() # NOVO
+    df_pessoas = df_pessoas_global if df_pessoas_global is not None else carregar_pessoas() # NOVO
+
 
     df_casas_earliest = (
         df_casas_earliest_global
@@ -2841,70 +3255,128 @@ def get_ltv_cac_variables(
 
     tentativas = 0
     ano_cur, periodo_cur, mes_cur = ano, periodo, mes
-    custom_range_cur = custom_range
-    label_final = "Sem dados"
+    custom_range_cur = custom_range # Mantém o custom_range original para a primeira tentativa
+    label_final = "Sem dados" # Label padrão caso nada seja encontrado
+
+    # Para a primeira tentativa, se custom_range for fornecido, ele tem precedência para o label.
+    if custom_range_cur:
+        try:
+            label_final = f"{pd.to_datetime(custom_range_cur[0]):%d/%m/%y} – {pd.to_datetime(custom_range_cur[1]):%d/%m/%y}"
+        except: # Fallback se custom_range não for datelike
+            # Cria um DataFrame temporário apenas para obter o nome do período
+            temp_df_label = pd.DataFrame({'Data': [pd.to_datetime(custom_range_cur[0])]}) if custom_range_cur and custom_range_cur[0] else pd.DataFrame()
+            label_final = mes_nome_intervalo(temp_df_label, periodo_cur if periodo_cur != "custom-range" else "Mês Aberto")
+
+
+    elif periodo_cur: # Se não há custom_range, usa o período nominal
+         # Cria um DataFrame temporário apenas para obter o nome do período
+        temp_start_date = get_period_start(ano_cur, periodo_cur, mes_cur)
+        temp_df_label = pd.DataFrame({'Data': [temp_start_date]}) if temp_start_date else pd.DataFrame()
+        label_final = mes_nome_intervalo(temp_df_label, periodo_cur)
+
+
+    periodo_original = periodo # Guarda o tipo de período original para lógica de fallback
 
     while tentativas < MAX_TENTATIVAS:
         # ---------- tenta cálculo ------------------------------------------------
+        # Na primeira tentativa (tentativas == 0), custom_range_cur é o custom_range original (pode ser None).
+        # Nas tentativas subsequentes, custom_range_cur será definido pela lógica de fallback.
+        
+        # Atualiza label_final ANTES da chamada, refletindo o que será tentado
+        if custom_range_cur:
+             try:
+                label_final = f"{pd.to_datetime(custom_range_cur[0]):%d/%m/%y} – {pd.to_datetime(custom_range_cur[1]):%d/%m/%y}"
+             except:
+                # Usa o ano_cur e mes_cur do fallback para gerar o label
+                temp_start_date = get_period_start(ano_cur, periodo_cur, mes_cur)
+                temp_df_label = pd.DataFrame({'Data': [temp_start_date]}) if temp_start_date else pd.DataFrame()
+                label_final = mes_nome_intervalo(temp_df_label, periodo_cur)
+        elif periodo_cur:
+            temp_start_date = get_period_start(ano_cur, periodo_cur, mes_cur) # Recalcula com ano_cur, mes_cur atuais
+            temp_df_label = pd.DataFrame({'Data': [temp_start_date]}) if temp_start_date else pd.DataFrame()
+            label_final = mes_nome_intervalo(temp_df_label, periodo_cur)
+
+
         resultado, ok = _compute_ltv_cac(
-            ano_cur, periodo_cur, mes_cur, custom_range_cur,
-            df_eshows, df_base2, df_casas_earliest, df_casas_latest
+            ano_cur, periodo_cur, mes_cur, custom_range_cur, # Passa custom_range_cur
+            df_eshows, df_base2, df_casas_earliest, df_casas_latest,
+            df_custosabertos, df_pessoas
         )
         if ok:
-            # garante que o label reflita exatamente o intervalo testado
-            resultado["periodo"] = label_final
+            resultado["periodo"] = label_final # Garante que o label do resultado seja o que foi efetivamente testado e deu certo
             return resultado
 
-        # ---------- fallback -----------------------------------------------------
-        if "Trimestre" in periodo_cur:
-            tri = int(periodo_cur.split("°")[0])
-            m1 = (tri - 1) * 3 + 1                     # mês inicial do tri
-            m2, m3 = m1 + 1, m1 + 2
+        # ---------- fallback só acontece se 'ok' for False ---------------------
+        tentativas += 1 # Incrementa tentativas aqui, pois a tentativa atual falhou.
+        
+        # Lógica de fallback original restaurada
+        if "Trimestre" in periodo_original: # Usa periodo_original para guiar o tipo de fallback
+            tri_str = periodo_cur.split("°")[0]
+            if not tri_str.isdigit(): # Checagem de segurança
+                break # Sai do loop se o formato do trimestre for inesperado
+            tri = int(tri_str)
+            
+            if custom_range_cur is None: # Estava tentando o trimestre nominal completo
+                m1_tri = (tri - 1) * 3 + 1
+                m2_tri = m1_tri + 1
+                custom_range_cur = (date(ano_cur, m1_tri, 1), _last_day(ano_cur, m2_tri))
+                # Atualiza periodo_cur para refletir o bimestre, para que o label seja gerado corretamente
+                periodo_cur = f"{calendar.month_abbr[m1_tri]}-{calendar.month_abbr[m2_tri]} {ano_cur}"
+            else:
+                current_start, current_end = custom_range_cur
+                m1_tri_nominal = (tri - 1) * 3 + 1 # Mês inicial do trimestre nominal original
+                m2_tri_nominal = m1_tri_nominal + 1
+                m3_tri_nominal = m1_tri_nominal + 2
 
-            # →  sequências dentro do trimestre
-            seq = _gerar_ranges_trimestre(ano_cur, tri)
-            # pular as já tentadas (tentativas 0,1,2 -> seq[0], seq[1], seq[2])
-            idx = tentativas % 3
-            ini, fim, lbl, mes_final = seq[idx]
-            custom_range_cur = (ini, fim)
-            mes_cur = mes_final
-            label_final = lbl
-
-            # depois de tentar os 3, pula p/ trimestre anterior
-            if idx == 2:
-                tri = 4 if tri == 1 else tri - 1
-                if tri == 4:
-                    ano_cur -= 1
-                periodo_cur = f"{tri}° Trimestre"
-                custom_range_cur = None  # na próxima rodada volta a tentar trimestre completo
-                label_final = f"{periodo_cur} {ano_cur}"
-
-        elif periodo_cur.upper() in {"YTD", "Y T D", "ANO CORRENTE"}:
-            if mes_cur <= 1:
-                # recua para último mês de ano anterior
+                # Verifica se estava tentando o bimestre do trimestre nominal
+                if current_start == date(ano_cur, m1_tri_nominal, 1) and current_end == _last_day(ano_cur, m2_tri_nominal):
+                    custom_range_cur = (date(ano_cur, m3_tri_nominal, 1), _last_day(ano_cur, m3_tri_nominal))
+                    periodo_cur = f"{calendar.month_abbr[m3_tri_nominal]} {ano_cur}" # Atualiza para o mês individual
+                else: # Estava tentando o mês individual ou um custom_range não padrão, ou o trimestre completo falhou antes
+                      # Recua para o trimestre anterior completo
+                    if tri == 1:
+                        tri = 4
+                        ano_cur -= 1
+                    else:
+                        tri -= 1
+                    periodo_cur = f"{tri}° Trimestre" # Mantém periodo_cur como tipo Trimestre para label
+                    custom_range_cur = None # Tentar o trimestre nominal completo na próxima iteração
+            
+        elif periodo_original.upper() in {"YTD", "Y T D", "ANO CORRENTE"}:
+            if mes_cur is None or mes_cur <= 1: # Trata mes_cur None como se fosse Janeiro para recuo
                 ano_cur -= 1
                 mes_cur = 12
             else:
                 mes_cur -= 1
             custom_range_cur = (date(ano_cur, 1, 1), _last_day(ano_cur, mes_cur))
-            label_final = f"YTD até {calendar.month_abbr[mes_cur]} {ano_cur}"
+            periodo_cur = "YTD" # Mantém o tipo de período para o label ser gerado corretamente
+            
+        elif periodo_original == "custom-range":
+            break # Falha em custom-range original, não há fallback padrão
 
-        else:  # Mês Aberto
-            mes_cur -= 1
-            if mes_cur == 0:
+        else:  # Mês Aberto ou Ano Completo
+            if periodo_original == "Ano Completo":
                 ano_cur -= 1
-                mes_cur = 12
-            custom_range_cur = (
-                date(ano_cur, mes_cur, 1),
-                _last_day(ano_cur, mes_cur),
-            )
-            label_final = f"{calendar.month_abbr[mes_cur]} {ano_cur}"
+                custom_range_cur = (date(ano_cur, 1, 1), date(ano_cur, 12, 31))
+                periodo_cur = "Ano Completo" # Mantém o tipo de período para label
+            elif periodo_original == "Mês Aberto":
+                 if mes_cur is None: 
+                     ano_cur -=1
+                     mes_cur = 12
+                 else:
+                    mes_cur -= 1
+                    if mes_cur == 0:
+                        ano_cur -= 1
+                        mes_cur = 12
+                 custom_range_cur = (date(ano_cur, mes_cur, 1), _last_day(ano_cur, mes_cur))
+                 periodo_cur = "Mês Aberto" # Mantém o tipo de período para label
 
-        tentativas += 1
+        if ano_cur < datetime.now().year - 10: # Limite arbitrário para evitar loops muito longos
+            break
 
     # Se chegar aqui, não encontrou dados
     return {
-        "periodo": label_final,
+        "periodo": label_final, # Usa o último label de tentativa que foi configurado
         "resultado": "0",
         "status": "controle",
         "variables_values": {
@@ -2912,9 +3384,9 @@ def get_ltv_cac_variables(
             "CAC Por Cliente": 0,
             "LTV/CAC": 0,
             "Novos Palcos": 0,
+            "Debug": "Máximo de tentativas de fallback atingido sem dados suficientes."
         },
     }
-
 
 # ======================================================================
 # KPI: Score Médio do Show  (["eshows"])
@@ -3317,7 +3789,7 @@ def get_csat_operacao_variables(
 ) -> dict:
     """
     • CSAT médio da operação (escala 1-5, duas casas decimais)
-    • Soma as notas de operadores válidos (1 e 2), ignora 'Nenhum', 'Não', etc.
+    • Soma as notas de operadores válidos (1 e 2), ignora \'Nenhum\', \'Não\', etc.
     • Usa rollback até encontrar um intervalo com dados, como no NPS.
     """
     from .modulobase import carregar_npsartistas
@@ -3411,6 +3883,4 @@ def get_csat_operacao_variables(
             "Total Avaliações": len(df_sel)
         },
     }
-
-
 
