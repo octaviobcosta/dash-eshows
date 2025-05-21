@@ -10,6 +10,7 @@ import logging
 from .utils import parse_valor_formatado      # ← função única, já corrigida
 from .hist import _format_tempo_casa # << IMPORTADO DE HIST
 from .config_data import HIST_KPI_MAP
+from .mem_utils import log_mem
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ BG_COLOR    = "rgba(0,0,0,0)"
 # --------------------------------------------------------------------------- #
 # 1) Captura dos dados históricos (até 12 pontos)                              #
 # --------------------------------------------------------------------------- #
+@log_mem("kpi_hist_data")
 def kpi_hist_data(kpi_name: str):
     """
     Retorna (labels, values) dos 12 últimos pontos históricos do KPI.
@@ -92,6 +94,7 @@ def kpi_hist_data(kpi_name: str):
 # --------------------------------------------------------------------------- #
 # 2) Função principal: generate_kpi_figure                                     #
 # --------------------------------------------------------------------------- #
+@log_mem("generate_kpi_figure")
 def generate_kpi_figure(
     kpi_name: str,
     ano: int,
