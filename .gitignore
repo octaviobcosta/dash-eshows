@@ -6,7 +6,7 @@ __pycache__/
 node_modules/
 .DS_Store
 .cursor/mcp.json
-app/_cache_parquet/
+# app/_cache_parquet/
 
 # ↓ arquivos/dirs só para uso local
 logs/**
