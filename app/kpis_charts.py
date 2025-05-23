@@ -300,8 +300,10 @@ def generate_kpi_figure(
         pad = (max_v - min_v) * 0.15 if max_v != min_v else abs(max_v) * 0.2 # Aumentei padding
         pad = max(pad, 1) # Garante padding mínimo
 
+    width_guess = max(400, min(len(df_hist) * 60, 1000))
+
     fig.update_layout(
-        title=None, height=height,
+        title=None, height=height, width=width_guess,
         paper_bgcolor=BG_COLOR, plot_bgcolor=BG_COLOR,
         margin=dict(l=60, r=40, t=20, b=40),
         xaxis=dict(
