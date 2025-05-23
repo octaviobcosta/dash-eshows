@@ -8,10 +8,32 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from dotenv import find_dotenv, load_dotenv
 from postgrest import APIError
 
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
+
+def _optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    """Aplica downcast numérico e converte strings de baixa cardinalidade para
+    ``category``. Mantém a lógica dos dados sem alterações."""
+    if df.empty:
+        return df
+
+    result = df.copy()
+    for col in result.select_dtypes(include="int64").columns:
+        result[col] = pd.to_numeric(result[col], downcast="integer")
+    for col in result.select_dtypes(include="float64").columns:
+        result[col] = pd.to_numeric(result[col], downcast="float")
+    for col in result.select_dtypes(include="object").columns:
+        try:
+            nunq = result[col].nunique(dropna=False)
+            if nunq and nunq / len(result) < 0.5:
+                result[col] = result[col].astype("category")
+        except TypeError:
+            pass
+    return result
 
 # ────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger(__name__)
@@ -93,7 +115,10 @@ def _fetch(table: str) -> pd.DataFrame:
     if supa is None:
         return pd.DataFrame()
 
-    STEP, page, pages = 1000, 0, []
+    STEP, page = 1000, 0
+    tmp_path = _cache_path(table).with_suffix(".tmp")
+    writer = None
+
     while True:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
@@ -108,20 +133,34 @@ def _fetch(table: str) -> pd.DataFrame:
         data = resp.data or []
         if not data:
             break
-        pages.append(pd.DataFrame(data))
+
+        df_chunk = pd.DataFrame(data)
+        df_chunk = divide_cents(dedup(rename_columns(df_chunk, table)), table)
+
+        for col in CENTS_MAPPING.get(table.lower(), []):
+            if col in df_chunk.columns:
+                df_chunk[col] = pd.to_numeric(df_chunk[col], errors="coerce").fillna(0.0)
+
+        df_chunk = _optimize_dtypes(df_chunk)
+
+        table_pa = pa.Table.from_pandas(df_chunk)
+        if writer is None:
+            writer = pq.ParquetWriter(tmp_path, table_pa.schema, compression="zstd")
+        writer.write_table(table_pa)
+
         if len(data) < STEP:
             break
         page += 1
 
-    if not pages:
+    if writer is None:
         return pd.DataFrame()
 
-    df = pd.concat(pages, ignore_index=True)
-    df = divide_cents(dedup(rename_columns(df, table)), table)
-
-    for col in CENTS_MAPPING.get(table.lower(), []):
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
+    writer.close()
+    df = pd.read_parquet(tmp_path)
+    try:
+        os.replace(tmp_path, _cache_path(table))
+    except OSError:
+        pass
 
     logger.info("[%s] baixado: %s linhas × %s col", table, *df.shape)
     return df
