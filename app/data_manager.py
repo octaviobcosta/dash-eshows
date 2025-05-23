@@ -16,23 +16,27 @@ from postgrest import APIError
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
 
 def _optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
-    """Aplica downcast numérico e converte strings de baixa cardinalidade para
-    ``category``. Mantém a lógica dos dados sem alterações."""
+    """Reduz o uso de RAM de forma segura, mantendo o schema estável
+    entre todos os chunks gravados no Parquet.
+
+    • Faz downcast apenas de colunas inteiras 64 → 32/16/8 bits.
+    • Mantém floats em float64 (para evitar divergência de tipo).
+    • Não altera colunas object/strings (sem conversão para category).
+
+    Isso garante que o ParquetWriter aceite todos os lotes sem
+    conflitos de schema, enquanto ainda traz boa economia de memória
+    nos campos inteiros.
+    """
     if df.empty:
-        return df
+        return df.copy()
 
     result = df.copy()
+
+    # Inteiros 64 bits → menor tipo possível (int32/int16/int8)
     for col in result.select_dtypes(include="int64").columns:
         result[col] = pd.to_numeric(result[col], downcast="integer")
-    for col in result.select_dtypes(include="float64").columns:
-        result[col] = pd.to_numeric(result[col], downcast="float")
-    for col in result.select_dtypes(include="object").columns:
-        try:
-            nunq = result[col].nunique(dropna=False)
-            if nunq and nunq / len(result) < 0.5:
-                result[col] = result[col].astype("category")
-        except TypeError:
-            pass
+
+    # Floats ficam em float64; objetos também permanecem inalterados.
     return result
 
 # ────────────────────────────  logging  ────────────────────────────
@@ -115,10 +119,7 @@ def _fetch(table: str) -> pd.DataFrame:
     if supa is None:
         return pd.DataFrame()
 
-    STEP, page = 1000, 0
-    tmp_path = _cache_path(table).with_suffix(".tmp")
-    writer = None
-
+    STEP, page, pages = 1000, 0, []          # ← volta a acumular
     while True:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
@@ -142,28 +143,21 @@ def _fetch(table: str) -> pd.DataFrame:
                 df_chunk[col] = pd.to_numeric(df_chunk[col], errors="coerce").fillna(0.0)
 
         df_chunk = _optimize_dtypes(df_chunk)
-
-        table_pa = pa.Table.from_pandas(df_chunk)
-        if writer is None:
-            writer = pq.ParquetWriter(tmp_path, table_pa.schema, compression="zstd")
-        writer.write_table(table_pa)
+        pages.append(df_chunk)
 
         if len(data) < STEP:
             break
         page += 1
 
-    if writer is None:
+    if not pages:
         return pd.DataFrame()
 
-    writer.close()
-    df = pd.read_parquet(tmp_path)
-    try:
-        os.replace(tmp_path, _cache_path(table))
-    except OSError:
-        pass
-
+    df = pd.concat(pages, ignore_index=True)
     logger.info("[%s] baixado: %s linhas × %s col", table, *df.shape)
+
+    _save_parquet(table, df)                 # grava uma vez
     return df
+
 
 # ───────────────────────  cache RAM + Parquet  ─────────────────────
 def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
