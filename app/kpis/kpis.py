@@ -133,7 +133,8 @@ def extract_pdf_content(pdf_name, folder="assets"):
     try:
         import PyPDF2
     except ImportError:
-        raise RuntimeError("PyPDF2 não está instalado. Execute 'pip install PyPDF2'.")
+        logger.warning("PyPDF2 não encontrado, ignorando leitura do PDF %s", pdf_name)
+        return ""
     pdf_path = os.path.join(folder, pdf_name)
     try:
         with open(pdf_path, 'rb') as file:
