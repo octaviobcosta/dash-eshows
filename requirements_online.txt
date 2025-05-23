@@ -1,0 +1,14 @@
+# ─ Pacotes principais ───────────────────────────────────────────────────
+pandas
+dash
+dash_bootstrap_components
+python-dotenv
+postgrest
+supabase
+
+# ─ Dependências de apoio usadas diretamente pelo app ────────────────────
+plotly
+numpy
+requests
+pyarrow
+anthropic==0.45.2

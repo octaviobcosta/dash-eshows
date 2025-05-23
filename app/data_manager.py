@@ -8,10 +8,36 @@ from pathlib import Path
 from typing import Dict, Tuple
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 from dotenv import find_dotenv, load_dotenv
 from postgrest import APIError
 
 from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
+
+def _optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
+    """Reduz o uso de RAM de forma segura, mantendo o schema estável
+    entre todos os chunks gravados no Parquet.
+
+    • Faz downcast apenas de colunas inteiras 64 → 32/16/8 bits.
+    • Mantém floats em float64 (para evitar divergência de tipo).
+    • Não altera colunas object/strings (sem conversão para category).
+
+    Isso garante que o ParquetWriter aceite todos os lotes sem
+    conflitos de schema, enquanto ainda traz boa economia de memória
+    nos campos inteiros.
+    """
+    if df.empty:
+        return df.copy()
+
+    result = df.copy()
+
+    # Inteiros 64 bits → menor tipo possível (int32/int16/int8)
+    for col in result.select_dtypes(include="int64").columns:
+        result[col] = pd.to_numeric(result[col], downcast="integer")
+
+    # Floats ficam em float64; objetos também permanecem inalterados.
+    return result
 
 # ────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger(__name__)
@@ -20,8 +46,10 @@ logger = logging.getLogger(__name__)
 CACHE_RAM = os.getenv("CACHE_RAM", "1") == "1"
 
 # ───────────────────────  cache em Parquet  ────────────────────────
-CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
+BASE_DIR = Path(__file__).resolve().parent
+CACHE_DIR = BASE_DIR / "_cache_parquet"
 CACHE_DIR.mkdir(exist_ok=True)
+SNAPSHOT_DIR = BASE_DIR / "snapshot"
 
 CACHE_EXPIRY_HOURS: int | None = 12
 
@@ -36,10 +64,21 @@ def _is_cache_fresh(p: Path) -> bool:
     return age < CACHE_EXPIRY_HOURS * 3600
 
 def _load_parquet(table: str) -> pd.DataFrame | None:
+    """Tenta carregar o Parquet do cache ou, em último caso, do snapshot."""
     p = _cache_path(table)
     if _is_cache_fresh(p):
         try:
-            return pd.read_parquet(p)
+            df = pd.read_parquet(p)
+            if not df.empty:
+                return df
+        except Exception:
+            pass
+    snap = SNAPSHOT_DIR / f"{table.lower()}.parquet"
+    if snap.exists():
+        try:
+            df = pd.read_parquet(snap)
+            if not df.empty:
+                return df
         except Exception:
             pass
     return None
@@ -93,7 +132,7 @@ def _fetch(table: str) -> pd.DataFrame:
     if supa is None:
         return pd.DataFrame()
 
-    STEP, page, pages = 1000, 0, []
+    STEP, page, pages = 1000, 0, []          # ← volta a acumular
     while True:
         start, end = page * STEP, (page + 1) * STEP - 1
         try:
@@ -108,7 +147,17 @@ def _fetch(table: str) -> pd.DataFrame:
         data = resp.data or []
         if not data:
             break
-        pages.append(pd.DataFrame(data))
+
+        df_chunk = pd.DataFrame(data)
+        df_chunk = divide_cents(dedup(rename_columns(df_chunk, table)), table)
+
+        for col in CENTS_MAPPING.get(table.lower(), []):
+            if col in df_chunk.columns:
+                df_chunk[col] = pd.to_numeric(df_chunk[col], errors="coerce").fillna(0.0)
+
+        df_chunk = _optimize_dtypes(df_chunk)
+        pages.append(df_chunk)
+
         if len(data) < STEP:
             break
         page += 1
@@ -117,14 +166,11 @@ def _fetch(table: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = pd.concat(pages, ignore_index=True)
-    df = divide_cents(dedup(rename_columns(df, table)), table)
-
-    for col in CENTS_MAPPING.get(table.lower(), []):
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
-
     logger.info("[%s] baixado: %s linhas × %s col", table, *df.shape)
+
+    _save_parquet(table, df)                 # grava uma vez
     return df
+
 
 # ───────────────────────  cache RAM + Parquet  ─────────────────────
 def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
