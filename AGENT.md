@@ -1,6 +1,31 @@
 # Agente Codex no Projeto Dash-Eshows
 
+Configuração rápida para execução offline
+
+Adicione PyPDF2 no requirements_offline.txt logo após python-dotenv.
+
+Em uma máquina com internet, gere a pasta wheelhouse/ com:
+
+python -m pip download -r requirements_offline.txt -d wheelhouse
+
+Copie wheelhouse/ e requirements_offline.txt para o ambiente offline (pendrive, rede interna, etc.).
+
+Na raiz do projeto offline, rode um dos scripts:
+
+Linux/macOS:
+
+./setup_offline.sh
+
+Windows (PowerShell):
+
+.\setup_offline.ps1
+
+Os scripts criam (se necessário) e ativam .venv, instalam as dependências com --no-index --find-links ./wheelhouse e executam python -m app.main.
+
+Seguindo esses quatro passos, o Codex consegue compilar e rodar o Dash‑Eshows totalmente offline.
+
 Visão Geral
+
 Este documento descreve a configuração e o comportamento esperados do Agente Codex integrado ao projeto Dash-Eshows. O Agente Codex é um modelo de IA (da OpenAI) habilitado para interagir com o repositório de código como um desenvolvedor automatizado. Ele auxilia na implementação de funcionalidades, correção de bugs, melhoria de código e outras tarefas de desenvolvimento de forma autônoma. Todas as interações do agente ocorrem dentro da plataforma da OpenAI, o que lhe permite manter um contexto contínuo das conversas e do histórico de instruções durante o desenvolvimento das tarefas. O objetivo principal deste agente é agilizar o fluxo de trabalho sem comprometer a qualidade ou estabilidade do projeto. Para isso, o agente foi configurado com diretrizes claras de comportamento, garantindo que ele possa tomar iniciativas quando apropriado, ao mesmo tempo em que respeita as decisões e instruções do usuário humano. Este documento serve como referência para entender essas diretrizes, seja para desenvolvedores colaboradores ou para outros modelos de IA que venham a interagir com o projeto.
 Comportamento Esperado
 Liberdade de Ação: O agente tem liberdade total para executar qualquer tarefa dentro do repositório. Isso inclui rodar scripts de build, executar testes automatizados, formatar código, atualizar dependências e realizar outras ações que seriam esperadas de um desenvolvedor humano. Ele não possui restrições artificiais quanto ao escopo das mudanças que pode propor — qualquer aspecto do projeto que puder ser melhorado ou corrigido pelo agente poderá ser alvo de suas contribuições.
