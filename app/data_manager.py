@@ -46,8 +46,10 @@ logger = logging.getLogger(__name__)
 CACHE_RAM = os.getenv("CACHE_RAM", "1") == "1"
 
 # ───────────────────────  cache em Parquet  ────────────────────────
-CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
+BASE_DIR = Path(__file__).resolve().parent
+CACHE_DIR = BASE_DIR / "_cache_parquet"
 CACHE_DIR.mkdir(exist_ok=True)
+SNAPSHOT_DIR = BASE_DIR / "snapshot"
 
 CACHE_EXPIRY_HOURS: int | None = 12
 
@@ -62,10 +64,21 @@ def _is_cache_fresh(p: Path) -> bool:
     return age < CACHE_EXPIRY_HOURS * 3600
 
 def _load_parquet(table: str) -> pd.DataFrame | None:
+    """Tenta carregar o Parquet do cache ou, em último caso, do snapshot."""
     p = _cache_path(table)
     if _is_cache_fresh(p):
         try:
-            return pd.read_parquet(p)
+            df = pd.read_parquet(p)
+            if not df.empty:
+                return df
+        except Exception:
+            pass
+    snap = SNAPSHOT_DIR / f"{table.lower()}.parquet"
+    if snap.exists():
+        try:
+            df = pd.read_parquet(snap)
+            if not df.empty:
+                return df
         except Exception:
             pass
     return None
