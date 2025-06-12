@@ -39,9 +39,19 @@ def _load_parquet(table: str) -> pd.DataFrame | None:
     p = _cache_path(table)
     if _is_cache_fresh(p):
         try:
-            return pd.read_parquet(p)
-        except Exception:
-            pass
+            df = pd.read_parquet(p)
+            if df.empty:
+                logger.warning("[%s] Parquet cache vazio, removendo...", table)
+                p.unlink()
+                return None
+            return df
+        except Exception as e:
+            logger.error("[%s] Erro ao ler Parquet cache: %s", table, e)
+            try:
+                p.unlink()
+            except:
+                pass
+            return None
     return None
 
 def _save_parquet(table: str, df: pd.DataFrame) -> None:
@@ -142,6 +152,8 @@ def _get(table: str, *, force_reload: bool = False) -> pd.DataFrame:
             return df_disk
 
     df_live = _fetch(table)
+    if df_live.empty:
+        logger.error("[%s] Fetch retornou vazio!", table)
     if CACHE_RAM:
         _cache[table] = df_live
     else:
