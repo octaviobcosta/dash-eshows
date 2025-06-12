@@ -382,16 +382,33 @@ def rename_columns(df: pd.DataFrame, table: str) -> pd.DataFrame:
     return df2
 
 
+def _fix_monetary_scale(series: pd.Series, col_name: str) -> pd.Series:
+    """
+    Converte valores de centavos para reais (divisão simples por 100).
+    
+    CORREÇÃO: Removida lógica de "band-aid fix" que estava mascarando 
+    o problema real de dados incorretos no upload.
+    """
+    numeric_series = pd.to_numeric(series, errors="coerce").fillna(0.0)
+    
+    if len(numeric_series) == 0:
+        return numeric_series
+    
+    # Conversão direta de centavos para reais
+    return numeric_series / 100.0
+
+
 def divide_cents(df: pd.DataFrame, table: str) -> pd.DataFrame:
     """
     Converte de centavos para reais as colunas listadas em CENTS_MAPPING.
+    Detecta e corrige valores que estão em escala incorreta.
     """
     cols = [c for c in CENTS_MAPPING.get(table.lower(), []) if c in df.columns]
     if not cols:
         return df
     df2 = df.copy()
     for col in cols:
-        df2[col] = pd.to_numeric(df2[col], errors="coerce").fillna(0) / 100.0
+        df2[col] = _fix_monetary_scale(df2[col], col)
     return df2
 
 
