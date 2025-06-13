@@ -21,16 +21,14 @@ logger = logging.getLogger(__name__)
 # ──────────────────────────────────────────────────────────────
 # 1) Configurações
 # ──────────────────────────────────────────────────────────────
-URL = os.getenv("SUPABASE_URL", "https://yrvtmgrqxhqltckpfizn.supabase.co")
-KEY = os.getenv(
-    "SUPABASE_KEY",
-    (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-        "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlydnRtZ3JxeGhxbHRja3BmaXpuIiwicm9sZSI6"
-        "InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTY4NjEzMSwiZXhwIjoyMDYxMjYyMTMxfQ."
-        "M-oOVld1XwaZ2r2RDqeHVSrMpHb1pwYLqUYEJ041VJg"
-    ),
-)
+URL = os.getenv("SUPABASE_URL")
+KEY = os.getenv("SUPABASE_KEY")
+
+if not URL or not KEY:
+    raise ValueError(
+        "SUPABASE_URL e SUPABASE_KEY devem estar definidas nas variáveis de ambiente. "
+        "Copie .env.example para .env e preencha com suas credenciais."
+    )
 TABLE_NAME = "custosabertos"
 BATCH_SIZE = 100
 

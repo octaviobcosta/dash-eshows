@@ -33,11 +33,20 @@ import plotly.graph_objects as go
 from dateutil.relativedelta import relativedelta
 import colorsys  # usado em funções de contraste e gráficos
 from dash import callback
+from flask import session
 
 load_dotenv()
 import logging_config  # noqa: F401
 
 # ― Módulos internos ------------------------------------------------------------
+from .auth import (
+    create_login_layout,
+    init_auth_callbacks,
+    init_logout_callback,
+    init_client_side_callbacks,
+    add_logout_button,
+    require_auth
+)
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
     carregar_base_eshows,
@@ -336,6 +345,7 @@ external_stylesheets = [
 # ==============================================================================
 # 6) CARREGAMENTO DAS BASES PRINCIPAIS
 # ==============================================================================
+# Carregar dados normalmente (reloader já está desabilitado)
 logger.info("Carregando bases do Supabase…")
 log_memory_usage("antes_bases")
 df_eshows = carregar_base_eshows()
@@ -1725,13 +1735,17 @@ app = Dash(
     __name__,
     external_stylesheets=external_stylesheets,   # ← passa a lista completa
     assets_folder=assets_path,
+    suppress_callback_exceptions=True,
 )
+
+# Configuração da chave secreta para sessões
+app.server.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-change-in-production')
 
 #######################################
 # DEFINIÇÃO DO LAYOUT PRINCIPAL
 #######################################
 app.layout = html.Div([
-    dcc.Location(id="url", pathname="/dashboard"),
+    dcc.Location(id="url", refresh=False),
     # Stores
     all_indicators_store,
     store_estado_selecionado,
@@ -1740,16 +1754,8 @@ app.layout = html.Div([
     periodo_store_kpis,
     mes_store_kpis,
     
-    # Sidebar e Page Content (conteúdo visível)
-    sidebar,
-    html.Div(id="page-content", 
-             style={
-                 "margin-left": "260px",
-                 "padding": "1rem",
-                 "minHeight": "100vh",
-                 "overflowY": "auto",       # <-- habilita scroll interno
-                 "paddingBottom": "0px"    # <-- espaço p/ rodapé (≈ altura do footer)
-             }),
+    # Container principal que será preenchido dinamicamente
+    html.Div(id="main-container"),
 
     # Container oculto que garante que todos os componentes estejam presentes no DOM
     html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'})
@@ -1767,18 +1773,48 @@ app.validation_layout = html.Div([
 
 # ======================= Roteamento =======================
 @app.callback(
-    Output("page-content", "children"),
+    Output("main-container", "children"),
     [Input("url", "pathname")],
     prevent_initial_call=False
 )
-def render_page_content(pathname):
-    # Tratamento para logout - redireciona para a raiz
-    if pathname == "/logout":
-        # Limpamos o cookie no index.py, aqui apenas redirecionamos
-        return dcc.Location(id='logout-redirect', pathname='/', refresh=True)
+def render_main_layout(pathname):
+    # Se for a página de login, mostra apenas o layout de login (sem sidebar)
+    if pathname == "/login":
+        return create_login_layout()
     
+    # Verifica se o usuário está autenticado
+    if 'access_token' not in session:
+        return dcc.Location(pathname='/login', id='redirect-to-login')
+    
+    # Se pathname for None ou "/", redireciona para /dashboard
+    if pathname is None or pathname == "/":
+        return dcc.Location(pathname='/dashboard', id='redirect-to-dashboard')
+    
+    # Tratamento para logout
+    if pathname == "/logout":
+        session.clear()
+        return dcc.Location(id='logout-redirect', pathname='/login', refresh=True)
+    
+    # Para páginas autenticadas, retorna layout com sidebar
+    return html.Div([
+        sidebar,
+        html.Div(
+            id="page-content",
+            style={
+                "margin-left": "260px",
+                "padding": "1rem",
+                "minHeight": "100vh",
+                "overflowY": "auto",
+                "paddingBottom": "0px"
+            },
+            children=render_page_content(pathname)
+        )
+    ])
+
+# Função auxiliar para renderizar conteúdo das páginas
+def render_page_content(pathname):
     # Define os estilos de exibição de cada página de acordo com a rota
-    dashboard_style = {'display': 'block'} if (not pathname or pathname in ["/", "/dashboard"]) else {'display': 'none'}
+    dashboard_style = {'display': 'block'} if pathname == "/dashboard" else {'display': 'none'}
     kpis_style = {'display': 'block'} if pathname == "/kpis" else {'display': 'none'}
     okrs_style = {'display': 'block'} if pathname == "/okrs" else {'display': 'none'}
 
@@ -3547,10 +3583,19 @@ def toggle_kpi_modal(n_clicks_list, close_clicks, is_open):
     return True, kpi_index, card_title, fig
 
 # =========================================================
+# CALLBACKS DE AUTENTICAÇÃO
+# =========================================================
+# Inicializa os callbacks de autenticação
+init_auth_callbacks(app)
+init_logout_callback(app)
+init_client_side_callbacks(app)
+
+# =========================================================
 # MAIN
 # =========================================================
 if __name__ == "__main__":
-    app.run_server(debug=True, dev_tools_hot_reload=True)
+    # Fix para problema de memória: desabilitar reloader que duplica o processo
+    app.run_server(debug=True, use_reloader=False, dev_tools_hot_reload=False)
     
     # # Em vez disso, imprimir uma mensagem de instrução:
     # logger.info("Use 'python index.py' para iniciar o aplicativo com a tela de login")
