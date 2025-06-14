@@ -2,6 +2,8 @@
 
 Este guia detalha o processo completo para fazer o deploy do dashboard online.
 
+✅ **Status**: Deploy realizado com sucesso no Render.com (Production Plan - $25/mês)
+
 ## 📋 Pré-requisitos
 
 - Conta no GitHub com o código do projeto
@@ -12,8 +14,9 @@ Este guia detalha o processo completo para fazer o deploy do dashboard online.
 
 ### 1. **Render** (Recomendado) ✅
 - **Prós**: Deploy via GitHub, SSL grátis, interface simples
-- **Plano Free**: 750 horas/mês, 512MB RAM
-- **Plano Starter**: $7/mês, 2GB RAM (recomendado para produção)
+- **Plano Free**: 750 horas/mês, 512MB RAM (insuficiente para este projeto)
+- **Plano Starter**: $7/mês, 512MB RAM (ainda insuficiente)
+- **Plano Production**: $25/mês, 2GB RAM (RECOMENDADO - testado e funcionando)
 
 ### 2. **Railway**
 - **Prós**: Deploy rápido, boa performance
@@ -69,7 +72,9 @@ FLASK_SECRET_KEY=<será gerado automaticamente>
 
 ⚠️ **IMPORTANTE**: 
 - Pegue `SUPABASE_URL` e `SUPABASE_KEY` do seu arquivo `.env` local
+- **CUIDADO**: Cole a SUPABASE_KEY em uma única linha! Se quebrar em múltiplas linhas causará erro "Invalid API Key"
 - Não inclua o `SUPABASE_DB_PASSWORD` (não é necessário para runtime)
+- JWT_SECRET_KEY e FLASK_SECRET_KEY devem ser geradas automaticamente (não use valores padrão)
 
 ### Etapa 3: Deploy
 
@@ -90,12 +95,36 @@ FLASK_SECRET_KEY=<será gerado automaticamente>
 - Verifique por erros de conexão com Supabase
 - Monitore uso de memória
 
+## 📚 Lições Aprendidas do Deploy
+
+### 1. Memória RAM
+- O dashboard consome ~1.5GB de RAM em produção
+- Plano Free (512MB) e Starter (512MB) são insuficientes
+- Necessário usar plano Production ($25/mês) com 2GB RAM
+
+### 2. Variáveis de Ambiente
+- **CRÍTICO**: A SUPABASE_KEY deve ser colada em uma única linha
+- Se quebrar em múltiplas linhas, causará erro "Invalid API Key"
+- JWT_SECRET_KEY e FLASK_SECRET_KEY devem ser geradas pelo Render
+
+### 3. Branch de Deploy
+- Configuramos para usar a branch `agent5`
+- Auto-deploy ativado: push → deploy automático
+- Importante manter sincronizado com trabalho local
+
+### 4. Arquivos Necessários
+- `render.yaml`: Configuração completa do Render
+- `runtime.txt`: Especifica Python 3.11
+- `requirements.txt`: Deve incluir `gunicorn`
+- `app/main.py`: Precisa exportar `server = app.server`
+
 ## 🔧 Troubleshooting
 
 ### Problema: Out of Memory
 **Solução**: 
-- Upgrade para plano Starter ($7/mês) com 2GB RAM
-- Ou adicione variável: `USE_RAM_CACHE=false`
+- Upgrade para plano Production ($25/mês) com 2GB RAM
+- O plano Starter ($7/mês) tem apenas 512MB e é insuficiente
+- Configure variável: `USE_RAM_CACHE=false` para economizar memória
 
 ### Problema: Timeout no build
 **Solução**:
@@ -106,6 +135,15 @@ FLASK_SECRET_KEY=<será gerado automaticamente>
 **Solução**:
 - Verifique as variáveis SUPABASE_URL e SUPABASE_KEY
 - Confirme que o projeto Supabase está ativo
+- MUITO IMPORTANTE: Verifique se a SUPABASE_KEY foi colada em uma única linha
+
+### Problema: "Invalid API Key"
+**Causa**: SUPABASE_KEY quebrada em múltiplas linhas no Render
+**Solução**:
+1. Vá em Settings → Environment no Render
+2. Delete a variável SUPABASE_KEY
+3. Recrie e cole a chave completa em uma única linha
+4. Salve e faça redeploy
 
 ## 🚀 Otimizações para Produção
 
@@ -133,9 +171,11 @@ startCommand: gunicorn app.main:server --bind 0.0.0.0:$PORT --workers 2 --timeou
 
 ## 💰 Estimativa de Custos
 
-- **Render Starter**: $7/mês
+- **Render Production**: $25/mês (2GB RAM - necessário para este projeto)
 - **Supabase**: Grátis até 500MB
-- **Total**: ~$7/mês para começar
+- **Total**: ~$25/mês para produção estável
+
+💡 **Nota**: Tentamos o plano Starter ($7/mês) mas 512MB RAM é insuficiente para o dashboard
 
 ## 🆘 Suporte
 

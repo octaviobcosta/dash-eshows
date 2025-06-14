@@ -2,16 +2,25 @@
 
 Painel de indicadores da eShows construído em Python 🎯 com Dash e banco de dados Supabase (PostgreSQL).
 
+🚀 **Status**: Em produção no Render.com | [Deploy Guide](DEPLOY_GUIDE.md)
+
 Este README é a cola oficial para quem precisar clonar, rodar ou contribuir no projeto — inclusive você, futuro você.
 
 ## 📂 Estrutura do repositório
 
 dash-eshows/
 ├─ app/                  # código Python (Dash, scripts, utilitários)
+│   ├─ okrs/            # módulo de OKRs
+│   └─ scripts/         # scripts de setup e manutenção
 ├─ assets/               # CSS, JS e imagens do front
 ├─ supabase/             # config.toml + migrations/*.sql
 │   └─ migrations/
+├─ wheelhouse/           # wheels para instalação offline
 ├─ requirements.txt      # dependências PyPI fixadas
+├─ render.yaml          # configuração do Render
+├─ runtime.txt          # versão do Python para deploy
+├─ CLAUDE.md            # instruções para desenvolvimento com IA
+├─ DEPLOY_GUIDE.md      # guia completo de deploy
 ├─ .env.example          # template de variáveis de ambiente (sem segredos)
 └─ README.md             # este arquivo
 
@@ -19,10 +28,11 @@ dash-eshows/
 
 | Ferramenta     | Versão mínima | Observação                           |
 |----------------|---------------|--------------------------------------|
-| Python         | 3.11+         | Recomendado 3.12                     |
+| Python         | 3.11+         | 3.11.10 usado em produção            |
 | Node.js        | 20 LTS        | para Supabase CLI via npx            |
 | Docker Desktop | 4.20+         | preciso para supabase db pull/push   |
 | Git            | qualquer      | fluxo Git padrão                     |
+| Memória RAM    | 4GB+          | 8GB+ recomendado para desenvolvimento|
 
 Windows 10/11 precisa do WSL 2 habilitado ⚙️ para o Docker.
 
@@ -51,6 +61,16 @@ $ python -m app.scripts.setup_auth_complete
 # 6 – subir o app
 $ python -m app.main
 ```
+
+## 🚀 Deploy em Produção
+
+O dashboard está rodando em produção no **Render.com**:
+- **Plano**: $25/mês (2GB RAM)
+- **Branch**: `agent5` 
+- **Auto-deploy**: Ativado (push → deploy automático)
+- **URL**: Configurada no Render Dashboard
+
+Para detalhes completos, veja o [Guia de Deploy](DEPLOY_GUIDE.md).
 
 ## 🔑 Variáveis de ambiente (essenciais)
 

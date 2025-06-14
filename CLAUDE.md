@@ -26,6 +26,20 @@ python -m app.scripts.test_supabase_connection
 # No formal test suite configured - manual testing via running the app is required
 ```
 
+### Deployment
+```bash
+# Prepare for deploy (already configured)
+# - render.yaml with all settings
+# - runtime.txt with Python version
+# - requirements.txt with gunicorn
+
+# Deploy happens automatically on push to agent5 branch
+git push origin agent5
+
+# Monitor deployment
+# Check Render dashboard for logs and status
+```
+
 ### Authentication Setup
 ```bash
 # Setup authentication (create table and populate users)
@@ -177,6 +191,23 @@ Remove-Item -Recurse -Force app/_cache_parquet/
 - Current setup uses Personal Access Token
 - Consider migrating to SSH for better security (see git-credentials-setup.md)
 - NEVER commit tokens in files
+
+### Deploy Issues (Render)
+1. **Invalid API Key Error**
+   - Causa: SUPABASE_KEY quebrada em múltiplas linhas
+   - Solução: Colar a chave em uma linha única no Render
+
+2. **Python Version Mismatch**
+   - Render pode usar versão diferente da especificada
+   - Solução: Verificar runtime.txt e configuração do Render
+
+3. **Memory Issues**
+   - Plano Free (512MB) insuficiente para o projeto
+   - Solução: Usar plano de $25/mês com 2GB RAM
+
+4. **Environment Variables**
+   - SEMPRE gerar novas chaves para JWT_SECRET_KEY e FLASK_SECRET_KEY
+   - NUNCA usar valores padrão como "your-secret-key-change-in-production"
 
 ## MCP (Model Context Protocol) Integration
 
