@@ -6,6 +6,7 @@ import calendar
 import dash_bootstrap_components as dbc
 from dash_bootstrap_components import Collapse
 from dash import dcc, html, Input, Output, State, callback, MATCH
+import dash
 import uuid
 import math
 
@@ -97,6 +98,86 @@ def get_df_ocorrencias():
 # =============================================================================
 # FUNÇÕES AUXILIARES
 # =============================================================================
+# Cache para evitar múltiplas chamadas ao Supabase
+_metas_cache = {}
+
+def buscar_metas_direto_supabase(ano, periodo, mes=None, custom_range=None):
+    """
+    Busca as metas diretamente do Supabase usando SQL com cache.
+    """
+    # Criar chave de cache
+    cache_key = f"{ano}_{periodo}_{mes}_{custom_range}"
+    
+    # Verificar cache
+    if cache_key in _metas_cache:
+        df_cached = _metas_cache[cache_key]
+        logger.debug(f"[buscar_metas_direto] Usando cache para {cache_key}: {len(df_cached)} registros")
+        return df_cached
+    
+    try:
+        from ..data_manager import supa
+        
+        if supa is None:
+            logger.error("Cliente Supabase não inicializado")
+            return None
+            
+        # Buscar todos os dados da tabela metas para debug
+        try:
+            response = supa.table('metas').select("*").execute()
+        except Exception as conn_error:
+            logger.error(f"[buscar_metas_direto] Erro de conexão com Supabase: {conn_error}")
+            return None
+        
+        if response.data:
+            df = pd.DataFrame(response.data)
+            logger.info(f"[buscar_metas_direto] Dados brutos do Supabase: {len(df)} registros")
+            logger.info(f"[buscar_metas_direto] Colunas disponíveis: {list(df.columns)}")
+            logger.info(f"[buscar_metas_direto] Amostra dos dados:\n{df.head()}")
+            
+            # Filtrar por ano se a coluna existir
+            if 'ano' in df.columns or 'Ano' in df.columns:
+                col_ano = 'ano' if 'ano' in df.columns else 'Ano'
+                df_ano = df[df[col_ano] == ano]
+                logger.info(f"[buscar_metas_direto] Após filtrar por ano {ano}: {len(df_ano)} registros")
+                
+                # Aplicar filtro de período
+                col_mes = 'mes' if 'mes' in df_ano.columns else 'Mes'
+                if col_mes not in df_ano.columns:
+                    col_mes = 'Mês'
+                
+                if periodo == "1° Trimestre":
+                    df_periodo = df_ano[df_ano[col_mes].isin([1, 2, 3])]
+                    logger.info(f"[buscar_metas_direto] Filtrando 1° Trimestre (meses 1,2,3): {len(df_periodo)} registros")
+                elif periodo == "2° Trimestre":
+                    df_periodo = df_ano[df_ano[col_mes].isin([4, 5, 6])]
+                    logger.info(f"[buscar_metas_direto] Filtrando 2° Trimestre (meses 4,5,6): {len(df_periodo)} registros")
+                elif periodo == "3° Trimestre":
+                    df_periodo = df_ano[df_ano[col_mes].isin([7, 8, 9])]
+                    logger.info(f"[buscar_metas_direto] Filtrando 3° Trimestre (meses 7,8,9): {len(df_periodo)} registros")
+                elif periodo == "4° Trimestre":
+                    df_periodo = df_ano[df_ano[col_mes].isin([10, 11, 12])]
+                    logger.info(f"[buscar_metas_direto] Filtrando 4° Trimestre (meses 10,11,12): {len(df_periodo)} registros")
+                elif periodo == "Mês Aberto" and mes is not None:
+                    df_periodo = df_ano[df_ano[col_mes] == mes]
+                    logger.info(f"[buscar_metas_direto] Após filtrar por mês {mes}: {len(df_periodo)} registros")
+                else:
+                    df_periodo = df_ano
+                    logger.info(f"[buscar_metas_direto] Sem filtro de período específico, usando todo o ano")
+                
+                # Adicionar ao cache antes de retornar
+                _metas_cache[cache_key] = df_periodo
+                return df_periodo
+            else:
+                logger.warning(f"[buscar_metas_direto] Coluna 'ano' não encontrada. Retornando todos os dados.")
+                return df
+        else:
+            logger.warning("[buscar_metas_direto] Nenhum dado retornado do Supabase")
+            return None
+            
+    except Exception as e:
+        logger.error(f"[buscar_metas_direto] Erro ao buscar metas: {e}")
+        return None
+
 def filtrar_novos_palcos(df_completo, ano, periodo, mes, custom_range=None):
     """
     Filtra os palcos (casas) que são considerados novos no período especificado.
@@ -160,6 +241,10 @@ def define_progress_color(perc):
     Returns:
         str: String com o nome da cor ("danger", "warning" ou "success")
     """
+    # Validar se perc é None
+    if perc is None:
+        return "danger"
+    
     if perc <= 0:
         return "danger"
     elif perc < 40:
@@ -201,6 +286,10 @@ def calcular_progresso(valor_atual, meta, tipo_meta="maior"):
        - 100% se valor_atual <= meta
        - se valor_atual > meta, definimos um 'start' = valor_atual (pior caso).
     """
+    # Validar valores None
+    if valor_atual is None or meta is None:
+        return 0.0
+    
     if tipo_meta == "menor":
         if valor_atual <= meta:
             return 100.0
@@ -1197,6 +1286,18 @@ def calcular_progresso_kpi_com_historico(
             if debug:
                 logger.debug(f"Meta para {kpi_name} obtida do dicionário: {meta}")
     
+    # Validar se meta é None
+    if meta is None:
+        if debug:
+            logger.debug(f"[AVISO] Meta é None para {kpi_name}. Retornando progresso 0%")
+        return 0.0
+    
+    # Validar se valor_atual é None
+    if valor_atual is None:
+        if debug:
+            logger.debug(f"[AVISO] Valor atual é None para {kpi_name}. Retornando progresso 0%")
+        return 0.0
+    
     # Iniciar impressão de debug
     if debug:
         logger.debug(f"\n{'=' * 60}")
@@ -2076,31 +2177,48 @@ def create_status_svg(
     return full_html
 
 # =============================================================================
-# CÁLCULO ESPECÍFICO: PROGRESSO "MENOR" (manter se precisar)
+# CÁLCULO DE PROGRESSO SIMPLIFICADO
 # =============================================================================
 def calcular_progresso(valor_atual, meta, tipo="maior"):
+    """
+    Calcula o progresso percentual de forma simples e clara.
+    
+    Args:
+        valor_atual: Valor atual do KPI
+        meta: Valor da meta do KPI
+        tipo: "maior" (meta é atingida quando valor >= meta) ou 
+              "menor" (meta é atingida quando valor <= meta)
+    
+    Returns:
+        float: Progresso percentual (0-100)
+    """
+    # Validar valores None
+    if valor_atual is None or meta is None:
+        return 0.0
+    
+    # Casos especiais
+    if meta == 0:
+        if tipo == "maior":
+            return 100.0 if valor_atual > 0 else 0.0
+        else:  # tipo == "menor"
+            return 100.0 if valor_atual == 0 else 0.0
+    
     if tipo == "maior":
-        if meta <= 0:
-            return 100.0 if valor_atual >= 0 else 0.0
-        progress = (valor_atual / meta) * 100
-        if progress < 0:
-            progress = 0
-        if progress > 100:
-            progress = 100
-        return progress
+        # Quanto mais próximo ou acima da meta, melhor
+        progresso = (valor_atual / meta) * 100
     else:
-        # 'menor'
+        # tipo == "menor": quanto mais abaixo da meta, melhor
         if valor_atual <= meta:
-            return 100.0
+            # Já atingiu a meta
+            progresso = 100.0
         else:
-            if meta <= 0:
-                return 0.0
-            progress = 100 - ((valor_atual - meta) / meta) * 100
-            if progress < 0:
-                progress = 0
-            if progress > 100:
-                progress = 100
-            return progress
+            # Calcula o quanto ultrapassou a meta
+            excesso = valor_atual - meta
+            # Quanto maior o excesso, pior o progresso
+            progresso = max(0, 100 - (excesso / meta) * 100)
+    
+    # Limita entre 0 e 100
+    return max(0.0, min(100.0, progresso))
 
 alert_atualiza = html.Div()
 
@@ -2167,7 +2285,9 @@ def expandable_card(header_content, children_content, card_id):
             "boxShadow": "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
             "transition": "all 0.3s ease",
             "border": "1px solid rgba(229,231,235,0.8)",
-            "backgroundColor": "#FFFFFF"  # Garantindo que o fundo externo seja branco
+            "backgroundColor": "#FFFFFF",  # Garantindo que o fundo externo seja branco
+            "cursor": "pointer",  # Adicionar cursor pointer
+            "userSelect": "none"  # Evitar seleção de texto ao clicar
         }
     )
     return html.Div([
@@ -2183,6 +2303,10 @@ def objective_card(title, progress_value, progress_color, financial_text, card_i
     Restaura a cor areia original para os inner cards.
     """
     sub_objectives = sub_objectives or []
+    
+    # Validar progress_value
+    if progress_value is None:
+        progress_value = 0
     
     # Cores originais do tema
     sand_color = "#F5EFE6"  # Cor areia restaurada
@@ -2358,6 +2482,10 @@ def sub_objective_card(
     """
     if card_id is None:
         card_id = str(uuid.uuid4())
+    
+    # Validar progress_value
+    if progress_value is None:
+        progress_value = 0
         
     # Cores originais do tema
     sand_color = "#F5EFE6"  # Cor areia restaurada
@@ -2936,50 +3064,124 @@ def ler_todas_as_metas(ano: int,
     – Metas de volume ("NovosClientes" etc.) são SOMA; demais recebem MÉDIA.  
     – Sempre devolve todas as chaves esperadas → evita KeyError em outros módulos.
     """
-    df_metas = carregar_metas()
-    if df_metas is None or df_metas.empty:
-        df_periodo = pd.DataFrame()            # força fallback
-    else:
-        df_periodo = filtrar_periodo_principal(df_metas, ano,
-                                               periodo, mes, custom_range)
+    # Primeiro tenta buscar diretamente do Supabase
+    try:
+        df_direto = buscar_metas_direto_supabase(ano, periodo, mes, custom_range)
+        if df_direto is not None and not df_direto.empty:
+            logger.info(f"[ler_todas_as_metas] Usando dados diretos do Supabase: {len(df_direto)} registros")
+            df_periodo = df_direto
+        else:
+            raise Exception("Busca direta retornou vazio")
+    except Exception as e:
+        logger.debug(f"[ler_todas_as_metas] Busca direta falhou: {e}. Tentando método tradicional...")
+        
+        # Fallback para o método tradicional
+        df_metas = carregar_metas()
+        logger.debug(f"[ler_todas_as_metas] DataFrame de metas carregado via método tradicional: shape={df_metas.shape if df_metas is not None else 'None'}")
+        
+        if df_metas is None or df_metas.empty:
+            logger.warning("[ler_todas_as_metas] DataFrame de metas está vazio ou é None. Usando fallback.")
+            df_periodo = pd.DataFrame()            # força fallback
+        else:
+            logger.debug(f"[ler_todas_as_metas] Colunas disponíveis em df_metas: {list(df_metas.columns)}")
+            
+            # Filtro manual para a tabela de metas que tem estrutura diferente
+            if periodo == "1° Trimestre":
+                df_periodo = df_metas[(df_metas['Ano'] == ano) & (df_metas['Mês'].isin([1, 2, 3]))]
+            elif periodo == "2° Trimestre":
+                df_periodo = df_metas[(df_metas['Ano'] == ano) & (df_metas['Mês'].isin([4, 5, 6]))]
+            elif periodo == "3° Trimestre":
+                df_periodo = df_metas[(df_metas['Ano'] == ano) & (df_metas['Mês'].isin([7, 8, 9]))]
+            elif periodo == "4° Trimestre":
+                df_periodo = df_metas[(df_metas['Ano'] == ano) & (df_metas['Mês'].isin([10, 11, 12]))]
+            elif periodo == "Mês Aberto" and mes:
+                df_periodo = df_metas[(df_metas['Ano'] == ano) & (df_metas['Mês'] == mes)]
+            elif periodo == "Ano Completo":
+                df_periodo = df_metas[df_metas['Ano'] == ano]
+            else:
+                df_periodo = filtrar_periodo_principal(df_metas, ano, periodo, mes, custom_range)
+                
+            logger.debug(f"[ler_todas_as_metas] DataFrame filtrado manualmente para período: shape={df_periodo.shape}")
 
     # ---------- Coluna do Excel → chave interna ----------
     # Mapas de colunas: permitem tanto nomes com espaço quanto com underscore
     # (ex.: "Novos_Clientes") para compatibilidade com a estrutura do Supabase.
     col_map: dict[str, str] = {
+        # Variações para Novos Clientes
         "Novos Clientes": "NovosClientes",
         "Novos_Clientes": "NovosClientes",
+        "novos_clientes": "NovosClientes",
+        "novos clientes": "NovosClientes",
+        "NovosClientes": "NovosClientes",
+        # Variações para Key Account
         "Key Account": "KeyAccount",
         "Key_Account": "KeyAccount",
+        "key_account": "KeyAccount",
+        "key account": "KeyAccount",
+        "KeyAccount": "KeyAccount",
+        # Variações para Outros Clientes
         "Outros Clientes": "OutrosClientes",
         "Outros_Clientes": "OutrosClientes",
+        "outros_clientes": "OutrosClientes",
+        "outros clientes": "OutrosClientes",
+        "OutrosClientes": "OutrosClientes",
+        # Variações para Plataforma
         "Plataforma": "Plataforma",
+        "plataforma": "Plataforma",
+        # Variações para Fintech
         "Fintech": "Fintech",
+        "fintech": "Fintech",
+        # Outros KPIs
         "NRR": "NRR",
+        "nrr": "NRR",
         "Churn": "Churn",
+        "churn": "Churn",
         "TurnOver": "TurnOver",
+        "turnover": "TurnOver",
         "Lucratividade": "Lucratividade",
+        "lucratividade": "Lucratividade",
         "Crescimento Sustentável": "CrescimentoSustentavel",
         "Crescimento_Sustentavel": "CrescimentoSustentavel",
+        "crescimento_sustentavel": "CrescimentoSustentavel",
+        "crescimentosustentavel": "CrescimentoSustentavel",
         "Palcos Vazios": "PalcosVazios",
         "Palcos_Vazios": "PalcosVazios",
+        "palcos_vazios": "PalcosVazios",
+        "palcosvazios": "PalcosVazios",
         "InadimplenciaReal": "InadimplenciaReal",
         "Inadimplencia_Real": "InadimplenciaReal",
+        "inadimplenciareal": "InadimplenciaReal",
+        "inadimplencia_real": "InadimplenciaReal",
         "Estabilidade": "Estabilidade",
+        "estabilidade": "Estabilidade",
         "Ef. Atendimento": "EficienciaAtendimento",
         "Ef_Atendimento": "EficienciaAtendimento",
+        "eficienciaatendimento": "EficienciaAtendimento",
+        "eficiencia_atendimento": "EficienciaAtendimento",
         "AutonomiaUsuario": "AutonomiaUsuario",
         "Autonomia_Usuario": "AutonomiaUsuario",
+        "autonomiausuario": "AutonomiaUsuario",
+        "autonomia_usuario": "AutonomiaUsuario",
         "Perdas Operacionais": "PerdasOperacionais",
         "Perdas_Operacionais": "PerdasOperacionais",
+        "perdasoperacionais": "PerdasOperacionais",
+        "perdas_operacionais": "PerdasOperacionais",
         "ReceitaPorColaborador": "ReceitaPorColaborador",
         "Receita_Por_Colaborador": "ReceitaPorColaborador",
+        "receitaporcolaborador": "ReceitaPorColaborador",
+        "receita_por_colaborador": "ReceitaPorColaborador",
         "LTV/CAC": "LtvCac",
         "LTV_CAC": "LtvCac",
+        "ltvcac": "LtvCac",
+        "ltv_cac": "LtvCac",
         "NPS Artistas": "NPSArtistas",
         "NPS_Artistas": "NPSArtistas",
+        "npsartistas": "NPSArtistas",
+        "nps_artistas": "NPSArtistas",
         "NPS Equipe": "NPSEquipe",
         "NPS_Equipe": "NPSEquipe",
+        "npsequipe": "NPSEquipe",
+        "nps_equipe": "NPSEquipe",
     }
 
     # metas que são SOMA (o resto recebe média)
@@ -2997,11 +3199,15 @@ def ler_todas_as_metas(ano: int,
 
     # app/okrs/okrs.py
     metas_default = {
-        "NovosClientes": 0.0, "KeyAccount": 0.0, "OutrosClientes": 0.0,
-        "Plataforma": 0.0, "Fintech": 0.0,
+        # VALORES DEFAULT PARA O OBJETIVO 1 - NÃO DEVEM SER ZERO!
+        "NovosClientes": 150_000.0,      # R$ 150k
+        "KeyAccount": 200_000.0,         # R$ 200k
+        "OutrosClientes": 100_000.0,     # R$ 100k
+        "Plataforma": 0.0,               # Meta zero conforme solicitado
+        "Fintech": 100_000.0,            # R$ 100k
         # --- percentuais agora em escala 0-100 ---
         "NRR": 10.0, "Churn": 8.0, "TurnOver": 10.0, "Lucratividade": 10.0,
-        "CrescimentoSustentavel": 5.0, "PalcosVazios": 0.0,
+        "CrescimentoSustentavel": 5.0, "PalcosVazios": 5.0,  # Palcos vazios não deve ser zero
         "InadimplenciaReal": 5.0, "Estabilidade": 90.0,
         "EficienciaAtendimento": 80.0, "AutonomiaUsuario": 30.0,
         "PerdasOperacionais": 15.0,
@@ -3011,20 +3217,49 @@ def ler_todas_as_metas(ano: int,
 
     # ---------- se não há linhas no período, retorna defaults ----------
     if df_periodo.empty:
+        logger.warning(f"[ler_todas_as_metas] DataFrame do período está vazio! Retornando valores default.")
+        logger.warning(f"[ler_todas_as_metas] Valores default sendo retornados: {metas_default}")
         return metas_default.copy()
 
     # ---------- loop de cálculo ----------
     metas_calc = metas_default.copy()
+    
+    logger.debug(f"[ler_todas_as_metas] Iniciando loop de cálculo das metas")
+    logger.debug(f"[ler_todas_as_metas] Colunas no df_periodo: {list(df_periodo.columns)}")
+    logger.debug(f"[ler_todas_as_metas] Primeiras linhas do df_periodo:\n{df_periodo.head()}")
+    
+    # Verificar colunas não mapeadas
+    colunas_nao_mapeadas = [col for col in df_periodo.columns if col not in col_map]
+    if colunas_nao_mapeadas:
+        logger.warning(f"[ler_todas_as_metas] Colunas no DataFrame que NÃO estão no mapeamento: {colunas_nao_mapeadas}")
+        logger.warning(f"[ler_todas_as_metas] Considere adicionar essas colunas ao col_map para processá-las")
+    
+    # Verificar se Plataforma existe no DataFrame (não é necessário avisar pois a meta é zero)
+    if 'Plataforma' not in df_periodo.columns and 'plataforma' not in df_periodo.columns:
+        logger.debug(f"[ler_todas_as_metas] Coluna 'Plataforma' não encontrada no DataFrame (meta é zero mesmo)")
 
     for col_excel, key_meta in col_map.items():
         if col_excel not in df_periodo.columns:
+            logger.debug(f"[ler_todas_as_metas] Coluna '{col_excel}' não encontrada em df_periodo")
             continue
 
+        logger.debug(f"[ler_todas_as_metas] Processando coluna '{col_excel}' -> meta '{key_meta}'")
         serie = _parse_to_float(df_periodo[col_excel]).dropna()
+        logger.debug(f"[ler_todas_as_metas] Serie após parse: {serie.tolist()[:5]}... (mostrando primeiros 5)")
+        
         if serie.empty:
+            logger.debug(f"[ler_todas_as_metas] Serie vazia após parse para coluna '{col_excel}'")
             continue
 
         val = serie.sum() if key_meta in keys_to_sum else serie.mean()
+        
+        # IMPORTANTE: Os valores monetários estão em centavos no banco
+        # Precisamos dividir por 100 para converter para reais
+        if key_meta in ['NovosClientes', 'KeyAccount', 'OutrosClientes', 'Plataforma', 'Fintech', 'ReceitaPorColaborador']:
+            val = val / 100  # Converter de centavos para reais
+            logger.debug(f"[ler_todas_as_metas] Valor calculado para '{key_meta}': {val} reais (convertido de centavos)")
+        else:
+            logger.debug(f"[ler_todas_as_metas] Valor calculado para '{key_meta}': {val} ({'SOMA' if key_meta in keys_to_sum else 'MÉDIA'})")
         # A conversão de colunas percentuais para fração já ocorre em
         # ``sanitize_metas_df`` (modulobase). Evita-se, portanto, dividir
         # novamente por 100 aqui, garantindo que metas de porcentagem sejam
@@ -3041,6 +3276,21 @@ def ler_todas_as_metas(ano: int,
 
         metas_calc[key_meta] = val
 
+    logger.info(f"[ler_todas_as_metas] Metas calculadas finais: {metas_calc}")
+    logger.info(f"[ler_todas_as_metas] METAS DO OBJETIVO 1 - VALORES FINAIS:")
+    logger.info(f"  - NovosClientes: {metas_calc.get('NovosClientes', 'NÃO ENCONTRADO')} (esperado > 0)")
+    logger.info(f"  - KeyAccount: {metas_calc.get('KeyAccount', 'NÃO ENCONTRADO')} (esperado > 0)")
+    logger.info(f"  - OutrosClientes: {metas_calc.get('OutrosClientes', 'NÃO ENCONTRADO')} (esperado > 0)")
+    logger.info(f"  - Plataforma: {metas_calc.get('Plataforma', 'NÃO ENCONTRADO')} (meta zero por design)")
+    logger.info(f"  - Fintech: {metas_calc.get('Fintech', 'NÃO ENCONTRADO')} (esperado > 0)")
+    
+    # Verificar se alguma meta do Objetivo 1 ficou zerada (exceto Plataforma que é zero por design)
+    metas_obj1 = ['NovosClientes', 'KeyAccount', 'OutrosClientes', 'Fintech']
+    zeradas = [k for k in metas_obj1 if metas_calc.get(k, 0) == 0]
+    if zeradas:
+        logger.warning(f"[ler_todas_as_metas] ATENÇÃO: As seguintes metas do Objetivo 1 estão ZERADAS: {zeradas}")
+        logger.warning(f"[ler_todas_as_metas] Isso causará divisão por zero e 0% de progresso!")
+    
     return metas_calc
 
 # =============================================================================
@@ -3371,7 +3621,13 @@ def register_okrs_callbacks(app):
         prevent_initial_call=True
     )
     def toggle_collapse(n_clicks, is_open):
+        if n_clicks is None or n_clicks == 0:
+            # Se não houve cliques, manter o estado atual
+            logger.debug("Toggle collapse: sem cliques ainda")
+            raise dash.exceptions.PreventUpdate
+            
         new_is_open = not is_open
+        logger.debug(f"Toggle collapse: n_clicks={n_clicks}, is_open={is_open} -> new_is_open={new_is_open}")
         
         # Estilo atualizado da seta com cores mais premium
         arrow_style = {
@@ -3381,7 +3637,8 @@ def register_okrs_callbacks(app):
             "transition": "transform 0.3s ease-in-out, color 0.3s ease",
             "transform": "rotate(90deg)" if new_is_open else "rotate(0deg)",
             "filter": "drop-shadow(0 1px 1px rgba(0,0,0,0.05))",
-            "opacity": "1" if new_is_open else "0.85"
+            "opacity": "1" if new_is_open else "0.85",
+            "cursor": "pointer"  # Adicionar cursor pointer
         }
         
         return new_is_open, arrow_style
@@ -3420,12 +3677,23 @@ def register_okrs_callbacks(app):
         # Obtém todas as metas em um dicionário, passando custom_range
         metas = ler_todas_as_metas(ano, periodo, mes, custom_range)
         
+        # Log detalhado das metas carregadas
+        logger.debug(f"=== METAS CARREGADAS PARA OBJETIVO 1 ===")
+        logger.debug(f"Dicionário completo de metas: {metas}")
+        
         # Extrai as metas específicas do objetivo 1
         meta_novos = metas["NovosClientes"]
         meta_key = metas["KeyAccount"]
         meta_outros = metas["OutrosClientes"]
         meta_plat = metas["Plataforma"]
         meta_fint = metas["Fintech"]
+        
+        # Log específico das metas do Objetivo 1
+        logger.debug(f"Meta Novos Clientes: {meta_novos}")
+        logger.debug(f"Meta Key Account: {meta_key}")
+        logger.debug(f"Meta Outros Clientes: {meta_outros}")
+        logger.debug(f"Meta Plataforma: {meta_plat}")
+        logger.debug(f"Meta Fintech: {meta_fint}")
 
         meta_curadoria = meta_novos + meta_key + meta_outros
         meta_obj_principal = meta_curadoria + meta_plat + meta_fint
@@ -4128,16 +4396,20 @@ def register_okrs_callbacks(app):
         # Criação dos subobjetivos usando um formato padronizado
         def criar_subobjetivo(titulo, kpi_processado, valor_meta, nome_kpi):
             """Cria um subobjetivo padronizado a partir dos dados processados"""
+            # Garantir que valores None sejam tratados
+            progress_value = kpi_processado.get("valor", 0) if kpi_processado.get("valor") is not None else 0
+            progress_percent = kpi_processado.get("progresso", 0) if kpi_processado.get("progresso") is not None else 0
+            
             return {
                 "title": titulo,
-                "progress_value": kpi_processado["valor"],
-                "progress_color": kpi_processado["cor"],
-                "financial_text": kpi_processado["texto_financeiro"],
+                "progress_value": progress_value,
+                "progress_color": kpi_processado.get("cor", "danger"),
+                "financial_text": kpi_processado.get("texto_financeiro", ""),
                 "use_svg": True,
                 "target_value": valor_meta,
                 "target_type": "menor" if nome_kpi in ["Churn %", "Turn Over", "Palcos Vazios", "Inadimplência Real", "Perdas Operacionais"] else "maior",
                 "kpi_name": nome_kpi,
-                "progress_percent": kpi_processado["progresso"]
+                "progress_percent": progress_percent
             }
         
         # Lista de subobjetivos
@@ -4187,7 +4459,7 @@ def register_okrs_callbacks(app):
         ]
         
         # Cálculo do progresso global do objetivo
-        progressos = [s.get("progress_percent", 0) for s in subobjetivos]
+        progressos = [s.get("progress_percent", 0) if s.get("progress_percent") is not None else 0 for s in subobjetivos]
         progresso_objetivo = sum(progressos) / len(progressos) if progressos else 0
         
         # Determinação da cor do objetivo global

@@ -19,7 +19,7 @@ dash-eshows/
 
 | Ferramenta     | Versão mínima | Observação                           |
 |----------------|---------------|--------------------------------------|
-| Python         | 3.12          | use pyenv ou instalador oficial    |
+| Python         | 3.11+         | Recomendado 3.12                     |
 | Node.js        | 20 LTS        | para Supabase CLI via npx            |
 | Docker Desktop | 4.20+         | preciso para supabase db pull/push   |
 | Git            | qualquer      | fluxo Git padrão                     |
@@ -45,8 +45,11 @@ $ pip install -r requirements.txt
 $ Copy-Item .env.example .env
 $ notepad .env
 
-# 5 – subir o app
-$ python app/main.py                  # ou "python -m flask run" se for Flask
+# 5 – configurar autenticação (primeira vez)
+$ python -m app.scripts.setup_auth_complete
+
+# 6 – subir o app
+$ python -m app.main
 ```
 
 ## 🔑 Variáveis de ambiente (essenciais)
@@ -56,7 +59,10 @@ $ python app/main.py                  # ou "python -m flask run" se for Flask
 | SUPABASE_URL         | URL do projeto Supabase                    |
 | SUPABASE_KEY         | Chave anon ou service_role                 |
 | SUPABASE_DB_PASSWORD | Senha do Postgres usada pelo CLI           |
-| …                    | …                                          |
+| JWT_SECRET_KEY       | Chave secreta para tokens JWT              |
+| FLASK_SECRET_KEY     | Chave secreta para sessões Flask           |
+| USE_RAM_CACHE        | (Opcional) "1" para habilitar cache RAM    |
+| CACHE_EXPIRY_HOURS   | (Opcional) Horas de expiração do cache     |
 
 Nunca commit essas chaves. Mantenha-as no .env ou nos Secrets do GitHub.
 
@@ -92,13 +98,34 @@ git commit -m "feat(db): coluna xyz em kpis"
 
 ```bash
 # atualizar dependências
-act pip install nova-lib && pip freeze | Select-String '==' > requirements.txt
+pip install nova-lib && pip freeze | Select-String '==' > requirements.txt
 
 # limpeza de requirements (remove caminhos locais)
-act pip freeze | Select-String '==' > requirements.txt
+pip freeze | Select-String '==' > requirements.txt
+
+# testar conexão com Supabase
+python -m app.scripts.test_supabase_connection
+
+# gerar hash de senha para novo usuário
+python -m app.scripts.generate_password_hash
+
+# limpar cache
+Remove-Item -Recurse -Force app/_cache_parquet/  # Windows
+rm -rf app/_cache_parquet/                        # Linux/macOS
 ```
 
 (“act” == digite no terminal com venv ativo)
+
+## 🔧 Integração MCP (Model Context Protocol)
+
+Este projeto está configurado com integrações MCP para desenvolvimento avançado:
+
+- **GitHub**: Operações completas no repositório (commits, PRs, issues)
+- **Supabase**: Gerenciamento de banco de dados e edge functions
+- **Browser Tools**: Captura de tela, auditorias de performance e acessibilidade
+- **Playwright**: Automação de testes de interface
+
+Configuração em `.mcp.json` - tokens gerenciados de forma segura.
 
 ## 🤝 Contribuindo
 

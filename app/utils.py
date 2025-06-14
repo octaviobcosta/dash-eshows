@@ -894,6 +894,28 @@ def formatar_valor_utils(valor, tipo='numero'):
     return str(valor)
 
 
+def converter_centavos_para_reais(valor):
+    """
+    Converte valores de centavos para reais.
+    
+    Args:
+        valor: Valor em centavos (int, float, ou pd.Series)
+        
+    Returns:
+        Valor em reais (dividido por 100)
+    """
+    if pd.isna(valor):
+        return valor
+    
+    if isinstance(valor, pd.Series):
+        return valor / 100
+    
+    try:
+        return float(valor) / 100
+    except (TypeError, ValueError):
+        return valor
+
+
 ##################################
 # Funções de Apoio
 ##################################

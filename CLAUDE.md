@@ -20,6 +20,9 @@ python app/main.py
 # Run CAC validation test
 python -m app.scripts.test_cac
 
+# Test Supabase connection
+python -m app.scripts.test_supabase_connection
+
 # No formal test suite configured - manual testing via running the app is required
 ```
 
@@ -174,3 +177,41 @@ Remove-Item -Recurse -Force app/_cache_parquet/
 - Current setup uses Personal Access Token
 - Consider migrating to SSH for better security (see git-credentials-setup.md)
 - NEVER commit tokens in files
+
+## MCP (Model Context Protocol) Integration
+
+### Available MCP Tools
+This project is configured with MCP integrations for enhanced development capabilities:
+
+1. **GitHub Integration**
+   - Full access to repository operations (commits, PRs, issues, etc.)
+   - Repository: `octaviobcosta/dash-eshows`
+   - Configured via `.mcp.json`
+
+2. **Supabase Integration**
+   - Database operations and migrations
+   - Edge functions deployment
+   - Project management
+   - Configured via `.mcp.json`
+
+3. **Browser Tools**
+   - Screenshot capture and debugging
+   - Performance audits
+   - Accessibility checks
+   - Network monitoring
+
+4. **Playwright**
+   - Browser automation for testing
+   - UI interaction testing
+   - Test generation
+
+### MCP Configuration
+The `.mcp.json` file contains the configuration for all MCP tools. Tokens are managed securely through environment variables:
+- GitHub token: Set in MCP configuration
+- Supabase credentials: Uses same env vars as the application
+
+### Testing MCP Connections
+```bash
+# Test script is available to verify connections
+# (creates temporary test file, runs connection test, then cleans up)
+```
