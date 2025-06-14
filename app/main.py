@@ -1738,6 +1738,9 @@ app = Dash(
     suppress_callback_exceptions=True,
 )
 
+# Expor o servidor Flask para Gunicorn
+server = app.server
+
 # Configuração da chave secreta para sessões
 app.server.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-change-in-production')
 
