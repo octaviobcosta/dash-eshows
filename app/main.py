@@ -39,7 +39,7 @@ load_dotenv()
 import logging_config  # noqa: F401
 
 # ― Módulos internos ------------------------------------------------------------
-from .auth import (
+from .auth_improved import (
     create_login_layout,
     init_auth_callbacks,
     init_logout_callback,
