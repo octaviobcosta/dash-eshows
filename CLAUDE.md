@@ -27,18 +27,26 @@ python -m app.scripts.test_supabase_connection
 ```
 
 ### Deployment
-```bash
-# Prepare for deploy (already configured)
-# - render.yaml with all settings
-# - runtime.txt with Python version
-# - requirements.txt with gunicorn
 
-# Deploy happens automatically on push to agent5 branch
+⚠️ **IMPORTANTE**: SEMPRE execute a verificação pré-deploy antes de fazer push!
+
+```bash
+# 1. OBRIGATÓRIO: Executar verificação pré-deploy
+python -m scripts.pre_deploy_check
+
+# 2. SE e SOMENTE SE todas as verificações passarem:
 git push origin agent5
 
-# Monitor deployment
-# Check Render dashboard for logs and status
+# 3. Monitorar o deploy
+# Verificar logs no dashboard do Render
 ```
+
+**Checklist manual adicional antes do deploy:**
+- [ ] Testou localmente com `python -m app.main`?
+- [ ] Verificou se TODOS os arquivos importados existem?
+- [ ] Confirmou que não há tokens/senhas nos commits?
+- [ ] Testou o login com as credenciais de produção?
+- [ ] Verificou se os arquivos CSS estão na pasta assets?
 
 ### Authentication Setup
 ```bash
