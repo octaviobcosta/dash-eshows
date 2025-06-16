@@ -39,7 +39,7 @@ load_dotenv()
 import logging_config  # noqa: F401
 
 # ― Módulos internos ------------------------------------------------------------
-from .auth_improved import (
+from .auth import (
     create_login_layout,
     init_auth_callbacks,
     init_logout_callback,
@@ -1729,9 +1729,6 @@ assets_path = os.path.join(ROOT_DIR, "assets")
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
-    "/assets/modal_styles.css",  # Novo CSS para modais melhorados
-    "/assets/login_improved.css",  # Novo CSS para login com glassmorphism
-    "/assets/modal_fixes.css",  # CSS para corrigir conflitos entre modais
 ]
 
 app = Dash(
@@ -1747,16 +1744,7 @@ server = app.server
 # Configuração da chave secreta para sessões
 app.server.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-change-in-production')
 
-# Configurações adicionais de sessão
-app.server.config['SESSION_COOKIE_SECURE'] = False  # True em produção com HTTPS
-app.server.config['SESSION_COOKIE_HTTPONLY'] = True
-app.server.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.server.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
-
 #######################################
-# Import update modal
-from app.update_modal_improved import create_update_modal, update_store_data, init_update_modal_callbacks
-
 # DEFINIÇÃO DO LAYOUT PRINCIPAL
 #######################################
 app.layout = html.Div([
@@ -1768,7 +1756,6 @@ app.layout = html.Div([
     ano_store_kpis,
     periodo_store_kpis,
     mes_store_kpis,
-    update_store_data,
     
     # Container principal que será preenchido dinamicamente
     html.Div(id="main-container"),
@@ -1794,17 +1781,12 @@ app.validation_layout = html.Div([
     prevent_initial_call=False
 )
 def render_main_layout(pathname):
-    # Debug para entender o problema
-    logger.info(f"render_main_layout - pathname: {pathname}")
-    logger.info(f"render_main_layout - session keys: {list(session.keys()) if session else 'None'}")
-    
     # Se for a página de login, mostra apenas o layout de login (sem sidebar)
     if pathname == "/login":
         return create_login_layout()
     
     # Verifica se o usuário está autenticado
     if 'access_token' not in session:
-        logger.warning(f"Token não encontrado na sessão. Redirecionando para login.")
         return dcc.Location(pathname='/login', id='redirect-to-login')
     
     # Se pathname for None ou "/", redireciona para /dashboard
@@ -1818,31 +1800,6 @@ def render_main_layout(pathname):
     
     # Para páginas autenticadas, retorna layout com sidebar
     return html.Div([
-        # Alert for unauthorized access
-        dbc.Alert(
-            id="alert-unauthorized-update",
-            is_open=False,
-            duration=4000,
-            dismissable=True,
-            color="danger",
-            style={
-                "position": "fixed",
-                "top": "20px",
-                "right": "20px",
-                "width": "auto",
-                "maxWidth": "500px",
-                "zIndex": 9999,
-                "background": "linear-gradient(135deg, #fc4f22 0%, #fdb03d 100%)",
-                "border": "none",
-                "color": "white",
-                "fontWeight": "500",
-                "boxShadow": "0 4px 12px rgba(252, 79, 34, 0.3)"
-            }
-        ),
-        
-        # Modal de atualização
-        create_update_modal(),
-        
         sidebar,
         html.Div(
             id="page-content",
@@ -1887,28 +1844,21 @@ def render_page_content(pathname):
         ),
     ])
 
-# ================== Callback para abrir modal de atualização ==================
+# ================== Callback para atualizar base ==================
 @app.callback(
-    [Output("update-modal", "is_open"),
-     Output("alert-unauthorized-update", "is_open"),
-     Output("alert-unauthorized-update", "children")],
+    [Output("dummy-store", "data"),
+     Output("alert-atualiza-base", "is_open")],
     Input("btn-atualiza-base", "n_clicks"),
-    State("update-modal", "is_open"),
     prevent_initial_call=True
 )
-def toggle_update_modal(n_clicks, is_open):
-    if n_clicks:
-        # Verificar se o usuário tem permissão
-        username = session.get('username', '')
-        
-        if username != 'octavio@eshows.com.br':
-            # Mostrar alerta de erro
-            alert_msg = f"Acesso negado! Apenas octavio@eshows.com.br pode atualizar a base. Usuário atual: {username}"
-            return False, True, alert_msg
-        
-        # Se tem permissão, abre o modal
-        return not is_open, False, ""
-    return is_open, False, ""
+def atualizar_base(n):
+    if not n:
+        raise dash.exceptions.PreventUpdate
+    global df_eshows, df_base2, df_ocorrencias
+    df_eshows = carregar_base_eshows()
+    df_base2 = carregar_base2()
+    df_ocorrencias = carregar_ocorrencias()
+    return {"status": "Bases atualizadas com sucesso!"}, True
 
 # ================== Callbacks de filtros (Dashboard) ==================
 @app.callback(
@@ -3642,7 +3592,6 @@ def toggle_kpi_modal(n_clicks_list, close_clicks, is_open):
 init_auth_callbacks(app)
 init_logout_callback(app)
 init_client_side_callbacks(app)
-init_update_modal_callbacks(app)
 
 # =========================================================
 # MAIN
