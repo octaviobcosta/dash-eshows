@@ -479,22 +479,40 @@ body {
 
 /* Fundo e Cor do Conteúdo do Modal */
 #kpi-painel-modal .modal-content {
-    background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-alt) 100%);
-    color: var(--color-gray-dark);
-    border-radius: var(--border-radius-card);
-    box-shadow: var(--box-shadow-hover);
+    background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-alt) 100%) !important;
+    color: var(--color-gray-dark) !important;
+    border-radius: var(--border-radius-card) !important;
+    box-shadow: var(--box-shadow-hover) !important;
+}
+
+/* Garantir que o modal KPI dashboard mantenha seu estilo */
+#kpi-dash-modal .modal-content {
+    background: var(--color-background) !important;
+    border: none !important;
+}
+
+#kpi-dash-modal .modal-header {
+    background-color: #F5EBD9 !important;
+    border-bottom: none !important;
+    color: var(--color-gray-medium) !important;
+}
+
+#kpi-dash-modal .modal-footer {
+    background-color: #FAF8F4 !important;
+    border-top: 1px solid rgba(18,32,70,0.1) !important;
 }
 
 /* Estilos personalizados para o cabeçalho do modal */
 .modal-header-custom {
-    background-color: #F5EBD9; /* Mesma cor do fundo */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-bottom: none;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: auto;
+    background-color: #F5EBD9 !important; /* Mesma cor do fundo */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    border-bottom: none !important;
+    padding: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: auto !important;
+    color: var(--color-gray-medium) !important;
 }
 
 /* Conteúdo interno do cabeçalho do modal */
@@ -970,6 +988,63 @@ a.forgot-link:hover {
     color: #fff;
     display: flex;
     flex-direction: column;
+}
+
+/* ================= RESTAURAÇÃO DOS MODAIS ORIGINAIS ================= */
+/* Garantir que modal-content-areia mantenha suas cores */
+.modal-content-areia {
+    background: var(--color-background) !important;
+    color: var(--color-gray-dark) !important;
+}
+
+/* Resetar estilos de modal header para modais antigos */
+#kpi-dash-modal .modal-header,
+#kpi-painel-modal .modal-header {
+    background: #F5EBD9 !important;
+    color: var(--color-gray-medium) !important;
+    border-bottom: none !important;
+    padding: 1.5rem 2rem !important;
+}
+
+/* Garantir que botões de fechar mantenham estilo original */
+.kpi-dash-close-btn {
+    background-color: rgba(252, 79, 34, 0.15) !important;
+    color: #FC4F22 !important;
+    border: none !important;
+    font-size: 18px !important;
+}
+
+/* Remover qualquer interferência de outros arquivos CSS */
+#kpi-dash-modal .btn-close,
+#kpi-painel-modal .btn-close {
+    display: none !important; /* Esconder botão padrão do Bootstrap */
+}
+
+/* Forçar estilos do modal body */
+#kpi-dash-modal .modal-body,
+#kpi-painel-modal .modal-body {
+    background: transparent !important;
+    padding: 1.5rem !important;
+}
+
+/* Garantir título do modal com estilo correto */
+#kpi-dash-modal .modal-title-text,
+#kpi-painel-modal .modal-title-text {
+    color: var(--color-gray-medium) !important;
+    font-weight: 600 !important;
+}
+
+/* Manter animação original */
+.modal-content-areia {
+    animation: fadeScaleIn 0.4s ease-out forwards !important;
+}
+
+/* Garantir que o footer mantenha cor areia */
+#kpi-dash-modal .modal-footer,
+#kpi-painel-modal .modal-footer {
+    background-color: #FAF8F4 !important;
+    border-top: 1px solid rgba(18,32,70,0.1) !important;
+    padding: 1rem 2rem !important;
 }
 
 .modal-header, .modal-footer {
