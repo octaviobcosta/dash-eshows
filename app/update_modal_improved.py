@@ -513,5 +513,85 @@ def init_update_modal_callbacks(app):
             return summary_items, None, False
         
         return html.P("Nenhuma ação selecionada", className="text-muted"), None, True
+    
+    # Callback para habilitar botão Próximo quando tabelas ERP são selecionadas
+    @app.callback(
+        Output("btn-next-update", "disabled", allow_duplicate=True),
+        [Input({"type": "table-checkbox", "index": ALL}, "value")],
+        prevent_initial_call=True
+    )
+    def toggle_next_button_erp(checkbox_values):
+        # Habilita o botão se pelo menos uma checkbox estiver marcada
+        return not any(checkbox_values)
+    
+    # Callback para processar a confirmação da atualização
+    @app.callback(
+        [Output("update-modal", "is_open", allow_duplicate=True),
+         Output("alert-atualiza-base", "children"),
+         Output("alert-atualiza-base", "color"),
+         Output("alert-atualiza-base", "is_open")],
+        [Input("btn-confirm-update", "n_clicks")],
+        [State("update-store-data", "data"),
+         State("table-select-upload", "value"),
+         State({"type": "table-checkbox", "index": ALL}, "value"),
+         State({"type": "table-checkbox", "index": ALL}, "id")],
+        prevent_initial_call=True
+    )
+    def process_update_confirmation(n_clicks, store_data, upload_table, erp_checks, erp_ids):
+        if not n_clicks:
+            raise PreventUpdate
+        
+        try:
+            # Opção 1: Upload de arquivo
+            if store_data and upload_table:
+                # TODO: Implementar upload para Supabase
+                return False, "Upload de arquivo ainda não implementado", "warning", True
+            
+            # Opção 2: Atualização do ERP
+            selected_tables = []
+            for i, checked in enumerate(erp_checks):
+                if checked:
+                    table_name = erp_ids[i]["index"]
+                    selected_tables.append(table_name)
+            
+            if selected_tables:
+                # Importa e executa a atualização
+                from app.data_manager import reload_tables
+                
+                results = reload_tables(selected_tables)
+                
+                # Prepara mensagem de resultado
+                success_count = sum(1 for r in results.values() if r["status"] == "success")
+                error_count = sum(1 for r in results.values() if r["status"] == "error")
+                
+                if error_count == 0:
+                    message = f"✅ {success_count} tabela(s) atualizada(s) com sucesso!"
+                    color = "success"
+                elif success_count > 0:
+                    message = f"⚠️ {success_count} tabela(s) atualizada(s), {error_count} com erro"
+                    color = "warning"
+                else:
+                    message = f"❌ Erro ao atualizar {error_count} tabela(s)"
+                    color = "danger"
+                
+                # Adiciona detalhes
+                details = []
+                for table, result in results.items():
+                    if result["status"] == "success":
+                        details.append(f"• {table}: {result['rows']} registros")
+                    else:
+                        details.append(f"• {table}: Erro - {result.get('error', 'Desconhecido')}")
+                
+                if details:
+                    message += "\n\n" + "\n".join(details)
+                
+                # Fecha o modal e mostra o alerta
+                return False, message, color, True
+            
+            return False, "Nenhuma tabela selecionada", "warning", True
+            
+        except Exception as e:
+            logger.error(f"Erro ao processar atualização: {e}")
+            return False, f"❌ Erro ao processar atualização: {str(e)}", "danger", True
 
     return True

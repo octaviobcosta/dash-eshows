@@ -182,3 +182,58 @@ def reset_all_data(clear_disk: bool = False):
             except Exception:
                 pass
     logger.info("[data_manager] caches limpos – próxima chamada recarrega do Supabase.")
+
+def clear_table_cache(table_names: list[str]) -> None:
+    """Limpa o cache de tabelas específicas"""
+    for table in table_names:
+        # Remove do cache em RAM
+        if table in _cache:
+            del _cache[table]
+            logger.info(f"[data_manager] Cache RAM limpo para tabela: {table}")
+        
+        # Remove arquivo Parquet
+        cache_file = _cache_path(table)
+        if cache_file.exists():
+            try:
+                cache_file.unlink()
+                logger.info(f"[data_manager] Cache Parquet removido para tabela: {table}")
+            except Exception as e:
+                logger.error(f"[data_manager] Erro ao remover cache Parquet de {table}: {e}")
+    
+    gc.collect()
+    logger.info(f"[data_manager] Cache limpo para {len(table_names)} tabela(s)")
+
+def reload_tables(table_names: list[str]) -> dict:
+    """Recarrega tabelas específicas do Supabase"""
+    results = {}
+    
+    # Mapeia os nomes das tabelas para as funções corretas
+    table_functions = {
+        "baseeshows": lambda: fetch_and_cache("baseeshows", rename_cents=True),
+        "base2": lambda: fetch_and_cache("base2", rename_cents=True),
+        "pessoas": lambda: fetch_and_cache("pessoas", rename_cents=True),
+        "metas": lambda: fetch_and_cache("metas", rename_cents=True),
+        "custosabertos": lambda: fetch_and_cache("custosabertos", rename_cents=True),
+        "boletoartistas": lambda: fetch_and_cache("boletoartistas", rename_cents=True),
+        "boletocasas": lambda: fetch_and_cache("boletocasas", rename_cents=True),
+        "npsartistas": lambda: fetch_and_cache("npsartistas", rename_cents=False)
+    }
+    
+    for table in table_names:
+        try:
+            # Limpa o cache primeiro
+            clear_table_cache([table])
+            
+            # Força recarregamento usando a função apropriada
+            if table in table_functions:
+                df = table_functions[table]()
+            else:
+                df = fetch_and_cache(table, rename_cents=True)
+            
+            results[table] = {"status": "success", "rows": len(df) if df is not None else 0}
+            logger.info(f"[data_manager] Tabela {table} recarregada com sucesso")
+        except Exception as e:
+            results[table] = {"status": "error", "error": str(e)}
+            logger.error(f"[data_manager] Erro ao recarregar tabela {table}: {e}")
+    
+    return results
