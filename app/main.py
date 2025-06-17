@@ -47,6 +47,11 @@ from .auth_improved import (
     add_logout_button,
     require_auth
 )
+from .update_modal_improved import (
+    create_update_modal,
+    init_update_modal_callbacks,
+    update_store_data
+)
 from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from .modulobase import (
     carregar_base_eshows,
@@ -1693,6 +1698,12 @@ dashboard_layout = dbc.Container(
         
         # Modal para exibir o gráfico de KPI
         create_kpi_dashboard_modal(),
+        
+        # Modal de atualização de base
+        create_update_modal(),
+        
+        # Store para dados de upload
+        update_store_data,
     ],
     fluid=True,
     style={'padding': '1rem'}
@@ -1869,21 +1880,17 @@ def render_page_content(pathname):
         ),
     ])
 
-# ================== Callback para atualizar base ==================
+# ================== Callback para abrir modal de atualização ==================
 @app.callback(
-    [Output("dummy-store", "data"),
-     Output("alert-atualiza-base", "is_open")],
+    Output("update-modal", "is_open"),
     Input("btn-atualiza-base", "n_clicks"),
+    State("update-modal", "is_open"),
     prevent_initial_call=True
 )
-def atualizar_base(n):
-    if not n:
-        raise dash.exceptions.PreventUpdate
-    global df_eshows, df_base2, df_ocorrencias
-    df_eshows = carregar_base_eshows()
-    df_base2 = carregar_base2()
-    df_ocorrencias = carregar_ocorrencias()
-    return {"status": "Bases atualizadas com sucesso!"}, True
+def toggle_update_modal(n_clicks, is_open):
+    if n_clicks:
+        return not is_open
+    return is_open
 
 # ================== Callbacks de filtros (Dashboard) ==================
 @app.callback(
@@ -3617,6 +3624,7 @@ def toggle_kpi_modal(n_clicks_list, close_clicks, is_open):
 init_auth_callbacks(app)
 init_logout_callback(app)
 init_client_side_callbacks(app)
+init_update_modal_callbacks(app)
 
 # =========================================================
 # MAIN

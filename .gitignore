@@ -1,4 +1,4 @@
-﻿.venv/
+.venv/
 __pycache__/
 *.pyc
 .env
@@ -6,6 +6,7 @@ __pycache__/
 node_modules/
 .DS_Store
 .cursor/mcp.json
+.mcp.json
 app/_cache_parquet/
 
 # ↓ arquivos/dirs só para uso local

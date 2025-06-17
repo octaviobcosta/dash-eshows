@@ -16,8 +16,6 @@ import dash
 
 from app import data_manager
 from app.column_mapping import MAPPING as COLUMN_MAPPING
-from .update_processor import SUPABASE_TABLES, process_upload_file, get_table_preview
-from .update_executor import execute_table_update, validate_connection
 
 logger = logging.getLogger(__name__)
 
@@ -40,11 +38,7 @@ update_store_data = dcc.Store(id='update-store-data')
 
 def create_update_modal():
     """Cria o modal de atualização com design moderno e UX otimizada"""
-    return html.Div([
-        # Link para o CSS específico do modal de atualização
-        html.Link(href='/assets/update_modal.css', rel='stylesheet'),
-        
-        dbc.Modal(
+    return dbc.Modal(
         [
             dbc.ModalHeader(
                 [
@@ -141,8 +135,7 @@ def create_update_modal():
                                 html.I(className="fas fa-cloud-upload-alt fa-3x text-muted mb-3"),
                                 html.P("Arraste e solte ou ", className="mb-0"),
                                 html.A("clique para selecionar", className="text-primary fw-bold"),
-                                html.P("Formatos aceitos: CSV, Excel (.xlsx, .xls)", className="text-muted small mt-1"),
-                                html.P("Tamanho máximo: 100MB", className="text-muted small")
+                                html.P("Tamanho máximo: 100MB", className="text-muted small mt-2")
                             ], className="text-center py-5"),
                             style={
                                 'borderWidth': '2px',
@@ -154,8 +147,7 @@ def create_update_modal():
                             },
                             className="upload-area mb-4",
                             multiple=False,
-                            max_size=100 * 1024 * 1024,  # 100MB
-                            accept='.csv,.xlsx,.xls'
+                            max_size=100 * 1024 * 1024  # 100MB
                         ),
                         
                         # File info
@@ -185,15 +177,54 @@ def create_update_modal():
                                     dbc.Card([
                                         dbc.CardBody([
                                             dbc.Checkbox(
-                                                id={"type": "table-checkbox", "index": table_key},
-                                                label=table_info["label"],
+                                                id={"type": "table-checkbox", "index": "baseeshows"},
+                                                label="Base eShows",
                                                 value=False,
                                                 className="mb-2"
                                             ),
-                                            html.Small(table_info["description"], className="text-muted")
+                                            html.Small("Dados principais de shows e eventos", className="text-muted")
                                         ])
                                     ], className="table-option mb-2")
-                                ], md=6) for table_key, table_info in SUPABASE_TABLES.items()
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "base2"},
+                                                label="Base2",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Dados complementares", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "pessoas"},
+                                                label="Pessoas",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Cadastro de pessoas", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "ocorrencias"},
+                                                label="Ocorrências",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Registro de ocorrências", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6)
                             ], className="g-2")
                         ])
                     ], id="erp-section", style={"display": "none"})
@@ -256,12 +287,12 @@ def create_update_modal():
             ], className="modal-footer")
         ],
         id="update-modal",
-        fullscreen=True,
+        size="lg",
         is_open=False,
         centered=True,
         backdrop="static",
         className="modal-update"
-    )])
+    )
 
 def init_update_modal_callbacks(app):
     """Inicializa os callbacks do modal de atualização"""
@@ -370,35 +401,16 @@ def init_update_modal_callbacks(app):
             content_type, content_string = contents.split(',')
             decoded = base64.b64decode(content_string)
             
-            # Detecta tipo de arquivo
-            file_ext = filename.split('.')[-1].lower()
-            
-            # Lê o arquivo (preview apenas)
-            if file_ext in ['xlsx', 'xls']:
-                df_preview = pd.read_excel(io.BytesIO(decoded), nrows=10)
-            else:
-                df_preview = pd.read_csv(io.StringIO(decoded.decode('utf-8')), nrows=10)
-            
-            # Conta total de linhas
-            if file_ext in ['xlsx', 'xls']:
-                df_full = pd.read_excel(io.BytesIO(decoded))
-                total_rows = len(df_full)
-            else:
-                # Para CSV, conta linhas sem carregar tudo na memória
-                total_rows = decoded.decode('utf-8').count('\n')
+            # Read CSV
+            df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
             
             # Create file info card
-            icon_class = "fa-file-excel" if file_ext in ['xlsx', 'xls'] else "fa-file-csv"
-            icon_color = "text-success" if file_ext in ['xlsx', 'xls'] else "text-primary"
-            
             file_info = dbc.Card([
                 dbc.CardBody([
                     html.Div([
-                        html.I(className=f"fas {icon_class} fa-2x {icon_color} mb-2"),
+                        html.I(className="fas fa-file-csv fa-2x text-success mb-2"),
                         html.H6(filename, className="mb-1"),
-                        html.Small(f"~{total_rows} linhas × {len(df_preview.columns)} colunas", 
-                                 className="text-muted d-block"),
-                        html.Small(f"Formato: {file_ext.upper()}", 
+                        html.Small(f"{len(df)} linhas × {len(df.columns)} colunas", 
                                  className="text-muted")
                     ], className="text-center")
                 ])
@@ -407,13 +419,12 @@ def init_update_modal_callbacks(app):
             # Show table selector
             table_style = {"display": "block"}
             
-            # Store data (mantém o conteúdo codificado para processar depois)
+            # Store data
             store_data = {
                 "filename": filename,
-                "contents": contents,
-                "file_ext": file_ext,
-                "columns_preview": list(df_preview.columns),
-                "rows_estimate": total_rows
+                "data": df.to_dict('records'),
+                "columns": list(df.columns),
+                "rows": len(df)
             }
             
             return file_info, table_style, store_data, False
@@ -421,8 +432,8 @@ def init_update_modal_callbacks(app):
         except Exception as e:
             error_msg = dbc.Alert([
                 html.I(className="fas fa-exclamation-circle me-2"),
-                f"Erro ao ler arquivo: {str(e)}"
-            ], color="danger", dismissable=True)
+                f"Erro ao processar arquivo: {str(e)}"
+            ], color="danger")
             return error_msg, {"display": "none"}, None, True
     
     # Populate table options
@@ -436,16 +447,17 @@ def init_update_modal_callbacks(app):
             raise PreventUpdate
         
         return [
-            {"label": table_info["label"], "value": table_key}
-            for table_key, table_info in SUPABASE_TABLES.items()
+            {"label": "Base eShows", "value": "baseeshows"},
+            {"label": "Base2", "value": "base2"},
+            {"label": "Pessoas", "value": "pessoas"},
+            {"label": "Ocorrências", "value": "ocorrencias"}
         ]
     
     # Callback para atualizar resumo
     @app.callback(
         [Output("update-summary", "children"),
          Output("preview-container-update", "children"),
-         Output("btn-confirm-update", "disabled"),
-         Output("alert-container-update", "children")],
+         Output("btn-confirm-update", "disabled")],
         [Input("step-3-content", "style")],
         [State("update-store-data", "data"),
          State("table-select-upload", "value"),
@@ -458,95 +470,36 @@ def init_update_modal_callbacks(app):
             raise PreventUpdate
         
         summary_items = []
-        alerts = []
         
         # Check if upload option
         if store_data and upload_table:
-            table_info = SUPABASE_TABLES.get(upload_table, {})
-            table_label = table_info.get("label", upload_table)
-            
             summary_items.append(
                 html.Div([
                     html.I(className="fas fa-upload text-primary me-2"),
                     html.Strong("Upload de arquivo: "),
-                    html.Span(f"{store_data['filename']} → {table_label}")
+                    html.Span(f"{store_data['filename']} → Tabela {upload_table}")
                 ], className="mb-2")
             )
             
-            # Processa o arquivo para preview
-            try:
-                content_type, content_string = store_data['contents'].split(',')
-                decoded = base64.b64decode(content_string)
-                
-                df_processed, errors = process_upload_file(
-                    io.BytesIO(decoded), 
-                    store_data['filename'], 
-                    upload_table
-                )
-                
-                if errors:
-                    for error in errors:
-                        alerts.append(
-                            dbc.Alert([
-                                html.I(className="fas fa-exclamation-triangle me-2"),
-                                error
-                            ], color="warning", dismissable=True)
-                        )
-                
-                if df_processed is not None:
-                    # Mostra preview processado
-                    preview_df = get_table_preview(df_processed, max_rows=5)
-                    
-                    preview = html.Div([
-                        html.H6("Preview dos dados processados:", className="mb-2"),
-                        html.Small(
-                            f"Mostrando 5 de {len(df_processed)} linhas. " +
-                            "Valores monetários já convertidos para centavos.",
-                            className="text-muted d-block mb-2"
-                        ),
-                        dbc.Table.from_dataframe(
-                            preview_df,
-                            striped=True,
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                            size="sm",
-                            className="mb-0"
-                        )
-                    ])
-                    
-                    # Adiciona informações sobre conversões
-                    money_cols = table_info.get("money_columns", [])
-                    if money_cols:
-                        summary_items.append(
-                            html.Div([
-                                html.I(className="fas fa-coins text-warning me-2"),
-                                html.Strong("Colunas monetárias: "),
-                                html.Span(f"{', '.join(money_cols)} (convertidas para centavos)")
-                            ], className="mb-2")
-                        )
-                    
-                    return summary_items, preview, False, alerts
-                else:
-                    return summary_items, None, True, alerts
-                    
-            except Exception as e:
-                logger.error(f"Erro no preview: {str(e)}")
-                alerts.append(
-                    dbc.Alert([
-                        html.I(className="fas fa-exclamation-circle me-2"),
-                        f"Erro ao processar preview: {str(e)}"
-                    ], color="danger")
-                )
-                return summary_items, None, True, alerts
+            # Preview table
+            preview_df = pd.DataFrame(store_data['data']).head(5)
+            preview = dbc.Table.from_dataframe(
+                preview_df,
+                striped=True,
+                bordered=True,
+                hover=True,
+                responsive=True,
+                className="mb-0"
+            )
+            
+            return summary_items, preview, False
         
         # Check if ERP option
         selected_tables = []
         for i, checked in enumerate(erp_checks):
             if checked:
-                table_key = erp_ids[i]["index"]
-                table_label = SUPABASE_TABLES.get(table_key, {}).get("label", table_key)
-                selected_tables.append(table_label)
+                table_name = erp_ids[i]["index"]
+                selected_tables.append(table_name)
         
         if selected_tables:
             summary_items.append(
@@ -557,83 +510,8 @@ def init_update_modal_callbacks(app):
                 ], className="mb-2")
             )
             
-            return summary_items, None, False, alerts
+            return summary_items, None, False
         
-        return html.P("Nenhuma ação selecionada", className="text-muted"), None, True, alerts
-
-    # Callback para executar atualização
-    @app.callback(
-        [Output("update-modal", "is_open", allow_duplicate=True),
-         Output("loading-content-update", "children"),
-         Output("alert-unauthorized-update", "children", allow_duplicate=True),
-         Output("alert-unauthorized-update", "is_open", allow_duplicate=True)],
-        [Input("btn-confirm-update", "n_clicks")],
-        [State("update-store-data", "data"),
-         State("table-select-upload", "value"),
-         State({"type": "table-checkbox", "index": ALL}, "value"),
-         State({"type": "table-checkbox", "index": ALL}, "id")],
-        prevent_initial_call=True
-    )
-    def execute_update(n_clicks, store_data, upload_table, erp_checks, erp_ids):
-        if not n_clicks:
-            raise PreventUpdate
-        
-        try:
-            # Obtém cliente Supabase
-            supabase_client = data_manager.get_supabase_client()
-            if not supabase_client:
-                return True, None, "Erro: Cliente Supabase não configurado", True
-            
-            # Valida conexão
-            is_connected, error = validate_connection(supabase_client)
-            if not is_connected:
-                return True, None, f"Erro de conexão: {error}", True
-            
-            results = []
-            
-            # Processa upload
-            if store_data and upload_table:
-                content_type, content_string = store_data['contents'].split(',')
-                decoded = base64.b64decode(content_string)
-                
-                df_processed, errors = process_upload_file(
-                    io.BytesIO(decoded), 
-                    store_data['filename'], 
-                    upload_table
-                )
-                
-                if errors:
-                    error_msg = "Erros no processamento: " + "; ".join(errors)
-                    return True, None, error_msg, True
-                
-                if df_processed is not None:
-                    success, error = execute_table_update(
-                        supabase_client,
-                        upload_table,
-                        df_processed,
-                        mode="replace"
-                    )
-                    
-                    if success:
-                        results.append(f"✅ Tabela {upload_table} atualizada com sucesso!")
-                    else:
-                        results.append(f"❌ Erro ao atualizar {upload_table}: {error}")
-            
-            # Processa ERP (simulado por enquanto)
-            for i, checked in enumerate(erp_checks):
-                if checked:
-                    table_name = erp_ids[i]["index"]
-                    results.append(f"⏳ Atualização ERP de {table_name} não implementada ainda")
-            
-            # Limpa cache após atualização
-            data_manager.clear_cache()
-            
-            # Retorna sucesso
-            success_msg = "Atualização concluída!\n" + "\n".join(results)
-            return False, None, success_msg, True
-            
-        except Exception as e:
-            logger.error(f"Erro na atualização: {str(e)}")
-            return True, None, f"Erro: {str(e)}", True
+        return html.P("Nenhuma ação selecionada", className="text-muted"), None, True
 
     return True

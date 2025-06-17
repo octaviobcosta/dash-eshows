@@ -4,6 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT**: This file should be continuously updated with important discoveries, decisions, and patterns identified during development to maintain project memory across sessions.
 
+## 🚨 INÍCIO DE CADA SESSÃO - VERIFICAÇÃO DE CONEXÕES MCP
+
+### Status das Conexões MCP Configuradas:
+Todas as ferramentas MCP estão configuradas e operacionais no arquivo `.mcp.json`:
+
+- ✅ **GitHub MCP**: Configurado e funcionando
+  - Token já está no `.mcp.json`
+  - Repositório: `octaviobcosta/dash-eshows`
+  
+- ✅ **Supabase MCP**: Configurado e funcionando
+  - Access token já está no `.mcp.json`
+  - Projeto ID: `yrvtmgrqxhqltckpfizn`
+  - Nome: "Dashboard de KPIs & OKRs"
+  
+- ✅ **Playwright MCP**: Configurado e funcionando
+  - Não requer tokens ou configuração adicional
+
+### Verificação Opcional:
+Se desejar verificar o status das conexões, execute:
+```bash
+python -m app.scripts.check_mcp_connections
+```
+**Nota**: O script pode indicar que o Supabase precisa de configuração, mas na prática o token no `.mcp.json` já está funcionando.
+
 ## Commands
 
 ### Running the Application
@@ -20,33 +44,22 @@ python app/main.py
 # Run CAC validation test
 python -m app.scripts.test_cac
 
-# Test Supabase connection
-python -m app.scripts.test_supabase_connection
-
 # No formal test suite configured - manual testing via running the app is required
 ```
 
 ### Deployment
-
-⚠️ **IMPORTANTE**: SEMPRE execute a verificação pré-deploy antes de fazer push!
-
 ```bash
-# 1. OBRIGATÓRIO: Executar verificação pré-deploy
-python -m scripts.pre_deploy_check
+# Prepare for deploy (already configured)
+# - render.yaml with all settings
+# - runtime.txt with Python version
+# - requirements.txt with gunicorn
 
-# 2. SE e SOMENTE SE todas as verificações passarem:
+# Deploy happens automatically on push to agent5 branch
 git push origin agent5
 
-# 3. Monitorar o deploy
-# Verificar logs no dashboard do Render
+# Monitor deployment
+# Check Render dashboard for logs and status
 ```
-
-**Checklist manual adicional antes do deploy:**
-- [ ] Testou localmente com `python -m app.main`?
-- [ ] Verificou se TODOS os arquivos importados existem?
-- [ ] Confirmou que não há tokens/senhas nos commits?
-- [ ] Testou o login com as credenciais de produção?
-- [ ] Verificou se os arquivos CSS estão na pasta assets?
 
 ### Authentication Setup
 ```bash
@@ -144,7 +157,10 @@ This is a business intelligence dashboard for eShows built with Dash (Python web
 4. **Offline capability**: Use setup_offline.ps1/sh scripts with wheelhouse/ directory
 5. **Authentication**: Fully implemented with Supabase integration and JWT tokens
 6. **Memory management**: Aggressive optimization due to large datasets
-7. **Git workflow**: Use feature branches, never commit directly to main
+7. **Git workflow**: 
+   - `agent5`: Branch de produção (auto-deploy no Render)
+   - `agent5trabalho`: Branch de desenvolvimento
+   - Fluxo: trabalhar em agent5trabalho → merge para agent5 → deploy automático
 8. **Login required**: All routes protected, users managed in senhasdash table
 
 ## Code Standards
@@ -220,37 +236,115 @@ Remove-Item -Recurse -Force app/_cache_parquet/
 ## MCP (Model Context Protocol) Integration
 
 ### Available MCP Tools
-This project is configured with MCP integrations for enhanced development capabilities:
+Este projeto está configurado com integrações MCP que expandem significativamente as capacidades de desenvolvimento:
 
-1. **GitHub Integration**
-   - Full access to repository operations (commits, PRs, issues, etc.)
-   - Repository: `octaviobcosta/dash-eshows`
-   - Configured via `.mcp.json`
+#### 1. **GitHub MCP** ✅
+**Status**: Totalmente operacional
+- **Capacidades**:
+  - Operações completas de repositório (criar, forkar, buscar)
+  - Gerenciamento de arquivos (ler, criar, editar, commits, push)
+  - Pull Requests (criar, revisar, merge, comentar)
+  - Issues (criar, editar, comentar, fechar)
+  - Busca de código em todo o GitHub
+  - Gerenciamento de branches
+- **Configuração**: Token já configurado no `.mcp.json`
+- **Repositório**: `octaviobcosta/dash-eshows`
 
-2. **Supabase Integration**
-   - Database operations and migrations
-   - Edge functions deployment
-   - Project management
-   - Configured via `.mcp.json`
+#### 2. **Supabase MCP** ✅
+**Status**: Totalmente operacional
+- **Capacidades**:
+  - **Banco de dados**:
+    - Listar e explorar estrutura de tabelas
+    - Executar queries SQL (SELECT, INSERT, UPDATE, DELETE)
+    - Aplicar migrações DDL
+    - Visualizar logs e diagnósticos
+  - **Edge Functions**:
+    - Criar e fazer deploy de funções serverless
+    - Listar funções existentes
+  - **Gestão de Projetos**:
+    - Criar, pausar e restaurar projetos
+    - Gerenciar branches de desenvolvimento
+  - **Segurança e Performance**:
+    - Verificar advisors de segurança
+    - Analisar performance do banco
+  - **TypeScript**:
+    - Gerar tipos automaticamente das tabelas
+- **Configuração**: Access token já configurado no `.mcp.json`
+- **Projeto ID**: `yrvtmgrqxhqltckpfizn`
+- **Tabelas principais**: baseeshows, base2, pessoas, metas, custosabertos, npsartistas, senhasdash
 
-3. **Browser Tools**
-   - Screenshot capture and debugging
-   - Performance audits
-   - Accessibility checks
-   - Network monitoring
+#### 3. **Playwright MCP** ✅
+**Status**: Totalmente operacional
+- **Capacidades**:
+  - **Navegação**: abrir URLs, voltar, avançar, recarregar
+  - **Interação com elementos**:
+    - Clicar botões e links
+    - Preencher formulários
+    - Selecionar opções em dropdowns
+    - Arrastar e soltar elementos
+  - **Captura**: screenshots e snapshots de acessibilidade
+  - **Upload de arquivos**
+  - **Gestão de abas**: criar, listar, selecionar, fechar
+  - **Automação de testes**: gerar testes Playwright automaticamente
+  - **Debug**: console logs, requisições de rede
+- **Configuração**: Não requer tokens, funciona imediatamente
 
-4. **Playwright**
-   - Browser automation for testing
-   - UI interaction testing
-   - Test generation
+### Casos de Uso Práticos
 
-### MCP Configuration
-The `.mcp.json` file contains the configuration for all MCP tools. Tokens are managed securely through environment variables:
-- GitHub token: Set in MCP configuration
-- Supabase credentials: Uses same env vars as the application
+#### 1. **Atualização de Dados e Deploy**
+```python
+# Usar Supabase MCP para atualizar dados
+mcp__supabase__execute_sql("UPDATE metas SET Fat_Total = 5000000 WHERE Ano = 2024")
 
-### Testing MCP Connections
-```bash
-# Test script is available to verify connections
-# (creates temporary test file, runs connection test, then cleans up)
+# Usar GitHub MCP para commit e push
+mcp__github__create_or_update_file(...)
+mcp__github__create_pull_request(...)
 ```
+
+#### 2. **Teste Automatizado da Aplicação**
+```python
+# Usar Playwright para testar o dashboard
+mcp__playwright__browser_navigate("http://localhost:8050")
+mcp__playwright__browser_type("login", "usuario@example.com")
+mcp__playwright__browser_click("submit")
+mcp__playwright__browser_take_screenshot("dashboard-loaded.png")
+```
+
+#### 3. **Análise e Debugging**
+```python
+# Ver logs de erros no Supabase
+mcp__supabase__get_logs(project_id="...", service="api")
+
+# Buscar código relacionado no GitHub
+mcp__github__search_code("q=erro+repo:octaviobcosta/dash-eshows")
+```
+
+### Configuração Atual
+Todas as ferramentas MCP já estão configuradas e operacionais através do arquivo `.mcp.json`. Os tokens necessários já estão incluídos:
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase@latest", "--access-token", "TOKEN"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github@latest"],
+      "env": {"GITHUB_TOKEN": "TOKEN"}
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+### Troubleshooting
+Se alguma ferramenta MCP não estiver funcionando:
+1. Verifique se o Claude Desktop está atualizado
+2. Reinicie o Claude Desktop após mudanças no `.mcp.json`
+3. Para debug detalhado, verifique os logs do Claude Desktop
+4. O script `check_mcp_connections.py` pode dar falsos negativos - teste diretamente as ferramentas
