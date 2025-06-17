@@ -529,7 +529,10 @@ def init_update_modal_callbacks(app):
         [Output("update-modal", "is_open", allow_duplicate=True),
          Output("alert-atualiza-base", "children"),
          Output("alert-atualiza-base", "color"),
-         Output("alert-atualiza-base", "is_open")],
+         Output("alert-atualiza-base", "is_open"),
+         Output("btn-confirm-update", "children"),
+         Output("btn-confirm-update", "disabled", allow_duplicate=True),
+         Output("loading-content-update", "children")],
         [Input("btn-confirm-update", "n_clicks")],
         [State("update-store-data", "data"),
          State("table-select-upload", "value"),
@@ -545,7 +548,10 @@ def init_update_modal_callbacks(app):
             # Opção 1: Upload de arquivo
             if store_data and upload_table:
                 # TODO: Implementar upload para Supabase
-                return False, "Upload de arquivo ainda não implementado", "warning", True
+                return False, html.Div([
+                    html.I(className="fas fa-exclamation-triangle me-2"),
+                    "Upload de arquivo ainda não está implementado"
+                ]), "warning", True, "Confirmar Atualização", False, None
             
             # Opção 2: Atualização do ERP
             selected_tables = []
@@ -555,6 +561,12 @@ def init_update_modal_callbacks(app):
                     selected_tables.append(table_name)
             
             if selected_tables:
+                # Mostra loading
+                loading_msg = html.Div([
+                    html.P("🔄 Atualizando tabelas...", className="text-center mb-2"),
+                    html.Small(f"Processando {len(selected_tables)} tabela(s)", className="text-muted")
+                ], className="text-center")
+                
                 # Importa e executa a atualização
                 from app.data_manager import reload_tables
                 
@@ -564,34 +576,58 @@ def init_update_modal_callbacks(app):
                 success_count = sum(1 for r in results.values() if r["status"] == "success")
                 error_count = sum(1 for r in results.values() if r["status"] == "error")
                 
+                # Cria a mensagem principal
                 if error_count == 0:
-                    message = f"✅ {success_count} tabela(s) atualizada(s) com sucesso!"
+                    message_icon = html.I(className="fas fa-check-circle me-2", style={"color": "#10b981"})
+                    message_title = html.Strong(f"Atualização concluída com sucesso!")
+                    message_subtitle = html.P(f"{success_count} tabela(s) atualizada(s)", className="mb-0")
                     color = "success"
                 elif success_count > 0:
-                    message = f"⚠️ {success_count} tabela(s) atualizada(s), {error_count} com erro"
+                    message_icon = html.I(className="fas fa-exclamation-circle me-2", style={"color": "#f59e0b"})
+                    message_title = html.Strong(f"Atualização parcialmente concluída")
+                    message_subtitle = html.P(f"{success_count} sucesso(s), {error_count} erro(s)", className="mb-0")
                     color = "warning"
                 else:
-                    message = f"❌ Erro ao atualizar {error_count} tabela(s)"
+                    message_icon = html.I(className="fas fa-times-circle me-2", style={"color": "#ef4444"})
+                    message_title = html.Strong(f"Falha na atualização")
+                    message_subtitle = html.P(f"{error_count} erro(s) encontrado(s)", className="mb-0")
                     color = "danger"
                 
-                # Adiciona detalhes
-                details = []
+                # Cria lista de detalhes
+                details_list = []
                 for table, result in results.items():
                     if result["status"] == "success":
-                        details.append(f"• {table}: {result['rows']} registros")
+                        icon = html.I(className="fas fa-check text-success me-2")
+                        text = f"{table.upper()}: {result['rows']:,} registros carregados"
                     else:
-                        details.append(f"• {table}: Erro - {result.get('error', 'Desconhecido')}")
+                        icon = html.I(className="fas fa-times text-danger me-2")
+                        text = f"{table.upper()}: {result.get('error', 'Erro desconhecido')}"
+                    
+                    details_list.append(html.Li([icon, text], className="mb-1"))
                 
-                if details:
-                    message += "\n\n" + "\n".join(details)
+                # Monta a mensagem completa
+                message = html.Div([
+                    html.Div([message_icon, message_title], className="mb-2"),
+                    message_subtitle,
+                    html.Hr(className="my-3"),
+                    html.P("Detalhes da atualização:", className="fw-bold mb-2"),
+                    html.Ul(details_list, className="ps-3")
+                ])
                 
                 # Fecha o modal e mostra o alerta
-                return False, message, color, True
+                return False, message, color, True, "Confirmar Atualização", False, None
             
-            return False, "Nenhuma tabela selecionada", "warning", True
+            return False, html.Div([
+                html.I(className="fas fa-info-circle me-2"),
+                "Nenhuma tabela foi selecionada para atualização"
+            ]), "info", True, "Confirmar Atualização", False, None
             
         except Exception as e:
             logger.error(f"Erro ao processar atualização: {e}")
-            return False, f"❌ Erro ao processar atualização: {str(e)}", "danger", True
+            return False, html.Div([
+                html.I(className="fas fa-times-circle me-2"),
+                html.Strong("Erro ao processar atualização"),
+                html.P(str(e), className="mb-0 mt-2")
+            ]), "danger", True, "Confirmar Atualização", False, None
 
     return True

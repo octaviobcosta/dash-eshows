@@ -207,28 +207,13 @@ def reload_tables(table_names: list[str]) -> dict:
     """Recarrega tabelas específicas do Supabase"""
     results = {}
     
-    # Mapeia os nomes das tabelas para as funções corretas
-    table_functions = {
-        "baseeshows": lambda: fetch_and_cache("baseeshows", rename_cents=True),
-        "base2": lambda: fetch_and_cache("base2", rename_cents=True),
-        "pessoas": lambda: fetch_and_cache("pessoas", rename_cents=True),
-        "metas": lambda: fetch_and_cache("metas", rename_cents=True),
-        "custosabertos": lambda: fetch_and_cache("custosabertos", rename_cents=True),
-        "boletoartistas": lambda: fetch_and_cache("boletoartistas", rename_cents=True),
-        "boletocasas": lambda: fetch_and_cache("boletocasas", rename_cents=True),
-        "npsartistas": lambda: fetch_and_cache("npsartistas", rename_cents=False)
-    }
-    
     for table in table_names:
         try:
             # Limpa o cache primeiro
             clear_table_cache([table])
             
-            # Força recarregamento usando a função apropriada
-            if table in table_functions:
-                df = table_functions[table]()
-            else:
-                df = fetch_and_cache(table, rename_cents=True)
+            # Força recarregamento usando _get com force_reload=True
+            df = _get(table, force_reload=True)
             
             results[table] = {"status": "success", "rows": len(df) if df is not None else 0}
             logger.info(f"[data_manager] Tabela {table} recarregada com sucesso")
