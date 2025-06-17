@@ -150,13 +150,23 @@ def create_login_layout():
         # Stores para gerenciar estado
         dcc.Store(id='password-visibility', data={'visible': False}),
         dcc.Store(id='forgot-status', data=''),
+        dcc.Store(id='modal-state', data={'show': False}),
+        
+        # Loader profissional
+        html.Div([
+            html.Div([
+                html.Img(
+                    src="/assets/logoB.png",
+                    className="loader-logo"
+                ),
+                html.Div(className="loader-spinner")
+            ], className="loader-content")
+        ], id="login-loader", className="login-loader"),
         
         # Background container
         html.Div([
-            # Background image
             html.Img(
                 src="/assets/login.png",
-                className="login-bg-image",
                 style={
                     "position": "absolute",
                     "top": 0,
@@ -164,8 +174,8 @@ def create_login_layout():
                     "width": "100%",
                     "height": "100%",
                     "objectFit": "cover",
-                    "opacity": 0.7,
-                    "filter": "blur(2px)"
+                    "opacity": 1,
+                    "zIndex": 0
                 }
             )
         ], className="login-bg-container"),
@@ -280,7 +290,38 @@ def create_login_layout():
             "display": "flex",
             "alignItems": "center",
             "justifyContent": "center"
-        })
+        }),
+        
+        # Modal de recuperação de senha
+        html.Div([
+            html.Div([
+                html.Div([
+                    html.H3("Recuperar Senha", className="modal-title-glass"),
+                    html.Button(
+                        html.I(className="fas fa-times"),
+                        id="modal-close-btn",
+                        className="modal-close-glass",
+                        n_clicks=0
+                    )
+                ], className="modal-header-glass"),
+                
+                html.Div([
+                    html.I(className="fas fa-lock")
+                ], className="modal-icon-glass"),
+                
+                html.Div([
+                    html.P("Para recuperar sua senha, entre em contato com o administrador do sistema:"),
+                    html.Div([
+                        html.P([
+                            html.I(className="fas fa-envelope me-2"),
+                            "Email: ",
+                            html.A("octavio@eshows.com.br", href="mailto:octavio@eshows.com.br")
+                        ])
+                    ], className="contact-info-glass"),
+                    html.P("Informe seu email de acesso e solicite uma nova senha.", style={"fontSize": "13px", "opacity": "0.8"})
+                ], className="modal-body-glass")
+            ], className="modal-content-glass")
+        ], id="forgot-password-modal", className="forgot-password-modal")
     ], className="login-page", style={
         "position": "fixed",
         "top": 0,
@@ -364,15 +405,25 @@ def init_auth_callbacks(app):
     
     # Callback para modal de recuperação de senha
     @app.callback(
-        Output("forgot-status", "data"),
-        [Input("forgot-password-link", "n_clicks")],
+        Output("forgot-password-modal", "className"),
+        [Input("forgot-password-link", "n_clicks"),
+         Input("modal-close-btn", "n_clicks")],
+        [State("forgot-password-modal", "className")],
         prevent_initial_call=True
     )
-    def show_forgot_modal(n_clicks):
-        if n_clicks > 0:
-            # Aqui você pode adicionar um modal de recuperação
-            return "show"
-        return ""
+    def toggle_forgot_modal(link_clicks, close_clicks, current_class):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            raise PreventUpdate
+            
+        trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        
+        if trigger_id == "forgot-password-link" and link_clicks > 0:
+            return "forgot-password-modal show"
+        elif trigger_id == "modal-close-btn":
+            return "forgot-password-modal"
+            
+        return current_class
 
 def init_logout_callback(app):
     """Inicializa callback de logout"""
@@ -390,7 +441,25 @@ def init_logout_callback(app):
 
 def init_client_side_callbacks(app):
     """Inicializa callbacks client-side para melhor performance"""
-    pass  # Removido o callback de redirecionamento, agora usando dcc.Location
+    # Callback JavaScript para remover o loader após carregamento
+    app.clientside_callback(
+        """
+        function(pathname) {
+            setTimeout(function() {
+                var loader = document.getElementById('login-loader');
+                if (loader) {
+                    loader.classList.add('fade-out');
+                    setTimeout(function() {
+                        loader.style.display = 'none';
+                    }, 500);
+                }
+            }, 800);
+            return window.dash_clientside.no_update;
+        }
+        """,
+        Output('login-loader', 'style'),
+        Input('login-redirect', 'pathname')
+    )
 
 def add_logout_button():
     """Retorna um botão de logout estilizado"""

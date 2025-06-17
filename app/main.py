@@ -1736,6 +1736,8 @@ app = Dash(
     external_stylesheets=external_stylesheets,   # ← passa a lista completa
     assets_folder=assets_path,
     suppress_callback_exceptions=True,
+    title="Dashboard eShows",
+    update_title=None,  # Remove "Updating..." do título
 )
 
 # Expor o servidor Flask para Gunicorn
@@ -1743,6 +1745,29 @@ server = app.server
 
 # Configuração da chave secreta para sessões
 app.server.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-change-in-production')
+
+# Customizar o HTML index para remover "Loading..."
+app.index_string = '''
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        <div id="react-entry-point">
+            {%app_entry%}
+        </div>
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+'''
 
 #######################################
 # DEFINIÇÃO DO LAYOUT PRINCIPAL
