@@ -195,7 +195,7 @@ def create_update_modal():
                                                 value=False,
                                                 className="mb-2"
                                             ),
-                                            html.Small("Dados complementares", className="text-muted")
+                                            html.Small("Dados complementares e custos", className="text-muted")
                                         ])
                                     ], className="table-option mb-2")
                                 ], md=6),
@@ -208,7 +208,7 @@ def create_update_modal():
                                                 value=False,
                                                 className="mb-2"
                                             ),
-                                            html.Small("Cadastro de pessoas", className="text-muted")
+                                            html.Small("Cadastro de colaboradores", className="text-muted")
                                         ])
                                     ], className="table-option mb-2")
                                 ], md=6),
@@ -216,12 +216,64 @@ def create_update_modal():
                                     dbc.Card([
                                         dbc.CardBody([
                                             dbc.Checkbox(
-                                                id={"type": "table-checkbox", "index": "ocorrencias"},
-                                                label="Ocorrências",
+                                                id={"type": "table-checkbox", "index": "metas"},
+                                                label="Metas",
                                                 value=False,
                                                 className="mb-2"
                                             ),
-                                            html.Small("Registro de ocorrências", className="text-muted")
+                                            html.Small("Metas e objetivos", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "custosabertos"},
+                                                label="Custos Abertos",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Detalhamento de custos", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "boletoartistas"},
+                                                label="Boleto Artistas",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Pagamentos de artistas", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "boletocasas"},
+                                                label="Boleto Casas",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Pagamentos de casas de show", className="text-muted")
+                                        ])
+                                    ], className="table-option mb-2")
+                                ], md=6),
+                                dbc.Col([
+                                    dbc.Card([
+                                        dbc.CardBody([
+                                            dbc.Checkbox(
+                                                id={"type": "table-checkbox", "index": "npsartistas"},
+                                                label="NPS Artistas",
+                                                value=False,
+                                                className="mb-2"
+                                            ),
+                                            html.Small("Pesquisa de satisfação", className="text-muted")
                                         ])
                                     ], className="table-option mb-2")
                                 ], md=6)
@@ -450,7 +502,11 @@ def init_update_modal_callbacks(app):
             {"label": "Base eShows", "value": "baseeshows"},
             {"label": "Base2", "value": "base2"},
             {"label": "Pessoas", "value": "pessoas"},
-            {"label": "Ocorrências", "value": "ocorrencias"}
+            {"label": "Metas", "value": "metas"},
+            {"label": "Custos Abertos", "value": "custosabertos"},
+            {"label": "Boleto Artistas", "value": "boletoartistas"},
+            {"label": "Boleto Casas", "value": "boletocasas"},
+            {"label": "NPS Artistas", "value": "npsartistas"}
         ]
     
     # Callback para atualizar resumo
@@ -513,5 +569,15 @@ def init_update_modal_callbacks(app):
             return summary_items, None, False
         
         return html.P("Nenhuma ação selecionada", className="text-muted"), None, True
+    
+    # Callback para habilitar botão Próximo quando tabelas ERP são selecionadas
+    @app.callback(
+        Output("btn-next-update", "disabled", allow_duplicate=True),
+        [Input({"type": "table-checkbox", "index": ALL}, "value")],
+        prevent_initial_call=True
+    )
+    def toggle_next_button_erp(checkbox_values):
+        # Habilita o botão se pelo menos uma checkbox estiver marcada
+        return not any(checkbox_values)
 
     return True
