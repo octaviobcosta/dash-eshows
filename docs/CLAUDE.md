@@ -33,10 +33,10 @@ python -m app.scripts.check_mcp_connections
 ### Running the Application
 ```bash
 # Main application (development mode with hot reload)
-python -m app.main
+python run.py
 
-# Alternative: run directly
-python app/main.py
+# Alternative: run from module
+python -m app.core.main
 ```
 
 ### Testing

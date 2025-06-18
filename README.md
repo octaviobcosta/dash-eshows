@@ -8,21 +8,38 @@ Este README é a cola oficial para quem precisar clonar, rodar ou contribuir no 
 
 ## 📂 Estrutura do repositório
 
+```
 dash-eshows/
-├─ app/                  # código Python (Dash, scripts, utilitários)
-│   ├─ okrs/            # módulo de OKRs
-│   └─ scripts/         # scripts de setup e manutenção
-├─ assets/               # CSS, JS e imagens do front
-├─ supabase/             # config.toml + migrations/*.sql
-│   └─ migrations/
-├─ wheelhouse/           # wheels para instalação offline
-├─ requirements.txt      # dependências PyPI fixadas
-├─ render.yaml          # configuração do Render
-├─ runtime.txt          # versão do Python para deploy
-├─ CLAUDE.md            # instruções para desenvolvimento com IA
-├─ DEPLOY_GUIDE.md      # guia completo de deploy
-├─ .env.example          # template de variáveis de ambiente (sem segredos)
-└─ README.md             # este arquivo
+├─ app/                     # Aplicação principal
+│   ├─ assets/             # CSS, JS e imagens do front
+│   ├─ auth/               # Sistema de autenticação
+│   ├─ components/         # Componentes reutilizáveis
+│   ├─ core/               # Arquivos principais (main.py, config)
+│   ├─ data/               # Gestão de dados e cache
+│   ├─ kpis/               # Cálculos e controles de KPIs
+│   ├─ okrs/               # Módulo de OKRs
+│   ├─ scripts/            # Scripts de setup e manutenção
+│   ├─ ui/                 # Componentes de interface
+│   ├─ updates/            # Sistema de upload CSV e atualizações
+│   └─ utils/              # Utilitários e helpers
+├─ config/                  # Arquivos de configuração
+│   ├─ .env.example        # Template de variáveis de ambiente
+│   ├─ render.yaml         # Configuração do Render
+│   └─ runtime.txt         # Versão do Python para deploy
+├─ docs/                    # Documentação do projeto
+│   ├─ CLAUDE.md           # Instruções para desenvolvimento com IA
+│   ├─ DEPLOY_GUIDE.md     # Guia completo de deploy
+│   └─ *.md                # Outras documentações
+├─ scripts/                 # Scripts auxiliares
+│   ├─ financeiro.py       # Script financeiro
+│   └─ logging_config.py   # Configuração de logs
+├─ supabase/               # Configurações Supabase
+│   └─ migrations/         # Migrações SQL
+├─ wheelhouse/             # Wheels para instalação offline
+├─ requirements.txt        # Dependências PyPI fixadas
+├─ run.py                  # Entry point principal
+└─ README.md               # Este arquivo
+```
 
 ## 🚀 Requisitos
 
@@ -59,7 +76,9 @@ $ notepad .env
 $ python -m app.scripts.setup_auth_complete
 
 # 6 – subir o app
-$ python -m app.main
+$ python run.py
+# ou
+$ python -m app.core.main
 ```
 
 ## 🚀 Deploy em Produção

@@ -1,0 +1,136 @@
+/* Estilos para o Modal de Atualização */
+
+/* Cards de seleção de tabelas */
+.table-option {
+    transition: all 0.3s ease;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+}
+
+.table-option:hover {
+    border-color: #fc4f22;
+    box-shadow: 0 4px 12px rgba(252, 79, 34, 0.1);
+    transform: translateY(-2px);
+}
+
+.table-option .form-check-input:checked ~ .form-check-label {
+    color: #fc4f22;
+    font-weight: 600;
+}
+
+/* Categorias de tabelas */
+.text-muted h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Alert melhorado */
+#alert-atualiza-base {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin-top: 1rem;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success alert styling */
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.alert-success .fas.fa-check-circle {
+    font-size: 1.2rem;
+}
+
+/* Warning alert styling */
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* Error alert styling */
+.alert-danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Details list styling */
+.alert ul {
+    margin-bottom: 0;
+    list-style: none;
+    padding-left: 0;
+}
+
+.alert ul li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.alert ul li:last-child {
+    border-bottom: none;
+}
+
+/* Step indicators improvement */
+.step-indicator {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.step-indicator.active {
+    background: #fc4f22;
+    color: white;
+    box-shadow: 0 4px 12px rgba(252, 79, 34, 0.3);
+}
+
+.step-indicator.completed {
+    background: #10b981;
+    color: white;
+}
+
+/* Option cards */
+.option-card {
+    transition: all 0.3s ease;
+}
+
+.option-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+}
+
+.option-card .card-body {
+    padding: 2rem;
+}
+
+/* Progress bar styling */
+.progress {
+    background-color: #f3f4f6;
+    overflow: visible;
+}
+
+.progress-bar {
+    background-color: #fc4f22;
+    transition: width 0.6s ease;
+}
