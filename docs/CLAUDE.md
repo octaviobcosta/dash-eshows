@@ -4,7 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **IMPORTANT**: This file should be continuously updated with important discoveries, decisions, and patterns identified during development to maintain project memory across sessions.
 
-## 🚨 INÍCIO DE CADA SESSÃO - VERIFICAÇÃO DE CONEXÕES MCP
+## 🚨 INÍCIO DE CADA SESSÃO - CHECKLIST OBRIGATÓRIO
+
+### 1. Sincronizar Branch Trabalho (MULTI-PC)
+```bash
+# SEMPRE execute primeiro:
+git checkout trabalho && git pull origin trabalho
+
+# Ou use o script:
+./scripts/sync_trabalho.sh  # Linux/Mac
+./scripts/sync_trabalho.ps1 # Windows
+```
+
+### 2. Verificação de Conexões MCP
 
 ### Status das Conexões MCP Configuradas:
 O arquivo `.mcp.json` está configurado localmente (não versionado no Git):
@@ -206,9 +218,10 @@ This is a business intelligence dashboard for eShows built with Dash (Python web
 5. **Authentication**: Fully implemented with Supabase integration and JWT tokens
 6. **Memory management**: Aggressive optimization due to large datasets
 7. **Git workflow**: 
-   - `agent5`: Branch de produção (auto-deploy no Render)
-   - `agent5trabalho`: Branch de desenvolvimento
-   - Fluxo: trabalhar em agent5trabalho → merge para agent5 → deploy automático
+   - `main`: Branch de produção (auto-deploy no Render)
+   - `trabalho`: Branch de desenvolvimento
+   - Fluxo: trabalhar em trabalho → merge para main → deploy automático
+   - **IMPORTANTE para multi-PC**: Sempre executar `git pull origin trabalho` ao iniciar
 8. **Login required**: All routes protected, users managed in senhasdash table
 
 ## Code Standards
@@ -422,3 +435,33 @@ Se alguma ferramenta MCP não estiver funcionando:
 2. Reinicie o Claude Desktop após mudanças no `.mcp.json`
 3. Para debug detalhado, verifique os logs do Claude Desktop
 4. O script `check_mcp_connections.py` pode dar falsos negativos - teste diretamente as ferramentas
+
+## KPI Interpreter Melhorado
+
+### Overview
+O sistema de interpretação de KPIs foi significativamente aprimorado para fornecer análises mais profundas e precisas:
+
+### Componentes Principais
+
+1. **Glossário de KPIs** (`app/kpis/kpi_glossary.py`)
+   - Definições precisas de todos os KPIs
+   - Distinção clara entre GMV (volume) e Faturamento (receita)
+   - Benchmarks do setor e valores anômalos
+   - Regras temporais para análise
+
+2. **Sistema de Prompt Aprimorado** (`app/kpis/kpi_interpreter.py`)
+   - Persona de analista sênior especializado
+   - Validação automática de dados anômalos
+   - Contexto temporal para usar apenas períodos fechados
+   - Exemplos de análise profunda vs superficial
+
+### Conceitos Financeiros Chave
+- **GMV**: Volume total transacionado (NÃO é receita)
+- **Faturamento**: Receita real da empresa (comissões e taxas)
+- **Exemplo**: GMV R$ 10M com take rate 12% = Faturamento R$ 1,2M
+
+### Uso
+O KPI Interpreter é chamado automaticamente quando um KPI é selecionado no dashboard. Para melhorar as análises:
+1. Mantenha o glossário atualizado com definições precisas
+2. Ajuste benchmarks baseados em dados históricos
+3. Monitore logs para identificar valores anômalos filtrados
