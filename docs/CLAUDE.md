@@ -21,6 +21,11 @@ O arquivo `.mcp.json` está configurado localmente (não versionado no Git):
 - ✅ **Playwright MCP**: Pronto para uso
   - Não requer tokens ou configuração adicional
 
+- ✅ **Render MCP**: Configurado localmente
+  - Web Service: dashboard-eshows
+  - Deploy automático da branch `main`
+  - ⚠️ **IMPORTANTE**: API Key sensível configurada
+
 **NOTA DE SEGURANÇA**: Se os tokens foram expostos publicamente, devem ser revogados e regenerados imediatamente. Ver `docs/MCP_SETUP.md` para instruções.
 
 ### Verificação Opcional:
@@ -332,6 +337,27 @@ Este projeto está configurado com integrações MCP que expandem significativam
   - **Debug**: console logs, requisições de rede
 - **Configuração**: Não requer tokens, funciona imediatamente
 
+#### 4. **Render MCP** ✅
+**Status**: Totalmente operacional
+- **Capacidades**:
+  - **Web Services**:
+    - Listar todos os serviços
+    - Ver detalhes e status
+    - Monitorar logs em tempo real
+    - Verificar deployments
+  - **Deploy Management**:
+    - Iniciar novos deploys
+    - Cancelar deploys em andamento
+    - Ver histórico de deploys
+  - **Static Sites**:
+    - Gerenciar sites estáticos
+    - Ver configurações
+  - **PostgreSQL**:
+    - Listar instâncias
+    - Monitorar status
+- **Configuração**: API Key já configurada no `.mcp.json`
+- **Web Service**: dashboard-eshows (deploy automático da branch `main`)
+
 ### Casos de Uso Práticos
 
 #### 1. **Atualização de Dados e Deploy**
@@ -380,6 +406,11 @@ Todas as ferramentas MCP já estão configuradas e operacionais através do arqu
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "render": {
+      "command": "npx",
+      "args": ["-y", "render-mcp-server"],
+      "env": {"RENDER_API_KEY": "TOKEN"}
     }
   }
 }

@@ -129,6 +129,43 @@ Se um token for comprometido:
 2. Clique no ícone de lixeira ao lado do token
 3. Gere um novo token imediatamente
 
+## 7. Servidor Render MCP
+
+### Obter Token do Render
+1. Acesse: https://dashboard.render.com/account/api-keys
+2. Clique em "Create API Key"
+3. Nome: "Claude Code - Dashboard eShows"
+4. **COPIE O TOKEN IMEDIATAMENTE**
+
+### Configurar no `.mcp.json`
+Adicione o servidor Render ao arquivo:
+```json
+"render": {
+  "command": "npx",
+  "args": [
+    "-y",
+    "render-mcp-server"
+  ],
+  "env": {
+    "RENDER_API_KEY": "seu_token_render_aqui"
+  }
+}
+```
+
+### Funcionalidades Disponíveis
+O servidor Render MCP permite:
+- Listar e gerenciar web services
+- Monitorar logs de aplicação
+- Verificar status de deployments
+- Gerenciar static sites
+- Consultar bancos PostgreSQL do Render
+
+### Teste Render:
+```
+mcp__render__list_services
+mcp__render__get_service_logs("dashboard-eshows")
+```
+
 ---
 
 **Lembre-se**: A segurança dos tokens é sua responsabilidade. Trate-os como senhas!
