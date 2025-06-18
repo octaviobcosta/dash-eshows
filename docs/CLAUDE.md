@@ -31,8 +31,25 @@ python -m app.scripts.check_mcp_connections
 ## Commands
 
 ### Running the Application
+
+#### Para execução no ambiente Claude (WSL):
 ```bash
-# Main application (development mode with hot reload)
+# Usar o Python do ambiente virtual Windows
+.venv/Scripts/python.exe run.py
+
+# Ou usando o caminho completo
+/mnt/c/Users/octav/Projetos/dashboard-eshows/.venv/Scripts/python.exe run.py
+```
+
+#### Para execução normal (Windows/Linux/Mac):
+```bash
+# Ativar ambiente virtual primeiro
+# Windows:
+.venv\Scripts\activate
+# Linux/Mac:
+source .venv/bin/activate
+
+# Executar aplicação
 python run.py
 
 # Alternative: run from module
@@ -97,6 +114,30 @@ supabase db push
 # Pull database changes
 supabase db pull -p "$SUPABASE_DB_PASSWORD"
 ```
+
+## Estrutura Reorganizada do Projeto
+
+A estrutura foi reorganizada para maior profissionalismo:
+
+```
+app/
+├── core/        # Arquivos principais (main.py, config_data.py)
+├── data/        # Gestão de dados (data_manager.py, modulobase.py, column_mapping.py)
+├── auth/        # Sistema de autenticação (auth.py, auth_improved.py)
+├── kpis/        # Cálculos e controles de KPIs (variacoes.py, controles.py, kpi_interpreter.py)
+├── utils/       # Utilitários (utils.py, mem_utils.py, hist.py)
+├── ui/          # Componentes de interface (kpis_charts.py)
+├── updates/     # Sistema de upload CSV (csv_validator.py, csv_uploader.py, update_modal_improved.py)
+├── components/  # Componentes reutilizáveis (toast_notifications.py)
+├── okrs/        # Módulo de OKRs
+├── scripts/     # Scripts de setup e manutenção
+└── assets/      # CSS, JS e imagens
+```
+
+Arquivos de configuração movidos para:
+- `config/` - render.yaml, runtime.txt, .env.example
+- `docs/` - Toda documentação (CLAUDE.md, DEPLOY_GUIDE.md, etc.)
+- `scripts/` - Scripts auxiliares (financeiro.py, logging_config.py)
 
 ## High-Level Architecture
 

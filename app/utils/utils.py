@@ -19,7 +19,7 @@ from dateutil.relativedelta import relativedelta
 # =================================================================================
 # IMPORTAÇÃO DE FUNÇÕES DE CARREGAMENTO (modulobase) E FORMATAÇÃO (utils)
 # =================================================================================
-from .modulobase import (
+from app.data.modulobase import (
     carregar_base_eshows,
     carregar_eshows_excluidos,  # p/ exportar as linhas excluídas
     carregar_base2,
@@ -574,7 +574,7 @@ def mes_nome_intervalo(df_filtrado, periodo):
 
     return "Sem dados"
 
-def carregar_kpi_descriptions(caminho_relativo='data/kpi_descriptions.json'):
+def carregar_kpi_descriptions(caminho_relativo='../data/kpi_descriptions.json'):
     """
     Carrega o arquivo JSON de descrições de KPIs.
 

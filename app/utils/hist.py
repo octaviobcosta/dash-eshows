@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-from .modulobase import (
+from app.data.modulobase import (
     carregar_base_eshows,
     carregar_base2,
     carregar_pessoas,
     carregar_ocorrencias,
     carregar_base_inad,
 )
-from .utils import (
+from app.utils.utils import (
     formatar_valor_utils,
     calcular_churn,
     obter_top5_grupos_ano_anterior,

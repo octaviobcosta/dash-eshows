@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 # IMPORTAÇÃO DE FUNÇÕES (modulobase) E FORMATAÇÃO (utils)
 # =============================================================================
-from ..modulobase import (
+from app.data.modulobase import (
     carregar_base_eshows,
     carregar_eshows_excluidos,
     carregar_base2,
@@ -26,7 +26,7 @@ from ..modulobase import (
     carregar_metas,
     carregar_pessoas
 )
-from ..utils import (
+from app.utils.utils import (
     filtrar_periodo_principal,
     filtrar_periodo_comparacao,
     get_period_start,
@@ -44,8 +44,8 @@ from ..utils import (
     parse_valor_formatado,
     
 )
-from ..controles import zonas_de_controle, get_kpi_status
-from ..variacoes import (
+from app.kpis.controles import zonas_de_controle, get_kpi_status
+from app.kpis.variacoes import (
     get_nrr_variables,
     get_churn_variables,
     get_turnover_variables,

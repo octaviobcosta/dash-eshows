@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 from dash import html, dcc, dash_table
 import pandas as pd
 from typing import Dict, List, Any
-from app.csv_validator import TABLE_SCHEMAS
+from app.updates.csv_validator import TABLE_SCHEMAS
 
 
 def create_status_summary_card(validation_result: Dict[str, Any]) -> dbc.Card:

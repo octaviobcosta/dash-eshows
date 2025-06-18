@@ -1,5 +1,5 @@
 # app/config_data.py
-from .hist import (
+from app.utils.hist import (
     historical_rpc, historical_cmgr, historical_lucratividade, historical_ebitda,
     historical_gmv, historical_ticket, historical_nps_artistas, historical_nps_equipe,
     historical_roll6m, historical_estabilidade, historical_nrr, historical_perdas_operacionais,

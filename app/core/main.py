@@ -377,7 +377,7 @@ else:
 # ==============================================================================
 # 7) UTILITÁRIO DE ESTADOS (UF → Nome/Bandeira)
 # ==============================================================================
-with open(Path(__file__).resolve().parent / "data" / "uf.json", "r", encoding="utf-8") as fp:
+with open(Path(__file__).resolve().parent.parent / "data" / "uf.json", "r", encoding="utf-8") as fp:
     data_uf = json.load(fp)
 
 SIGLA_TO_NOME = {uf["sigla"]: uf["nome"] for uf in data_uf["UF"]}
@@ -565,13 +565,13 @@ from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
 
-from .modulobase import (
+from app.data.modulobase import (
     carregar_pessoas,
     carregar_base2,
     carregar_base_eshows,
 )
-from .variacoes  import get_churn_variables, get_rpc_variables
-from .utils      import (
+from app.kpis.variacoes  import get_churn_variables, get_rpc_variables
+from app.utils.utils      import (
     get_period_start,
     get_period_end,
     calcular_periodo_anterior,
@@ -1705,12 +1705,12 @@ dashboard_layout = dbc.Container(
 )
 
 # Import do painel de KPIs
-from .kpis import painel_kpis_layout
-from .kpis import register_callbacks
+from app.kpis import painel_kpis_layout
+from app.kpis import register_callbacks
 
 #Import do modulo OKRs
-from .okrs import okrs_layout
-from .okrs import register_okrs_callbacks
+from app.okrs import okrs_layout
+from app.okrs import register_okrs_callbacks
 
 # =================================================================================
 # CRIAÇÃO DOS STORES

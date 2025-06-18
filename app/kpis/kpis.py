@@ -16,9 +16,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ── IMPORTS DO PROJETO (todos voltam um nível: "..") ──────────
-from ..controles        import kpi_area_mapping, sanitize_id
-from ..kpi_interpreter  import KPIInterpreter
-from ..modulobase       import (
+from app.kpis.controles        import kpi_area_mapping, sanitize_id
+from app.kpis.kpi_interpreter  import KPIInterpreter
+from app.data.modulobase       import (
     carregar_base_eshows,
     carregar_base2,
     carregar_pessoas,
@@ -27,7 +27,7 @@ from ..modulobase       import (
     carregar_eshows_excluidos,
     carregar_custosabertos,
 )
-from ..utils            import (
+from app.utils.utils            import (
     formatar_valor_utils,
     mes_nome_intervalo,
     carregar_kpi_descriptions,
@@ -37,7 +37,7 @@ from ..utils            import (
     get_period_end,
     filtrar_periodo_principal  
 )
-from ..variacoes        import (
+from app.kpis.variacoes        import (
     get_cmgr_variables,
     get_lucratividade_variables,
     get_nrr_variables,

@@ -4,7 +4,7 @@ import os
 from typing import Dict, Any
 import anthropic
 from dotenv import load_dotenv
-from .utils import formatar_valor_utils
+from app.utils.utils import formatar_valor_utils
 
 load_dotenv()
 logger = logging.getLogger(__name__)

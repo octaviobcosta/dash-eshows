@@ -7,10 +7,10 @@ from datetime import datetime
 import plotly.graph_objects as go
 import pandas as pd
 import logging
-from .utils import parse_valor_formatado      # ← função única, já corrigida
-from .hist import _format_tempo_casa # << IMPORTADO DE HIST
-from .config_data import HIST_KPI_MAP
-from .mem_utils import log_mem
+from app.utils.utils import parse_valor_formatado      # ← função única, já corrigida
+from app.utils.hist import _format_tempo_casa # << IMPORTADO DE HIST
+from app.core.config_data import HIST_KPI_MAP
+from app.utils.mem_utils import log_mem
 import numpy as np
 
 logger = logging.getLogger(__name__)
