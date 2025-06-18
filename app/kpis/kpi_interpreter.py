@@ -1,7 +1,9 @@
 import json
 import logging
 import os
-from typing import Dict, Any
+import time
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional, Tuple
 import anthropic
 from dotenv import load_dotenv
 from app.utils.utils import formatar_valor_utils
@@ -24,8 +26,18 @@ class KPIInterpreter:
             self.client = None
             logger.warning("ANTHROPIC_API_KEY não configurada. Interpretações de KPI não estarão disponíveis.")
 
-        # [NOVO] Cria um dicionário para cachear as interpretações
+        # Cache melhorado com TTL
         self.cache = {}
+        self.cache_ttl = timedelta(hours=2)  # Cache válido por 2 horas
+        
+        # Métricas de performance
+        self.metrics = {
+            "total_calls": 0,
+            "cache_hits": 0,
+            "api_calls": 0,
+            "total_tokens": 0,
+            "avg_response_time": 0
+        }
 
     def _convert_result_to_float(self, resultado_valor):
         """
@@ -71,9 +83,17 @@ class KPIInterpreter:
         Prompt de sistema, instruindo a IA a manter linguagem humana e evitar exageros.
         """
         return (
-            "Você é um(a) analista de negócios sênior da Eshows, especializado em análise de crescimento e rentabilidade. "
-            "Sua linguagem deve soar natural, sem palavras exageradas (como 'extremamente'). "
-            "Use dados consolidados para suas análises e evite contradições se houver divergência no JSON."
+            "Você é um(a) analista de negócios sênior da Eshows, especializado em análise de crescimento e rentabilidade "
+            "no setor de entretenimento e shows. Sua expertise inclui:\n"
+            "- Análise profunda de métricas financeiras e operacionais\n"
+            "- Identificação de tendências e padrões no mercado de eventos\n"
+            "- Recomendações estratégicas baseadas em dados\n\n"
+            "DIRETRIZES DE COMUNICAÇÃO:\n"
+            "- Use linguagem executiva natural, sem exageros (evite 'extremamente', 'drasticamente')\n"
+            "- Seja preciso com números: sempre formate valores monetários com R$ e percentuais com %\n"
+            "- Contextualize todos os dados com seus períodos específicos\n"
+            "- Priorize insights acionáveis sobre descrições genéricas\n"
+            "- Use dados consolidados e ignore duplicações ou conflitos no JSON"
         )
 
     def _prepare_human_prompt(
@@ -116,13 +136,17 @@ Pilares (Doc): {pilares}
         )
 
         extra_instructions = (
-            "Observação IMPORTANTÍSSIMA:\n"
-            "- Sempre que citar qualquer número (KPI ou valor) do JSON, informe o período a que se refere, "
-            "usando termos claros (por exemplo: 'Ano Completo de 2024', '1º Trimestre de 2023', '2º Semestre de 2025', etc.).\n"
-            "- Explique como chegou ao valor em relação ao período.\n"
-            "- As Recomendações (item 4) devem ser embasadas na estratégia e no documento de estratégia fornecido, "
-            "mostrando claramente como cada sugestão se conecta aos pilares e objetivos estratégicos.\n"
-            "- IMPORTANTE: Considere apenas dados históricos até o último mês do período selecionado no filtro. Nunca utilize dados de meses futuros, mesmo que estejam disponíveis no JSON. O último mês analisado deve ser exatamente o último mês do período escolhido pelo usuário.\n"
+            "OBSERVAÇÕES CRÍTICAS:\n"
+            "1. PERÍODOS: Sempre cite o período específico ao mencionar números (ex: '1º Trimestre 2024', 'Jan-Jun 2023')\n"
+            "2. CÁLCULOS: Mostre brevemente como chegou aos valores derivados\n"
+            "3. ESTRATÉGIA: Conecte explicitamente recomendações aos pilares estratégicos\n"
+            "4. TEMPORALIDADE: Use apenas dados até o último mês do período filtrado\n"
+            "5. QUANTIFICAÇÃO: Prefira números absolutos e relativos (ex: 'R$ 2,3M, alta de 15%')\n"
+            "6. BENCHMARKS: Compare com médias do setor quando relevante\n\n"
+            "EXEMPLO DE BOA ANÁLISE:\n"
+            "'O NRR de 89% no 1º Trimestre 2024 indica retenção abaixo da meta de 95%, "
+            "representando uma perda de R$ 450 mil em receita recorrente. Isso correlaciona "
+            "com o aumento de 23% no churn (de 8% para 10,2%) no mesmo período.'"
         )
 
         # INSTRUÇÃO ADICIONAL PARA IA:
@@ -156,26 +180,35 @@ Por favor, formate sua resposta utilizando Markdown, seguindo estes padrões:
 
 [ESTRUTURA DE ANÁLISE REQUERIDA]
 
-1. **Diagnóstico Situacional (2-3 parágrafos):**
-   - Analise o valor atual do {kpi_name} considerando a distância da meta, a comparação com os dados atuais e a tendência histórica.
-   - Quantifique o impacto financeiro dessa performance e identifique os principais fatores contribuintes com base no JSON.
+## 1. Diagnóstico Situacional
+**Objetivo**: Contextualizar o KPI atual com precisão quantitativa
+- Valor atual vs Meta: Quantifique gap e impacto financeiro
+- Tendência: Compare com períodos anteriores (use dados do JSON)
+- Fatores críticos: Identifique 2-3 drivers principais da performance
 
-2. **Análise de Correlações e Causas (2-3 parágrafos):**
-   - Selecione e analise pelo menos 3 KPIs do JSON que tenham correlação significativa com o {kpi_name}.
-   - Explique as relações causais, destaque padrões ou anomalias e, se possível, quantifique as correlações.
+## 2. Análise de Correlações e Causas
+**Objetivo**: Identificar relações causa-efeito com outros KPIs
+- Correlações primárias: 3 KPIs mais impactados/impactantes
+- Quantificação: Use números para mostrar a força das relações
+- Insights: Padrões não óbvios ou anomalias detectadas
 
-3. **Projeções e Cenários (1-2 parágrafos):**
-   - Projete a tendência do {kpi_name} para os próximos 3 meses, considerando o cenário atual.
-   - Estime possíveis riscos e oportunidades baseados nessa projeção.
+## 3. Projeções e Cenários
+**Objetivo**: Antecipar tendências com base em dados
+- Projeção 3 meses: Baseada na tendência atual
+- Cenários: Otimista/Realista/Pessimista com probabilidades
+- Riscos principais: Top 2 riscos quantificados
 
-4. **Recomendações Acionáveis (2-3 parágrafos):**
-   - Forneça 3 recomendações prioritárias, com ações específicas e justificativas baseadas no diagnóstico, 
-     explicitando como essas ações se conectam aos pilares e objetivos estratégicos do doc de estratégia.
-   - Não é necessário indicar prazos, custos ou projeções de receita.
+## 4. Recomendações Acionáveis
+**Objetivo**: Ações específicas conectadas à estratégia
+- Ação 1: [O quê] + [Como] + [Impacto esperado] + [Pilar estratégico]
+- Ação 2: [O quê] + [Como] + [Impacto esperado] + [Pilar estratégico]
+- Ação 3: [O quê] + [Como] + [Impacto esperado] + [Pilar estratégico]
 
-5. **Considerações Estratégicas (1-2 parágrafos):**
-   - Avalie como o desempenho do {kpi_name} impacta os pilares estratégicos da empresa.
-   - Sugira ajustes estratégicos e identifique possíveis gatilhos para revisão de metas.
+## 5. Considerações Estratégicas
+**Objetivo**: Visão de longo prazo e alinhamento
+- Impacto nos pilares: Como afeta cada pilar estratégico
+- Gatilhos de revisão: Condições para reavaliar metas
+- Oportunidades emergentes: Baseadas nos dados analisados
 
 DIRETRIZES:
 - Utilize linguagem executiva e objetiva, mas de tom natural, sem exageros.
@@ -217,14 +250,28 @@ DIRETRIZES:
         periodo = kpi_values.get('periodo', 'Período não informado')
         status = kpi_values.get('status', 'Status não informado')
 
-        # [NOVO] Monta uma chave de cache com dados relevantes
-        cache_key = (kpi_name, periodo, status, round(resultado_num, 4))
+        # Monta uma chave de cache mais completa
+        cache_key = (
+            kpi_name, 
+            periodo, 
+            status, 
+            round(resultado_num, 4),
+            # Adiciona hash dos indicadores principais para invalida cache se dados mudarem
+            hash(json.dumps(sorted(all_indicators.items()), default=str)[:1000])
+        )
 
-        # [NOVO] Se a análise desse KPI já foi feita e não houve alteração nos valores, retorna do cache
+        # Verifica cache com TTL
         if cache_key in self.cache:
-            logger.info(f"Retornando análise de cache para {cache_key}")
-            return self.cache[cache_key]
+            cached_data, cached_time = self.cache[cache_key]
+            if datetime.now() - cached_time < self.cache_ttl:
+                logger.info(f"Cache hit para {kpi_name} - {periodo}")
+                self.metrics["cache_hits"] += 1
+                self.metrics["total_calls"] += 1
+                return cached_data
 
+        # Pré-processa indicadores para remover ruído
+        cleaned_indicators = self._preprocess_indicators(all_indicators)
+        
         # Monta o prompt final
         human_prompt = self._prepare_human_prompt(
             kpi_name=kpi_name,
@@ -233,40 +280,174 @@ DIRETRIZES:
             periodo=periodo,
             resultado_num=resultado_num,
             status=status,
-            all_indicators=all_indicators,
+            all_indicators=cleaned_indicators,  # Usa indicadores limpos
             strategy_info=strategy_info
         )
 
-        # Chamada ao modelo
-        try:
-            response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",  # Mantendo o modelo que você tinha
-                max_tokens=1200,                    # Mantendo a param original
-                temperature=0.4,
-                system=self._prepare_system_prompt(),
-                messages=[
-                    {
-                        "role": "user",
-                        "content": human_prompt
-                    }
-                ]
+        # Atualiza métricas
+        self.metrics["total_calls"] += 1
+        self.metrics["api_calls"] += 1
+        
+        # Chamada ao modelo com melhorias
+        max_retries = 3
+        retry_delay = 1
+        
+        for attempt in range(max_retries):
+            try:
+                start_time = time.time()
+                
+                response = self.client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=2500,  # Aumentado para análises mais detalhadas
+                    temperature=0.3,  # Reduzido para mais consistência
+                    top_p=0.95,      # Adiciona diversidade controlada
+                    system=self._prepare_system_prompt(),
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": human_prompt
+                        }
+                    ]
+                )
+                
+                # Calcula tempo de resposta
+                response_time = time.time() - start_time
+                self._update_avg_response_time(response_time)
+                
+                # Extrai resposta
+                interpretation = response.content[0].text
+                if not interpretation:
+                    return "Erro: Claude não retornou conteúdo."
+                
+                # Log de métricas de uso (se disponível)
+                if hasattr(response, 'usage'):
+                    self.metrics["total_tokens"] += response.usage.total_tokens
+                    logger.info(f"Tokens usados: {response.usage.total_tokens} | Tempo: {response_time:.2f}s")
+                
+                # Salva no cache com timestamp
+                self.cache[cache_key] = (interpretation.strip(), datetime.now())
+                
+                # Limpa cache antigo periodicamente
+                if len(self.cache) > 100:
+                    self._clean_old_cache()
+                
+                return interpretation.strip()
+                
+            except anthropic.RateLimitError as e:
+                logger.warning(f"Rate limit atingido. Tentativa {attempt + 1}/{max_retries}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay * (2 ** attempt))  # Backoff exponencial
+                    continue
+                    
+            except Exception as e:
+                logger.error(f"Erro ao chamar Anthropic (tentativa {attempt + 1}): {str(e)}")
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+        
+        # Se todas as tentativas falharam, tenta fallback
+        return self._fallback_gpt_improved(kpi_name, kpi_values, strategy_info, all_indicators)
+
+    def _update_avg_response_time(self, new_time: float):
+        """Atualiza a média de tempo de resposta."""
+        total_api_calls = self.metrics["api_calls"]
+        if total_api_calls == 1:
+            self.metrics["avg_response_time"] = new_time
+        else:
+            # Média móvel
+            self.metrics["avg_response_time"] = (
+                (self.metrics["avg_response_time"] * (total_api_calls - 1) + new_time) / total_api_calls
             )
-
-            # A forma de extrair a resposta pode mudar se a API do Anthropic alterar.
-            # Se você já obtinha a resposta no original assim, mantenha:
-            interpretation = response.content[0].text
-            if not interpretation:
-                return "Erro: Claude não retornou conteúdo."
-
-            # [NOVO] Salva no cache antes de retornar
-            self.cache[cache_key] = interpretation.strip()
-            return interpretation.strip()
-
+    
+    def _clean_old_cache(self):
+        """Remove entradas antigas do cache."""
+        current_time = datetime.now()
+        keys_to_remove = []
+        
+        for key, (data, cached_time) in self.cache.items():
+            if current_time - cached_time > self.cache_ttl:
+                keys_to_remove.append(key)
+        
+        for key in keys_to_remove:
+            del self.cache[key]
+        
+        if keys_to_remove:
+            logger.info(f"Limpou {len(keys_to_remove)} entradas antigas do cache")
+    
+    def _preprocess_indicators(self, all_indicators: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Pré-processa os indicadores para remover ruído e destacar dados relevantes.
+        """
+        # Remove dados nulos ou vazios
+        cleaned = {}
+        for key, value in all_indicators.items():
+            if value is not None and value != "" and value != {}:
+                # Converte valores numéricos string para números
+                if isinstance(value, str) and value.replace('.', '').replace(',', '').replace('-', '').isdigit():
+                    try:
+                        cleaned[key] = float(value.replace(',', '.'))
+                    except:
+                        cleaned[key] = value
+                else:
+                    cleaned[key] = value
+        
+        return cleaned
+    
+    def _fallback_gpt_improved(self, kpi_name: str, kpi_values: Dict[str, Any],
+                               strategy_info: Dict[str, Any], all_indicators: Dict[str, Any]) -> str:
+        """
+        Fallback melhorado usando GPT-4 quando Claude falha.
+        """
+        openai_key = os.getenv("OPENAI_API_KEY")
+        if not openai_key:
+            return f"Erro: Não foi possível gerar análise para o KPI '{kpi_name}'. APIs indisponíveis."
+        
+        try:
+            import openai
+            openai.api_key = openai_key
+            
+            # Usa o mesmo prompt preparado
+            human_prompt = self._prepare_human_prompt(
+                kpi_name=kpi_name,
+                description=self.kpi_descriptions.get(kpi_name, {}).get("description", ""),
+                formula=self.kpi_descriptions.get(kpi_name, {}).get("formula", ""),
+                periodo=kpi_values.get('periodo', 'Período não informado'),
+                resultado_num=kpi_values.get('resultado', 0),
+                status=kpi_values.get('status', 'Status não informado'),
+                all_indicators=all_indicators,
+                strategy_info=strategy_info
+            )
+            
+            response = openai.ChatCompletion.create(
+                model="gpt-4-turbo-preview",
+                messages=[
+                    {"role": "system", "content": self._prepare_system_prompt()},
+                    {"role": "user", "content": human_prompt}
+                ],
+                max_tokens=2000,
+                temperature=0.3
+            )
+            
+            return response.choices[0].message.content
+            
         except Exception as e:
-            logger.error(f"Erro ao chamar Anthropic: {str(e)}")
-            return self._fallback_gpt(kpi_name, kpi_values, strategy_info)
-
+            logger.error(f"Erro no fallback GPT: {str(e)}")
+            return f"Erro: Não foi possível gerar análise para o KPI '{kpi_name}'."
+    
+    def get_metrics_summary(self) -> Dict[str, Any]:
+        """Retorna um resumo das métricas de performance."""
+        return {
+            "total_calls": self.metrics["total_calls"],
+            "cache_hits": self.metrics["cache_hits"],
+            "cache_hit_rate": (self.metrics["cache_hits"] / self.metrics["total_calls"] * 100) if self.metrics["total_calls"] > 0 else 0,
+            "api_calls": self.metrics["api_calls"],
+            "avg_response_time": round(self.metrics["avg_response_time"], 2),
+            "total_tokens": self.metrics["total_tokens"],
+            "cache_size": len(self.cache)
+        }
+    
     def interpret_with_openai(self, prompt: str) -> str:
+        """Mantido para compatibilidade."""
         import openai
         openai.api_key = os.getenv("OPENAI_API_KEY")
         response = openai.ChatCompletion.create(
