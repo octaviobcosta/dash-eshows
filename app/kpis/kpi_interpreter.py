@@ -7,6 +7,15 @@ from typing import Dict, Any, Optional, Tuple
 import anthropic
 from dotenv import load_dotenv
 from app.utils.utils import formatar_valor_utils
+from app.kpis.kpi_glossary import (
+    KPI_DETAILED_GLOSSARY, 
+    FINANCIAL_CONCEPTS,
+    get_analysis_cutoff_date,
+    get_temporal_context,
+    is_value_anomalous,
+    ANOMALY_FILTERS,
+    get_kpi_context
+)
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -80,20 +89,50 @@ class KPIInterpreter:
 
     def _prepare_system_prompt(self):
         """
-        Prompt de sistema, instruindo a IA a manter linguagem humana e evitar exageros.
+        Prompt de sistema com definições precisas e contexto aprofundado.
         """
+        gmv_def = FINANCIAL_CONCEPTS.get("GMV", {})
+        fat_def = FINANCIAL_CONCEPTS.get("FATURAMENTO", {})
+        
         return (
-            "Você é um(a) analista de negócios sênior da Eshows, especializado em análise de crescimento e rentabilidade "
-            "no setor de entretenimento e shows. Sua expertise inclui:\n"
-            "- Análise profunda de métricas financeiras e operacionais\n"
-            "- Identificação de tendências e padrões no mercado de eventos\n"
-            "- Recomendações estratégicas baseadas em dados\n\n"
-            "DIRETRIZES DE COMUNICAÇÃO:\n"
-            "- Use linguagem executiva natural, sem exageros (evite 'extremamente', 'drasticamente')\n"
-            "- Seja preciso com números: sempre formate valores monetários com R$ e percentuais com %\n"
-            "- Contextualize todos os dados com seus períodos específicos\n"
-            "- Priorize insights acionáveis sobre descrições genéricas\n"
-            "- Use dados consolidados e ignore duplicações ou conflitos no JSON"
+            "Você é o(a) analista de negócios sênior mais experiente da eShows, com 15+ anos no setor de "
+            "entretenimento e eventos ao vivo. Sua expertise abrange:\n\n"
+            
+            "COMPETÊNCIAS CORE:\n"
+            "- Análise profunda de métricas financeiras e operacionais do setor de eventos\n"
+            "- Identificação de padrões e anomalias em dados de bilheteria e produção\n"
+            "- Modelagem preditiva considerando sazonalidade de shows e festivais\n"
+            "- Estratégias de crescimento e retenção para plataformas de ticketing\n\n"
+            
+            "CONCEITOS FINANCEIROS CRÍTICOS:\n"
+            f"- GMV: {gmv_def.get('definição', 'Volume total transacionado')}\n"
+            f"  IMPORTANTE: {gmv_def.get('importante', 'GMV não é receita')}\n"
+            f"- FATURAMENTO: {fat_def.get('definição', 'Receita real da empresa')}\n"
+            f"  IMPORTANTE: {fat_def.get('importante', 'Faturamento = Receita Real')}\n\n"
+            
+            "REGRAS TEMPORAIS OBRIGATÓRIAS:\n"
+            "- SEMPRE use dados até o ÚLTIMO DIA DO MÊS ANTERIOR se após dia 10 do mês atual\n"
+            "- NUNCA inclua dados parciais do mês corrente na análise\n"
+            "- Exemplo: Em 15/junho, analise até 31/maio. Em 5/junho, analise até 30/abril\n\n"
+            
+            "FILTROS DE QUALIDADE DE DADOS:\n"
+            "- IGNORE valores exatamente 0%, 100% ou -100% (geralmente erros)\n"
+            "- QUESTIONE valores fora dos ranges típicos do setor\n"
+            "- DESCONSIDERE outliers extremos que distorcem análises\n\n"
+            
+            "PROFUNDIDADE ANALÍTICA REQUERIDA:\n"
+            "- Vá além da descrição: explique o PORQUÊ dos números\n"
+            "- Conecte múltiplos indicadores para formar uma narrativa coesa\n"
+            "- Identifique causas raiz, não apenas sintomas\n"
+            "- Proponha hipóteses testáveis para validação\n"
+            "- Use analogias do setor (ex: 'como um festival que...')\n\n"
+            
+            "ESTILO DE COMUNICAÇÃO:\n"
+            "- Seja direto mas completo - evite rodeios\n"
+            "- Use números precisos com contexto (não apenas %)\n"
+            "- Formate valores: R$ 1,2M (não 1200000)\n"
+            "- Inclua sempre o impacto financeiro real em R$\n"
+            "- Mantenha tom profissional mas acessível"
         )
 
     def _prepare_human_prompt(
@@ -108,11 +147,45 @@ class KPIInterpreter:
         strategy_info: Dict[str, Any] = None
     ) -> str:
         """
-        Monta o prompt que será enviado ao modelo, incluindo uma instrução
-        para ignorar dados conflitantes e priorizar históricos confiáveis.
+        Monta o prompt que será enviado ao modelo, incluindo contexto específico do KPI,
+        validações temporais e instruções para análise profunda.
         """
 
-        indicators_json = json.dumps(all_indicators, indent=2, ensure_ascii=False)
+        # Obter contexto específico do KPI do glossário
+        kpi_context = get_kpi_context(kpi_name)
+        kpi_specific_info = ""
+        
+        if kpi_context:
+            # Adicionar definição detalhada do KPI
+            kpi_def = kpi_context.get('definição', '')
+            kpi_interp = kpi_context.get('interpretação', {})
+            kpi_benchmarks = kpi_context.get('benchmarks', {})
+            kpi_correlations = kpi_context.get('correlações', [])
+            kpi_anomalies = kpi_context.get('valores_anômalos', '')
+            
+            kpi_specific_info = f"""
+[CONTEXTO ESPECÍFICO DO KPI {kpi_name}]
+- Definição Detalhada: {kpi_def}
+- Interpretação Positiva: {kpi_interp.get('positiva', '')}
+- Interpretação Negativa: {kpi_interp.get('negativa', '')}
+- Cuidados Especiais: {kpi_interp.get('cuidados', '')}
+- Benchmarks do Setor: {json.dumps(kpi_benchmarks, ensure_ascii=False)}
+- KPIs Correlacionados: {', '.join(kpi_correlations)}
+- Valores Anômalos: {kpi_anomalies}
+"""
+        
+        # Validar se o valor é anômalo
+        if is_value_anomalous(kpi_name, resultado_num):
+            kpi_specific_info += "\n⚠️ ATENÇÃO: Valor possivelmente anômalo detectado. Verifique consistência dos dados.\n"
+        
+        # Adicionar contexto temporal
+        temporal_context = get_temporal_context()
+        cutoff_date = get_analysis_cutoff_date()
+        
+        # Filtrar indicadores para remover valores anômalos óbvios
+        filtered_indicators = self._filter_anomalous_indicators(all_indicators)
+        
+        indicators_json = json.dumps(filtered_indicators, indent=2, ensure_ascii=False)
         logger.debug("### JSON de Indicadores Enviado ao LLM:\n%s", indicators_json)
 
         strategy_context = ""
@@ -143,10 +216,21 @@ Pilares (Doc): {pilares}
             "4. TEMPORALIDADE: Use apenas dados até o último mês do período filtrado\n"
             "5. QUANTIFICAÇÃO: Prefira números absolutos e relativos (ex: 'R$ 2,3M, alta de 15%')\n"
             "6. BENCHMARKS: Compare com médias do setor quando relevante\n\n"
-            "EXEMPLO DE BOA ANÁLISE:\n"
-            "'O NRR de 89% no 1º Trimestre 2024 indica retenção abaixo da meta de 95%, "
+            "EXEMPLOS DE ANÁLISE PROFUNDA:\n\n"
+            "✅ BOM: 'O NRR de 89% no 1º Trimestre 2024 indica retenção abaixo da meta de 95%, "
             "representando uma perda de R$ 450 mil em receita recorrente. Isso correlaciona "
-            "com o aumento de 23% no churn (de 8% para 10,2%) no mesmo período.'"
+            "com o aumento de 23% no churn (de 8% para 10,2%) no mesmo período, sugerindo "
+            "problemas na experiência do cliente pós-venda. A análise por coorte mostra que "
+            "clientes com menos de 6 meses têm churn 3x maior.'\n\n"
+            
+            "❌ EVITAR: 'O NRR está em 89%, abaixo da meta. Isso é ruim para a empresa. "
+            "Precisamos melhorar.'\n\n"
+            
+            "DISTINGUIR CONCEITOS:\n"
+            "- GMV de R$ 10M ≠ Receita de R$ 10M\n"
+            "- GMV = Volume transacionado (ingressos vendidos)\n"
+            "- Faturamento = Nossa receita real (comissões e taxas)\n"
+            "- Exemplo: GMV R$ 10M com take rate 12% = Faturamento R$ 1,2M"
         )
 
         # INSTRUÇÃO ADICIONAL PARA IA:
@@ -154,6 +238,10 @@ Pilares (Doc): {pilares}
 
         return f"""
 Faça uma análise aprofundada do seguinte KPI:
+
+{temporal_context}
+
+{kpi_specific_info}
 
 [CONTEXTO ATUAIS DO NEGóCIO]
 {indicators_json}
@@ -167,6 +255,7 @@ Faça uma análise aprofundada do seguinte KPI:
 - Valor: {formatar_valor_utils(resultado_num, 'percentual')}
 - Status: {status}
 - Período: {periodo}
+- Data Limite para Análise: {cutoff_date.strftime('%d/%m/%Y')}
 
 [Sobre este KPI]
 - Descrição: {description}
@@ -397,6 +486,36 @@ DIRETRIZES:
                     cleaned[key] = value
         
         return cleaned
+    
+    def _filter_anomalous_indicators(self, indicators: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Filtra indicadores com valores anômalos óbvios.
+        """
+        filtered = {}
+        
+        for key, value in indicators.items():
+            # Pular valores que são exatamente 0%, 100% ou -100%
+            if isinstance(value, (int, float)):
+                if value in [0, 100, -100]:
+                    logger.warning(f"Valor anômalo ignorado: {key} = {value}")
+                    continue
+                
+                # Verificar ranges específicos baseados no tipo de indicador
+                if 'churn' in key.lower() and not (0 <= value <= 30):
+                    logger.warning(f"Churn fora do range esperado: {key} = {value}")
+                    continue
+                    
+                if 'take_rate' in key.lower() and not (3 <= value <= 30):
+                    logger.warning(f"Take rate fora do range esperado: {key} = {value}")
+                    continue
+                    
+                if 'nrr' in key.lower() and not (50 <= value <= 200):
+                    logger.warning(f"NRR fora do range esperado: {key} = {value}")
+                    continue
+            
+            filtered[key] = value
+        
+        return filtered
     
     def _fallback_gpt_improved(self, kpi_name: str, kpi_values: Dict[str, Any],
                                strategy_info: Dict[str, Any], all_indicators: Dict[str, Any]) -> str:
