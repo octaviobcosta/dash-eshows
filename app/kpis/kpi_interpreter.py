@@ -320,9 +320,14 @@ DIRETRIZES:
                     return "Erro: Claude não retornou conteúdo."
                 
                 # Log de métricas de uso (se disponível)
-                if hasattr(response, 'usage'):
-                    self.metrics["total_tokens"] += response.usage.total_tokens
-                    logger.info(f"Tokens usados: {response.usage.total_tokens} | Tempo: {response_time:.2f}s")
+                if hasattr(response, 'usage') and response.usage:
+                    if hasattr(response.usage, 'total_tokens'):
+                        self.metrics["total_tokens"] += response.usage.total_tokens
+                        logger.info(f"Tokens usados: {response.usage.total_tokens} | Tempo: {response_time:.2f}s")
+                    elif hasattr(response.usage, 'input_tokens') and hasattr(response.usage, 'output_tokens'):
+                        total = response.usage.input_tokens + response.usage.output_tokens
+                        self.metrics["total_tokens"] += total
+                        logger.info(f"Tokens usados: {total} | Tempo: {response_time:.2f}s")
                 
                 # Salva no cache com timestamp
                 self.cache[cache_key] = (interpretation.strip(), datetime.now())
@@ -419,7 +424,7 @@ DIRETRIZES:
             )
             
             response = openai.ChatCompletion.create(
-                model="gpt-4-turbo-preview",
+                model="gpt-4-turbo",  # Modelo atualizado
                 messages=[
                     {"role": "system", "content": self._prepare_system_prompt()},
                     {"role": "user", "content": human_prompt}
