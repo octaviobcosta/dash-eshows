@@ -437,7 +437,7 @@ def criar_card_kpi_shows(
         Título exibido no topo do card.
     valor : float | int | str
         Valor atual do indicador.
-    variacao : float | None
+    variacao : float
         Variação percentual relativa ao período de comparação.
     periodo_comp : str
         Rótulo exibido abaixo (ex.: 'vs. Ano Anterior').
@@ -581,13 +581,13 @@ from app.utils.utils      import (
 def metricas_rh_quick(
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     *,
-    comparar_opcao: str | None = None,
+    comparar_opcao: str = None,
     custom_range=None,
-    df_pessoas_global: pd.DataFrame | None = None,
-    df_base2_global:   pd.DataFrame | None = None,
-    df_eshows_global:  pd.DataFrame | None = None,   #  <<< NOVO parâmetro opcional
+    df_pessoas_global: pd.DataFrame = None,
+    df_base2_global:   pd.DataFrame = None,
+    df_eshows_global:  pd.DataFrame = None,   #  <<< NOVO parâmetro opcional
 ):
     """
     Retorna (principal, comparacao) com chaves:
@@ -1729,7 +1729,7 @@ mes_store_kpis = dcc.Store(id='mes-store-painel-kpis', data=None)
 # INSTÂNCIA PRINCIPAL DO DASH
 # =================================================================================
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))   # pasta do projeto (raiz)
-assets_path = os.path.join(ROOT_DIR, "app", "assets")
+assets_path = os.path.join(ROOT_DIR, "assets")
 
 # ▼ crie (ou use) a lista completa de estilos externos
 external_stylesheets = [
@@ -1794,6 +1794,9 @@ app.layout = html.Div([
     
     # Container principal que será preenchido dinamicamente
     html.Div(id="main-container"),
+
+    # Modal de atualização
+    create_update_modal(),
 
     # Container oculto que garante que todos os componentes estejam presentes no DOM
     html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'})
@@ -3630,7 +3633,7 @@ init_update_modal_callbacks(app)
 # =========================================================
 if __name__ == "__main__":
     # Fix para problema de memória: desabilitar reloader que duplica o processo
-    app.run_server(debug=True, use_reloader=False, dev_tools_hot_reload=False)
+    app.run(debug=True, use_reloader=False, dev_tools_hot_reload=False)
     
     # # Em vez disso, imprimir uma mensagem de instrução:
     # logger.info("Use 'python index.py' para iniciar o aplicativo com a tela de login")

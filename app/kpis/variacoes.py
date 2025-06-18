@@ -98,7 +98,7 @@ def _buscar_periodo_valido_nps(
     df: pd.DataFrame,
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     coluna_nps: str,                # ex.: 'NPS Eshows'
     custom_range: tuple | None = None,   #  ←  NOVO
     max_back: int = 8,
@@ -2204,12 +2204,12 @@ def get_autonomia_usuario_variables(
 def get_nps_artistas_variables(
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     custom_range=None,
     df_nps_global:  pd.DataFrame | None = None,
-    df_base2_global: pd.DataFrame | None = None,   # compat legado
+    df_base2_global: pd.DataFrame = None,   # compat legado
 ) -> dict:
-    from .modulobase import carregar_npsartistas
+    from app.data.modulobase import carregar_npsartistas
 
     COL_NPS_NOTAS = "NPS Eshows"
 
@@ -2280,11 +2280,11 @@ def get_nps_artistas_variables(
 def get_nps_equipe_variables(
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     custom_range=None,  # mantido para compatibilidade
-    df_nps_global: pd.DataFrame | None = None, 
+    df_nps_global: pd.DataFrame = None, 
 ) -> dict:
-    from .modulobase import carregar_npsartistas 
+    from app.data.modulobase import carregar_npsartistas 
     df_nps_base = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas().copy()
 
     if "Data" in df_nps_base.columns:
@@ -2622,19 +2622,19 @@ def get_cac_variables(
        ((Soma "Valor" de TEMPUS FUGIT e Flash) / Total Funcionários Ativos) * Funcionários do Comercial.
        (Alimentação por "Data Competencia", Funcionários do Comercial por "Data Competencia").
     """
-    from .modulobase import (
+    from app.data.modulobase import (
         carregar_custosabertos,
         carregar_base_eshows, # <<< CORRIGIDO AQUI
         carregar_pessoas
     )
-    from .utils import (
+    from app.utils.utils import (
         filtrar_periodo_principal,
         get_period_start,
         get_period_end,
         mes_nome_intervalo,
         filtrar_novos_palcos_por_periodo
     )
-    from .column_mapping import SUPPLIER_TO_SETOR
+    from app.data.column_mapping import SUPPLIER_TO_SETOR
     from dateutil.relativedelta import relativedelta # Para cálculo de funcionários ativos
     import pandas as pd
     import numpy as np # Para np.mean em funcionários ativos
@@ -3454,7 +3454,7 @@ def _churn_ids(df_eshows: pd.DataFrame,
                dias_sem_show: int,
                start_periodo: pd.Timestamp,
                end_periodo: pd.Timestamp,
-               uf: str | None = None) -> list[str]:
+               uf: str = None) -> list[str]:
     """
     Devolve lista de Id da Casa que churnaram dentro do intervalo analisado.
     Reaproveita a mesma lógica que já usa no LTV/CAC.
@@ -3503,7 +3503,7 @@ def get_churn_valor_variables(
     df_eshows_global=None,
     start_date=None,
     end_date=None,
-    uf: str | None = None,
+    uf: str = None,
     dias_sem_show: int = 45,
     janela_media_meses: int = 3,
 ):
@@ -3728,7 +3728,7 @@ def get_receita_pessoal_variables(
 def get_csat_artistas_variables(
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     custom_range=None,
     df_nps_global=None,
 ) -> dict:
@@ -3736,7 +3736,7 @@ def get_csat_artistas_variables(
     • CSAT médio dos artistas (escala 1-5, duas casas decimais)
     • Usa rollback até encontrar um intervalo com dados, como no NPS.
     """
-    from .modulobase import carregar_npsartistas
+    from app.data.modulobase import carregar_npsartistas
     COL_CSAT = "CSAT Eshows"          # nome exato da coluna na base
     df_nps = df_nps_global.copy() if df_nps_global is not None else carregar_npsartistas().copy()
 
@@ -3783,7 +3783,7 @@ def get_csat_artistas_variables(
 def get_csat_operacao_variables(
     ano: int,
     periodo: str,
-    mes: int | None,
+    mes: int,
     custom_range=None,
     df_nps_global=None,
 ) -> dict:
@@ -3792,7 +3792,7 @@ def get_csat_operacao_variables(
     • Soma as notas de operadores válidos (1 e 2), ignora \'Nenhum\', \'Não\', etc.
     • Usa rollback até encontrar um intervalo com dados, como no NPS.
     """
-    from .modulobase import carregar_npsartistas
+    from app.data.modulobase import carregar_npsartistas
     COL_CSAT1 = "CSAT Operador 1"
     COL_CSAT2 = "CSAT Operador 2"
     COL_OP1 = "Operador 1"

@@ -8,6 +8,7 @@ from dash import html, dcc, dash_table
 import pandas as pd
 from typing import Dict, List, Any
 from app.updates.csv_validator import TABLE_SCHEMAS
+import numpy as np
 
 
 def create_status_summary_card(validation_result: Dict[str, Any]) -> dbc.Card:
@@ -227,12 +228,15 @@ def create_validation_report(validation_result: Dict[str, Any]) -> html.Div:
     return html.Div(components)
 
 
+
+
 def create_preview_table(preview_data: Dict[str, Any], show_problems: bool = True, 
                         show_converted: bool = False, table_name: str = None) -> html.Div:
     """Cria uma tabela de preview com dados convertidos/formatados como serão salvos"""
     
     df = pd.DataFrame(preview_data["data"])
     problem_cells = preview_data.get("problem_cells", {})
+    column_types = preview_data.get("column_types", {})
     
     # Apply data conversion if requested
     if show_converted and table_name:
@@ -315,9 +319,7 @@ def create_preview_table(preview_data: Dict[str, Any], show_problems: bool = Tru
             'color': '#1f2937'
         },
         page_size=10,
-        style_as_list_view=False,
-        export_format='csv',
-        export_headers='display'
+        style_as_list_view=False
     )
     
     # Create info text
@@ -342,9 +344,23 @@ def create_preview_table(preview_data: Dict[str, Any], show_problems: bool = Tru
     
     return html.Div([
         html.Div([
-            html.H6([
-                html.I(className="fas fa-eye me-2"),
-                "Preview dos Dados"
+            dbc.Row([
+                dbc.Col([
+                    html.H6([
+                        html.I(className="fas fa-eye me-2"),
+                        "Preview dos Dados"
+                    ], className="mb-0"),
+                ], width=6),
+                dbc.Col([
+                    html.Div([
+                        dbc.Label("Mostrar dados convertidos", className="me-2", style={"fontSize": "0.9rem"}),
+                        dbc.Switch(
+                            id="preview-mode-switch",
+                            value=show_converted,
+                            className="d-inline-block"
+                        )
+                    ], className="d-flex align-items-center justify-content-end mb-0")
+                ], width=6)
             ], className="mb-3"),
             *info_text
         ]),
@@ -363,7 +379,7 @@ def create_preview_table(preview_data: Dict[str, Any], show_problems: bool = Tru
 def apply_preview_conversions(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     """Apply conversions to show data as it will be saved"""
     # Import here to avoid circular import
-    from app.update_modal_improved import brl_to_cents
+    from app.updates.update_modal_improved import brl_to_cents
     
     df_converted = df.copy()
     

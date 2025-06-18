@@ -147,7 +147,7 @@ class CSVUploader:
     
     def _prepare_data(self, df: pd.DataFrame, table_name: str) -> pd.DataFrame:
         """Prepara dados para upload"""
-        from app.update_modal_improved import brl_to_cents
+        from app.updates.update_modal_improved import brl_to_cents
         
         # Definir colunas monetárias por tabela
         monetary_columns = {

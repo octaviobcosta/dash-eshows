@@ -103,7 +103,7 @@ def generate_kpi_figure(
     chart_type: str = "auto",
     format_type: str = "numero",
     height: int = 540,
-    custom_color: str | None = None,
+    custom_color: str = None,
     animated: bool = False
 ):
     """

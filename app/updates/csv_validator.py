@@ -355,7 +355,7 @@ class CSVValidator:
                     })
         
         # Validar números (com suporte para formato brasileiro)
-        from app.update_modal_improved import brl_to_cents
+        from app.updates.update_modal_improved import brl_to_cents
         
         for col in self.schema.get("numeric_columns", []):
             if col in self.df.columns:

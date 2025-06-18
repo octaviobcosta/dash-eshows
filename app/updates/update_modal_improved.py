@@ -23,7 +23,9 @@ from app.updates.csv_upload_components import (
     create_column_mapping_interface,
     create_upload_options_card,
     create_upload_summary,
-    create_column_status_card
+    create_column_status_card,
+    create_status_summary_card,
+    create_issues_card
 )
 from app.updates.csv_uploader import CSVUploader
 
@@ -197,6 +199,65 @@ MODAL_STYLES = """
     .modal-body::-webkit-scrollbar-thumb:hover {
         background: #e84318;
     }
+    
+    /* Estilos para cards de opção */
+    .option-card {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .option-card:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 12px rgba(252, 79, 34, 0.15);
+        border-color: #fc4f22;
+    }
+    
+    /* Indicadores de passos */
+    .step-indicator {
+        transition: all 0.3s ease;
+    }
+    
+    .step-indicator.active { 
+        background-color: #fc4f22 !important;
+        color: white !important;
+    }
+    
+    /* Botões primários com cor da marca */
+    .btn-primary {
+        background-color: #fc4f22 !important;
+        border-color: #fc4f22 !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #e84318 !important;
+        border-color: #e84318 !important;
+    }
+    
+    /* Cards de status */
+    .status-card {
+        border-left: 4px solid #fc4f22;
+    }
+    
+    /* Toggle switches */
+    .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: #fc4f22;
+        border-color: #fc4f22;
+    }
+    
+    /* Badges de tipo de coluna */
+    .column-type-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    /* Preview table styles */
+    .preview-converted {
+        background-color: #fef3c7 !important;
+    }
+    
+    .preview-problem {
+        background-color: #fee2e2 !important;
+    }
 </style>
 """
 
@@ -208,6 +269,8 @@ def create_update_modal():
             dcc.Store(id='update-store-data'),
             dcc.Store(id='validation-store-data'),
             dcc.Store(id='upload-config-store', data={'mode': 'replace', 'error_handling': 'stop'}),
+            dcc.Store(id='preview-mode-store', data={'show_converted': True}),
+            dcc.Store(id='mapping-store', data={}),
             
             dbc.ModalHeader(
                 [
@@ -591,6 +654,7 @@ def create_update_modal():
         )
 
 def init_update_modal_callbacks(app):
+    """Inicializa todos os callbacks do modal de atualização"""
     """Inicializa os callbacks do modal de atualização"""
     
     # Callback para navegação entre steps
@@ -827,6 +891,8 @@ def init_update_modal_callbacks(app):
             
             # Criar componentes de validação
             # 1. Relatório de validação (incluirá status summary e column status)
+            logger.info(f"Validation result stats: {validation_result.get('stats', {})}")
+            logger.info(f"Can proceed: {validation_result.get('can_proceed', False)}")
             validation_report = create_validation_report(validation_result)
             
             # 2. Preview da tabela com dados convertidos
@@ -1223,7 +1289,7 @@ def init_update_modal_callbacks(app):
     # Callback para mostrar/esconder interface de mapeamento
     @app.callback(
         [Output("column-mapping-container", "children", allow_duplicate=True),
-         Output("column-mapping-container", "style")],
+         Output("column-mapping-container", "style", allow_duplicate=True)],
         [Input("edit-mappings-btn", "n_clicks")],
         [State("column-mapping-container", "children"),
          State("update-store-data", "data"),
@@ -1336,5 +1402,58 @@ def init_update_modal_callbacks(app):
             suggested_values.append(suggested.get(csv_column, ""))
         
         return [suggested_values]
+    
+    # Callback para toggle do modo de preview
+    @app.callback(
+        [Output("preview-table-container", "children", allow_duplicate=True),
+         Output("preview-mode-store", "data", allow_duplicate=True)],
+        [Input("preview-mode-switch", "value")],
+        [State("validation-store-data", "data"),
+         State("table-select-upload", "value")],
+        prevent_initial_call=True
+    )
+    def toggle_preview_view(show_converted, validation_data, table_name):
+        if not validation_data:
+            raise PreventUpdate
+        
+        # Atualizar store
+        preview_mode_data = {"show_converted": show_converted}
+        
+        # Recriar preview table com novo modo
+        preview_data = validation_data.get("preview", {})
+        if preview_data:
+            preview_table = create_preview_table(
+                preview_data, 
+                show_problems=True,
+                show_converted=show_converted,
+                table_name=table_name
+            )
+            return preview_table, preview_mode_data
+        
+        return html.Div("Sem dados para preview"), preview_mode_data
+    
+    # Callback para mostrar/esconder interface de mapeamento
+    @app.callback(
+        Output("column-mapping-container", "style", allow_duplicate=True),
+        [Input("edit-mapping-btn", "n_clicks"),
+         Input("apply-mapping-btn", "n_clicks")],
+        [State("column-mapping-container", "style")],
+        prevent_initial_call=True
+    )
+    def toggle_mapping_interface(edit_clicks, apply_clicks, current_style):
+        ctx = callback_context
+        if not ctx.triggered:
+            raise PreventUpdate
+        
+        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+        
+        if trigger_id == "edit-mapping-btn":
+            # Mostrar interface
+            return {"display": "block", "marginTop": "20px"}
+        elif trigger_id == "apply-mapping-btn":
+            # Esconder interface
+            return {"display": "none"}
+        
+        return current_style
 
     return True

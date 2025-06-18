@@ -203,7 +203,7 @@ def _is_valid_range(rng):
     )
 
 
-def get_period_start(ano: int, periodo: str, mes: int | None, custom_range=None):
+def get_period_start(ano: int, periodo: str, mes, custom_range=None):
     """
     Retorna a data inicial do intervalo a partir da combinação
     (ano, periodo, mes).  
@@ -257,7 +257,7 @@ def get_period_start(ano: int, periodo: str, mes: int | None, custom_range=None)
 # =====================================================================
 # AJUSTE FINAL  –  get_period_end
 # =====================================================================
-def get_period_end(ano: int, periodo: str, mes: int | None, custom_range=None):
+def get_period_end(ano: int, periodo: str, mes, custom_range=None):
     """
     Retorna a data final do intervalo.
 
@@ -413,7 +413,7 @@ def filtrar_periodo_principal(df, ano, periodo, mes, custom_range):
 
 
 # utils.py  –  substituir a função toda
-def calcular_periodo_anterior(ano: int, periodo: str, mes: int | None):
+def calcular_periodo_anterior(ano: int, periodo: str, mes):
     """
     Devolve uma tupla (periodo_anterior, ano_anterior, mes_anterior) seguindo
     o conceito de período cronologicamente imediato:

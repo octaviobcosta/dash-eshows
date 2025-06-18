@@ -23,7 +23,7 @@ CACHE_RAM = os.getenv("CACHE_RAM", "1") == "1"
 CACHE_DIR = Path(__file__).resolve().parent / "_cache_parquet"
 CACHE_DIR.mkdir(exist_ok=True)
 
-CACHE_EXPIRY_HOURS: int | None = 12
+CACHE_EXPIRY_HOURS: int = 12
 
 def _cache_path(table: str) -> Path:
     return CACHE_DIR / f"{table.lower()}.parquet"

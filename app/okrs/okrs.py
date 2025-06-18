@@ -115,7 +115,7 @@ def buscar_metas_direto_supabase(ano, periodo, mes=None, custom_range=None):
         return df_cached
     
     try:
-        from ..data_manager import supa
+        from app.data.data_manager import supa
         
         if supa is None:
             logger.error("Cliente Supabase não inicializado")
@@ -3056,8 +3056,8 @@ def _parse_to_float(col):
 # ----------------------------------------------------------------------------- 
 def ler_todas_as_metas(ano: int,
                        periodo: str,
-                       mes: int | None = None,
-                       custom_range: tuple | None = None) -> dict:
+                       mes: int = None,
+                       custom_range: tuple = None) -> dict:
     """
     Lê Metas.xlsx, filtra o período e devolve {Meta: valor}.
     – Metas percentuais são convertidas p/ fração (ex.: 10 % → 0.10)  

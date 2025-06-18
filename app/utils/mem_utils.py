@@ -21,7 +21,7 @@ def log_memory_usage(etapa: str) -> None:
 
 from functools import wraps
 
-def log_mem(prefix: str | None = None):
+def log_mem(prefix: str = None):
     """Decorador para logar uso de memória antes e depois da função."""
     def decorator(func):
         etapa = prefix or func.__name__

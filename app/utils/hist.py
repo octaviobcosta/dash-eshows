@@ -166,7 +166,7 @@ def historical_rpc(months: int = 12) -> dict:
     # ── 4. Agrega mensalmente ─────────────────────────────────────────
     df_monthly = (
         df_eshows
-        .groupby(pd.Grouper(key="Data do Show", freq="ME"))
+        .groupby(pd.Grouper(key="Data do Show", freq="M"))
         .agg({"Faturamento": "sum"})
         .reset_index()
     )
@@ -247,7 +247,7 @@ def historical_cmgr(months: int = 12) -> dict:
     # ── 4. Agrega por mês ─────────────────────────────────────────────
     df_monthly = (
         df_eshows
-        .groupby(pd.Grouper(key="Data do Show", freq="ME"))
+        .groupby(pd.Grouper(key="Data do Show", freq="M"))
         .agg({"Faturamento": "sum"})
         .reset_index()
     )
@@ -343,7 +343,7 @@ def historical_lucratividade(months: int = 12) -> dict:
 
     df_fat_monthly = (
         df_eshows
-        .groupby(pd.Grouper(key="Data do Show", freq="ME"))
+        .groupby(pd.Grouper(key="Data do Show", freq="M"))
         .agg({"Faturamento": "sum"})
         .reset_index()
     )
@@ -354,7 +354,7 @@ def historical_lucratividade(months: int = 12) -> dict:
 
     df_cst_monthly = (
         df_base2
-        .groupby(pd.Grouper(key="Data", freq="ME"))
+        .groupby(pd.Grouper(key="Data", freq="M"))
         .agg({"Custos": "sum"})
         .reset_index()
     )
@@ -456,7 +456,7 @@ def historical_ebitda(months: int = 12) -> dict:
 
     df_fat_monthly = (
         df_eshows
-        .groupby(pd.Grouper(key="Data do Show", freq="ME"))
+        .groupby(pd.Grouper(key="Data do Show", freq="M"))
         .agg({"ReceitaEBTIDA": "sum"})
         .reset_index()
     )
@@ -469,7 +469,7 @@ def historical_ebitda(months: int = 12) -> dict:
 
     df_cst_monthly = (
         df_base2
-        .groupby(pd.Grouper(key="Data", freq="ME"))
+        .groupby(pd.Grouper(key="Data", freq="M"))
         .agg({"CustosEBTIDA": "sum"})
         .reset_index()
     )
@@ -552,7 +552,7 @@ def historical_roll6m(months=12):
     # Garante colunas de faturamento necessárias
     sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
-    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
+    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Faturamento': 'sum'}).reset_index()
     if df_monthly.empty or len(df_monthly) < 6:
         return {}
     faturamento_series = df_monthly.set_index('Data do Show')['Faturamento']
@@ -605,7 +605,7 @@ def historical_estabilidade(months=12):
             df_base2[col] = 0
         else:
             df_base2[col] = pd.to_numeric(df_base2[col], errors='coerce').fillna(0)
-    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({
+    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({
         'Uptime (%)': 'mean',
         'MTBF (horas)': 'mean',
         'MTTR (Min)': 'mean',
@@ -666,7 +666,7 @@ def historical_nrr(months=12):
     # Calcula faturamento mensal total
     sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
-    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
+    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Faturamento': 'sum'}).reset_index()
     if df_monthly.empty:
         return {}
     # Calcula NRR para cada mês com dado no ano anterior
@@ -782,7 +782,7 @@ def historical_churn(months=12, dias_sem_show=45):
     df = df.dropna(subset=['Data do Show']).sort_values('Data do Show')
     end_date = df['Data do Show'].max()
     start_date, _ = get_date_range_for_period(end_date, months)
-    dates = pd.date_range(start=start_date, end=end_date, freq='ME')
+    dates = pd.date_range(start=start_date, end=end_date, freq='M')
     churn_series = {}
     global df_eshows  # disponibiliza df para uso em calcular_churn
     df_eshows = df.copy()
@@ -826,7 +826,7 @@ def historical_inadimplencia(months=12):
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show']).sort_values('Data do Show')
     df_eshows["Valor Total do Show"] = pd.to_numeric(df_eshows["Valor Total do Show"], errors='coerce').fillna(0)
-    df_gmv = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Valor Total do Show': 'sum'}).reset_index()
+    df_gmv = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Valor Total do Show': 'sum'}).reset_index()
     # 2. Base de Inadimplência (Casas)
     df_casas, _ = carregar_base_inad()
     if df_casas is None or df_casas.empty:
@@ -952,7 +952,7 @@ def historical_perfis_completos(months=12):
             df_base2[col] = 0
         else:
             df_base2[col] = pd.to_numeric(df_base2[col], errors='coerce').fillna(0)
-    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({
+    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({
         "Base Acumulada Completa": "sum",
         "Base Acumulada Total": "sum"
     }).reset_index()
@@ -999,7 +999,7 @@ def historical_autonomia_usuario(months=12):
             df_base2[col] = 0
         else:
             df_base2[col] = pd.to_numeric(df_base2[col], errors='coerce').fillna(0)
-    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({
+    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({
         "Propostas Lancadas Usuários": "sum",
         "Propostas Lancadas Internas": "sum"
     }).reset_index()
@@ -1040,7 +1040,7 @@ def historical_sucesso_implantacao(months=12):
     """
     end_date = pd.Timestamp.today().normalize()
     start_date = end_date - relativedelta(months=months) + pd.DateOffset(days=1)
-    dates = pd.date_range(start=start_date, end=end_date, freq='ME')
+    dates = pd.date_range(start=start_date, end=end_date, freq='M')
     sucesso_values = {d: random.uniform(0.10, 0.95) for d in dates}
     sucesso_series = pd.Series(sucesso_values).sort_index()
     if sucesso_series.empty:
@@ -1075,7 +1075,7 @@ def historical_conformidade_juridica(months=12):
             df_base2[col] = 0
         else:
             df_base2[col] = pd.to_numeric(df_base2[col], errors='coerce').fillna(0)
-    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({
+    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({
         "Casas Contrato": "sum",
         "Casas Ativas": "sum"
     }).reset_index()
@@ -1122,7 +1122,7 @@ def historical_eficiencia_atendimento(months=12):
             df_base2[col] = 0
         else:
             df_base2[col] = pd.to_numeric(df_base2[col], errors='coerce').fillna(0)
-    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({
+    df_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({
         "Tempo Resposta": "mean",
         "Tempo Resolução": "mean"
     }).reset_index()
@@ -1172,7 +1172,7 @@ def historical_nivel_servico(months=12):
     # Preparação dos dados de shows mensais
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show']).sort_values('Data do Show')
-    df_shows = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Id do Show': 'nunique'}).reset_index()
+    df_shows = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Id do Show': 'nunique'}).reset_index()
     df_shows.rename(columns={'Id do Show': 'Shows'}, inplace=True)
     # Preparação dos dados de ocorrências mensais
     if "DATA" in df_ocorr.columns:
@@ -1182,10 +1182,10 @@ def historical_nivel_servico(months=12):
     if "TIPO" in df_ocorr.columns:
         df_ocorr = df_ocorr[df_ocorr["TIPO"] != "Leve"]
     if "ID_OCORRENCIA" in df_ocorr.columns:
-        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='ME')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
+        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='M')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
         df_occ.rename(columns={"ID_OCORRENCIA": "Ocorrências"}, inplace=True)
     else:
-        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='ME')).size().reset_index(name="Ocorrências")
+        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='M')).size().reset_index(name="Ocorrências")
     # Mescla ocorrências e shows por mês
     df_merged = pd.merge(df_shows, df_occ, left_on='Data do Show', right_on='Data', how='inner')
     df_merged.drop(columns=['Data'], inplace=True)
@@ -1411,7 +1411,7 @@ def historical_inadimplencia_real(months=12):
     # 2) Define o período histórico com base na data máxima da base
     overall_max = df_eshows["Data do Show"].max()
     overall_min = overall_max - pd.DateOffset(months=months)
-    dates = pd.date_range(start=overall_min, end=overall_max, freq='ME')
+    dates = pd.date_range(start=overall_min, end=overall_max, freq='M')
     logger.debug(f">> Período histórico: de {dates[0].strftime('%Y-%m-%d')} até {dates[-1].strftime('%Y-%m-%d')}")
 
     # 3) Carrega os dados de inadimplência (casas e artistas)
@@ -1615,10 +1615,10 @@ def historical_palcos_vazios(months=12):
         return {}
     df_palco = df_ocorr[df_ocorr["TIPO"] == "Palco vazio"]
     if "ID_OCORRENCIA" in df_palco.columns:
-        df_monthly = df_palco.groupby(pd.Grouper(key='Data', freq='ME')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
+        df_monthly = df_palco.groupby(pd.Grouper(key='Data', freq='M')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
         df_monthly.rename(columns={'ID_OCORRENCIA': 'Palcos Vazios'}, inplace=True)
     else:
-        df_monthly = df_palco.groupby(pd.Grouper(key='Data', freq='ME')).size().reset_index(name='Palcos Vazios')
+        df_monthly = df_palco.groupby(pd.Grouper(key='Data', freq='M')).size().reset_index(name='Palcos Vazios')
     
     end_date = df_monthly['Data'].max()
     start_date, _ = get_date_range_for_period(end_date, months)
@@ -1655,7 +1655,7 @@ def historical_palcos_ativos(months=12):
         return {}
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.sort_values('Data do Show')
-    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Id da Casa': 'nunique'}).reset_index()
+    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Id da Casa': 'nunique'}).reset_index()
     df_monthly.rename(columns={'Id da Casa': 'Palcos Ativos'}, inplace=True)
     
     end_date = df_monthly['Data do Show'].max()
@@ -1697,10 +1697,10 @@ def historical_ocorrencias(months=12):
         df_ocorr = df_ocorr[df_ocorr["TIPO"] != "Leve"]
     # Agrupa ocorrências por mês
     if "ID_OCORRENCIA" in df_ocorr.columns:
-        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='ME')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
+        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='M')).agg({'ID_OCORRENCIA': 'nunique'}).reset_index()
         df_occ.rename(columns={"ID_OCORRENCIA": "Ocorrencias"}, inplace=True)
     else:
-        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='ME')).size().reset_index(name="Ocorrencias")
+        df_occ = df_ocorr.groupby(pd.Grouper(key='Data', freq='M')).size().reset_index(name="Ocorrencias")
     if df_occ.empty:
         return {}
     end_date = df_occ['Data'].max()
@@ -1793,7 +1793,7 @@ def historical_cidades(months=12):
         return {}
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show']).sort_values('Data do Show')
-    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Cidade': 'nunique'}).reset_index()
+    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Cidade': 'nunique'}).reset_index()
     df_monthly.rename(columns={'Cidade': 'Cidades'}, inplace=True)
     if df_monthly.empty:
         return {}
@@ -2062,7 +2062,7 @@ def historical_num_shows(months=12):
         return {}
     df['Data do Show'] = pd.to_datetime(df['Data do Show'], errors='coerce')
     df = df.dropna(subset=['Data do Show']).sort_values('Data do Show')
-    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Id do Show': 'nunique'}).reset_index()
+    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Id do Show': 'nunique'}).reset_index()
     df_monthly.rename(columns={'Id do Show': 'Num Shows'}, inplace=True)
     if df_monthly.empty:
         return {}
@@ -2254,7 +2254,7 @@ def historical_nps_artistas(months=12):
         df["NPS Artistas"] = 0
     else:
         df["NPS Artistas"] = pd.to_numeric(df["NPS Artistas"], errors='coerce').fillna(0)
-    df_monthly = df.groupby(pd.Grouper(key='Data', freq='ME')).agg({'NPS Artistas': 'mean'}).reset_index()
+    df_monthly = df.groupby(pd.Grouper(key='Data', freq='M')).agg({'NPS Artistas': 'mean'}).reset_index()
     if df_monthly.empty:
         return {}
     end_date = df_monthly['Data'].max()
@@ -2293,7 +2293,7 @@ def historical_nps_equipe(months=12):
         df["NPS Equipe"] = 0
     else:
         df["NPS Equipe"] = pd.to_numeric(df["NPS Equipe"], errors='coerce').fillna(0)
-    df_monthly = df.groupby(pd.Grouper(key='Data', freq='ME')).agg({'NPS Equipe': 'mean'}).reset_index()
+    df_monthly = df.groupby(pd.Grouper(key='Data', freq='M')).agg({'NPS Equipe': 'mean'}).reset_index()
     if df_monthly.empty:
         return {}
     end_date = df_monthly['Data'].max()
@@ -2332,7 +2332,7 @@ def historical_lucro_liquido(months=12):
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.sort_values('Data do Show')
-    df_fat_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
+    df_fat_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Faturamento': 'sum'}).reset_index()
 
     df_base2 = carregar_base2()
     if df_base2 is None or df_base2.empty:
@@ -2342,7 +2342,7 @@ def historical_lucro_liquido(months=12):
         df_base2["Custos"] = 0
     else:
         df_base2["Custos"] = pd.to_numeric(df_base2["Custos"], errors='coerce').fillna(0)
-    df_cst_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME')).agg({'Custos': 'sum'}).reset_index()
+    df_cst_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M')).agg({'Custos': 'sum'}).reset_index()
 
     df_merged = pd.merge(df_fat_monthly, df_cst_monthly, left_on='Data do Show', right_on='Data', how='inner')
     df_merged.drop(columns=['Data'], inplace=True)
@@ -2388,7 +2388,7 @@ def historical_faturamento_eshows(months=12):
     df['Faturamento'] = df[COLUNAS_FATURAMENTO].sum(axis=1)
     df['Data do Show'] = pd.to_datetime(df['Data do Show'], errors='coerce')
     df = df.sort_values('Data do Show')
-    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg({'Faturamento': 'sum'}).reset_index()
+    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='M')).agg({'Faturamento': 'sum'}).reset_index()
     if df_monthly.empty:
         return {}
     end_date = df_monthly['Data do Show'].max()
@@ -2886,7 +2886,7 @@ def historical_num_colaboradores(months=12):
     end_date   = pd.Timestamp.today().normalize()
     start_date = (end_date - relativedelta(months=months)).replace(day=1)
     # Usamos fim de mês para garantir que peguemos todos ativos naquele mês
-    dates = pd.date_range(start=start_date, end=end_date, freq="ME") # ME = Month End
+    dates = pd.date_range(start=start_date, end=end_date, freq="M") # ME = Month End
 
     series_vals = OrderedDict()
     for month_end in dates:
@@ -2944,7 +2944,7 @@ def historical_tempo_medio_casa(months=12):
 
     end_date   = pd.Timestamp.today().normalize()
     start_date = (end_date - relativedelta(months=months)).replace(day=1)
-    dates = pd.date_range(start=start_date, end=end_date, freq="ME") # Month End
+    dates = pd.date_range(start=start_date, end=end_date, freq="M") # Month End
 
     series_vals = OrderedDict()
     logger.debug(f"[hist.historical_tempo_medio_casa] Calculando de {start_date.date()} a {end_date.date()}")
@@ -3037,7 +3037,7 @@ def historical_receita_por_colaborador(months=12):
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
     sanitize_faturamento_cols(df_eshows)
     df_eshows['Faturamento'] = df_eshows[COLUNAS_FATURAMENTO].sum(axis=1)
-    df_fat_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME'))['Faturamento'].sum()
+    df_fat_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M'))['Faturamento'].sum()
 
     # Prepara Colaboradores
     df_p["DataInicio"] = pd.to_datetime(df_p.get("DataInicio"), errors="coerce")
@@ -3046,7 +3046,7 @@ def historical_receita_por_colaborador(months=12):
 
     # Calcula RPC mensal
     series_vals = OrderedDict()
-    dates = pd.date_range(end=df_fat_monthly.index.max(), periods=months, freq='ME')
+    dates = pd.date_range(end=df_fat_monthly.index.max(), periods=months, freq='M')
 
     for month_end in dates:
         # Faturamento do mês
@@ -3104,7 +3104,7 @@ def historical_custo_medio_colaborador(months=12):
     df_base2["Equipe"] = pd.to_numeric(df_base2["Equipe"], errors='coerce').fillna(0.0)
     # Agrupa e já filtra meses com custo zero ou negativo, se apropriado.
     # Vamos manter os zeros por enquanto e filtrar depois do cálculo.
-    df_cost_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='ME'))['Equipe'].sum().rename("CustoEquipe")
+    df_cost_monthly = df_base2.groupby(pd.Grouper(key='Data', freq='M'))['Equipe'].sum().rename("CustoEquipe")
 
     # 2. Prepara Colaboradores Ativos Mensalmente
     df_p["DataInicio"] = pd.to_datetime(df_p.get("DataInicio"), errors="coerce")
@@ -3119,7 +3119,7 @@ def historical_custo_medio_colaborador(months=12):
     if pd.isna(min_date_p):
          return {"raw_data": OrderedDict()} # Não há como calcular sem data de início
 
-    all_months_index = pd.date_range(start=min_date_p, end=overall_end_date, freq='ME')
+    all_months_index = pd.date_range(start=min_date_p, end=overall_end_date, freq='M')
 
     colab_counts = {}
     for month_end in all_months_index:
@@ -3198,14 +3198,14 @@ def historical_artistas_ativos(months=12):
     df_eshows['Data do Show'] = pd.to_datetime(df_eshows['Data do Show'], errors='coerce')
     df_eshows = df_eshows.dropna(subset=['Data do Show'])
 
-    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='ME'))['Nome do Artista'].nunique()
+    df_monthly = df_eshows.groupby(pd.Grouper(key='Data do Show', freq='M'))['Nome do Artista'].nunique()
 
     # Filtra para os últimos meses
     series = df_monthly.tail(months)
     if series.empty: return {"raw_data": OrderedDict()}
 
     # Reindexa para garantir todos os meses no intervalo final e preenche com 0
-    full_idx = pd.date_range(start=series.index.min(), end=series.index.max(), freq='ME')
+    full_idx = pd.date_range(start=series.index.min(), end=series.index.max(), freq='M')
     series = series.reindex(full_idx, fill_value=0)
     series.index = series.index.to_period('M').to_timestamp() # Converte para início do mês
 
@@ -3265,7 +3265,7 @@ def historical_take_rate(months=12):
     df["Valor Total do Show"] = pd.to_numeric(df["Valor Total do Show"], errors='coerce').fillna(0.0)
 
     # Agrupa por mês, somando Comissão e GMV
-    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='ME')).agg(
+    df_monthly = df.groupby(pd.Grouper(key='Data do Show', freq='M')).agg(
         ComissaoB2B_Sum=("Comissão B2B", "sum"),
         GMV_Sum=("Valor Total do Show", "sum")
     )

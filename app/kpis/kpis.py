@@ -1079,7 +1079,7 @@ def register_callbacks(app):
         """
         from datetime import datetime
         import pandas as pd
-        from ..utils import (
+        from app.utils.utils import (
             get_period_start,
             get_period_end,
             mes_nome,            # dicionário helper já existente em utils.py
