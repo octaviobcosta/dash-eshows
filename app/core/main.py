@@ -1795,9 +1795,6 @@ app.layout = html.Div([
     # Container principal que será preenchido dinamicamente
     html.Div(id="main-container"),
 
-    # Modal de atualização
-    create_update_modal(),
-
     # Container oculto que garante que todos os componentes estejam presentes no DOM
     html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'})
 ])
