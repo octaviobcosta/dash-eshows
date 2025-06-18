@@ -14,7 +14,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Imports do seu projeto
-from .modulobase import (
+from app.data.modulobase import (
     carregar_base_eshows,
     carregar_base2,
     carregar_pessoas,
@@ -24,8 +24,8 @@ from .modulobase import (
     carregar_npsartistas,
     carregar_custosabertos
 )
-from .controles import get_kpi_status
-from .utils import (
+from app.kpis.controles import get_kpi_status
+from app.utils.utils import (
     filtrar_periodo_principal,
     filtrar_periodo_comparacao,
     get_period_start,

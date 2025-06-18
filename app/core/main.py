@@ -36,10 +36,12 @@ from dash import callback
 from flask import session
 
 load_dotenv()
-import logging_config  # noqa: F401
+import sys
+sys.path.append(str(Path(__file__).parent.parent.parent))
+import scripts.logging_config  # noqa: F401
 
 # ― Módulos internos ------------------------------------------------------------
-from .auth_improved import (
+from app.auth.auth_improved import (
     create_login_layout,
     init_auth_callbacks,
     init_logout_callback,
@@ -47,19 +49,18 @@ from .auth_improved import (
     add_logout_button,
     require_auth
 )
-from .update_modal_improved import (
+from app.updates.update_modal_improved import (
     create_update_modal,
-    init_update_modal_callbacks,
-    update_store_data
+    init_update_modal_callbacks
 )
-from app.config_data import HIST_KPI_MAP, get_hist_kpi_map
-from .modulobase import (
+from app.core.config_data import HIST_KPI_MAP, get_hist_kpi_map
+from app.data.modulobase import (
     carregar_base_eshows,
     carregar_eshows_excluidos,  # para exportar registros descartados
     carregar_base2,
     carregar_ocorrencias,
 )
-from .utils import (
+from app.utils.utils import (
     formatar_range_legivel,
     formatar_valor_utils,
     floatify_hist_data,
@@ -86,7 +87,7 @@ from .utils import (
     calcular_variacao_percentual,
     ensure_grupo_col
 )
-from .kpis_charts import generate_kpi_figure
+from app.ui.kpis_charts import generate_kpi_figure
 
 # ==============================================================================
 # 2) CONFIGURAÇÕES GLOBAIS
@@ -97,7 +98,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 # ― Logger ----------------------------------------------------------------------
 logger = logging.getLogger(__name__)
 
-from .mem_utils import log_memory_usage
+from app.utils.mem_utils import log_memory_usage
 
 log_memory_usage("inicio")
 
@@ -781,13 +782,10 @@ def metricas_rh_quick(
 # Layouts: Sidebar, Dashboard, etc.
 ###############################################################################
 
-# Alerta para recarregar base
-alert_atualiza = dbc.Alert(
-    id="alert-atualiza-base",
-    children="Bases recarregadas com sucesso!",
-    color="success",
-    dismissable=True,
-    is_open=False
+# Container vazio para toasts - o conteúdo será gerenciado pelos callbacks
+alert_atualiza = html.Div(
+    id="alert-atualiza-base-container",
+    style={"position": "relative", "zIndex": "1000"}
 )
 
 # =================================================================================
@@ -1701,9 +1699,6 @@ dashboard_layout = dbc.Container(
         
         # Modal de atualização de base
         create_update_modal(),
-        
-        # Store para dados de upload
-        update_store_data,
     ],
     fluid=True,
     style={'padding': '1rem'}
@@ -1733,8 +1728,8 @@ mes_store_kpis = dcc.Store(id='mes-store-painel-kpis', data=None)
 # =================================================================================
 # INSTÂNCIA PRINCIPAL DO DASH
 # =================================================================================
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))   # pasta do projeto
-assets_path = os.path.join(ROOT_DIR, "assets")
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))   # pasta do projeto (raiz)
+assets_path = os.path.join(ROOT_DIR, "app", "assets")
 
 # ▼ crie (ou use) a lista completa de estilos externos
 external_stylesheets = [
@@ -1753,6 +1748,9 @@ app = Dash(
 
 # Expor o servidor Flask para Gunicorn
 server = app.server
+
+# Expor como dash_app também para compatibilidade
+dash_app = app
 
 # Configuração da chave secreta para sessões
 app.server.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-change-in-production')

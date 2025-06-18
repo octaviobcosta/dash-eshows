@@ -1,6 +1,8 @@
+"""Aplicação principal - Dashboard eShows"""
+
 def create_app():
-    from .main import make_dash_app
-    return make_dash_app()
+    from app.core.main import dash_app
+    return dash_app
 
 
 

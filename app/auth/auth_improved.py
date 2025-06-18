@@ -15,7 +15,7 @@ from dash import dcc, html, Input, Output, State, ALL
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from app import data_manager
+from app.data import data_manager
 
 logger = logging.getLogger(__name__)
 

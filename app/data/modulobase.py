@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 
-from .data_manager import (
+from app.data.data_manager import (
     get_df_eshows,
     get_df_base2,
     get_df_ocorrencias,

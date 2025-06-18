@@ -11,7 +11,7 @@ import pandas as pd
 from dotenv import find_dotenv, load_dotenv
 from postgrest import APIError
 
-from .column_mapping import rename_columns, divide_cents, CENTS_MAPPING
+from app.data.column_mapping import rename_columns, divide_cents, CENTS_MAPPING
 
 # ────────────────────────────  logging  ────────────────────────────
 logger = logging.getLogger(__name__)

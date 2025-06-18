@@ -1,0 +1,119 @@
+/* Update Modal Styles */
+
+/* Step indicators */
+.step-item { 
+    opacity: 0.5; 
+    transition: opacity 0.3s; 
+}
+
+.step-item.active { 
+    opacity: 1; 
+}
+
+.step-number { 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; 
+    background: #e5e7eb; 
+    color: #6b7280;
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.step-item.active .step-number { 
+    background: #fc4f22; 
+    color: white; 
+}
+
+/* Card hover effects */
+.hover-card { 
+    transition: all 0.3s; 
+    border-color: #e5e7eb; 
+}
+
+.hover-card:hover { 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+    border-color: #fc4f22;
+    transform: translateY(-2px);
+}
+
+/* Table checkbox styling */
+.table-checkbox-item {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+    background: white;
+}
+
+.table-checkbox-item:hover {
+    background: #f9fafb;
+    border-color: #fc4f22;
+}
+
+.table-checkbox-item .form-check {
+    margin: 0;
+}
+
+.table-checkbox-item .form-check-label {
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Modal improvements */
+.modal-header {
+    border-bottom: 2px solid #f3f4f6;
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    border-top: 2px solid #f3f4f6;
+    padding: 1.5rem;
+}
+
+/* Button styles */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #fc4f22;
+    border-color: #fc4f22;
+}
+
+.btn-primary:hover {
+    background-color: #e84318;
+    border-color: #e84318;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(252, 79, 34, 0.3);
+}
+
+.btn-success {
+    background-color: #10b981;
+    border-color: #10b981;
+}
+
+.btn-success:hover {
+    background-color: #059669;
+    border-color: #059669;
+}
+
+/* Upload area */
+.upload-area {
+    transition: all 0.3s;
+}
+
+.upload-area:hover {
+    border-color: #fc4f22 !important;
+    background-color: #fef2f0 !important;
+}
