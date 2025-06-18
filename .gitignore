@@ -1,17 +1,84 @@
+# Python
 .venv/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environment
 .env
+.env.*
+*.env
+
+# IDEs
 .idea/
-node_modules/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Project specific
 .cursor/mcp.json
 .mcp.json
 app/_cache_parquet/
-
-# ↓ arquivos/dirs só para uso local
+app/data/_cache_parquet/
 logs/**
-
 app/_backups/
 dev/
 scripts/logs/
+node_modules/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+.~*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets and credentials
+*.pem
+*.key
+secrets/
+credentials/

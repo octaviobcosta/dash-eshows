@@ -17,8 +17,12 @@ class KPIInterpreter:
         """
         self.kpi_descriptions = kpi_descriptions
         # Inicializa o cliente da Anthropic usando a variável de ambiente
-        self.anthropic_api_key = "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"
-        self.client = anthropic.Client(api_key=self.anthropic_api_key)
+        self.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", "")
+        if self.anthropic_api_key:
+            self.client = anthropic.Client(api_key=self.anthropic_api_key)
+        else:
+            self.client = None
+            logger.warning("ANTHROPIC_API_KEY não configurada. Interpretações de KPI não estarão disponíveis.")
 
         # [NOVO] Cria um dicionário para cachear as interpretações
         self.cache = {}

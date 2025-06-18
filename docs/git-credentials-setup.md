@@ -16,10 +16,12 @@ git config --global credential.helper manager-core
 1. Criar arquivo de credenciais:
 ```bash
 # Linux/WSL
-echo "https://octaviobcosta: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@github.com" > ~/.git-credentials
+# EXEMPLO - SUBSTITUA COM SEU TOKEN REAL
+echo "https://octaviobcosta:SEU_GITHUB_PAT_AQUI@github.com" > ~/.git-credentials
 
 # Windows PowerShell
-echo "https://octaviobcosta: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@github.com" > $HOME\.git-credentials
+# EXEMPLO - SUBSTITUA COM SEU TOKEN REAL
+echo "https://octaviobcosta:SEU_GITHUB_PAT_AQUI@github.com" > $HOME\.git-credentials
 ```
 
 2. Configurar Git para usar o store:
