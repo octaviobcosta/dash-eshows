@@ -12,3 +12,6 @@ app/_cache_parquet/
 # ↓ arquivos/dirs só para uso local
 logs/**
 
+app/_backups/
+dev/
+scripts/logs/
