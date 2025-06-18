@@ -7,19 +7,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 🚨 INÍCIO DE CADA SESSÃO - VERIFICAÇÃO DE CONEXÕES MCP
 
 ### Status das Conexões MCP Configuradas:
-Todas as ferramentas MCP estão configuradas e operacionais no arquivo `.mcp.json`:
+O arquivo `.mcp.json` está configurado localmente (não versionado no Git):
 
-- ✅ **GitHub MCP**: Configurado e funcionando
-  - Token já está no `.mcp.json`
+- ✅ **GitHub MCP**: Configurado localmente
   - Repositório: `octaviobcosta/dash-eshows`
+  - ⚠️ **IMPORTANTE**: Renovar token se foi exposto
   
-- ✅ **Supabase MCP**: Configurado e funcionando
-  - Access token já está no `.mcp.json`
+- ✅ **Supabase MCP**: Configurado localmente
   - Projeto ID: `yrvtmgrqxhqltckpfizn`
   - Nome: "Dashboard de KPIs & OKRs"
+  - ⚠️ **IMPORTANTE**: Renovar token se foi exposto
   
-- ✅ **Playwright MCP**: Configurado e funcionando
+- ✅ **Playwright MCP**: Pronto para uso
   - Não requer tokens ou configuração adicional
+
+**NOTA DE SEGURANÇA**: Se os tokens foram expostos publicamente, devem ser revogados e regenerados imediatamente. Ver `docs/MCP_SETUP.md` para instruções.
 
 ### Verificação Opcional:
 Se desejar verificar o status das conexões, execute:
