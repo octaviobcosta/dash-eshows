@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: dashboard-eshows
+    runtime: python
+    branch: agent5
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.core.main:server --bind 0.0.0.0:$PORT --timeout 120 --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FLASK_SECRET_KEY
+        generateValue: true
+      - key: CACHE_EXPIRY_HOURS
+        value: 12
+      - key: USE_RAM_CACHE
+        value: false
