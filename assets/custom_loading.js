@@ -3,7 +3,10 @@
  * Monitora mudanças e mostra loading automaticamente
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+// Aguarda um pouco para garantir que tudo está carregado
+window.addEventListener('load', function() {
+    // Pequeno delay para garantir que o Dash terminou de renderizar
+    setTimeout(function() {
     // Monitora cliques em botões específicos
     const loadingButtons = [
         { selector: '#upload-csv-button', message: '📊 Processando arquivo CSV...' },
@@ -59,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    }, 1000); // Aguarda 1 segundo
 });
 
 // Intercepta respostas do Dash para esconder loading

@@ -1,0 +1,85 @@
+/* 
+ * Correções para os cards de KPI
+ * Garante que o layout dos cards não seja afetado pelos novos componentes
+ */
+
+/* Garante que os cards de KPI mantenham sua estrutura */
+[id$="-col"] {
+    min-height: 150px;
+}
+
+/* Corrige altura dos cards */
+.card-kpi {
+    height: 100%;
+    min-height: 150px;
+}
+
+/* Garante que o conteúdo dos cards seja visível */
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Corrige problemas de z-index */
+.card {
+    position: relative;
+    z-index: 1;
+}
+
+/* Garante que o grid funcione corretamente */
+.row {
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+}
+
+.col, [class*="col-"] {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+/* Garante que os valores dos KPIs sejam visíveis */
+.kpi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+}
+
+/* Corrige espaçamento entre seções */
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}
+
+.g-3 {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+}
+
+/* Garante que o container principal não seja afetado */
+#main-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Previne que o loading overlay afete o layout quando escondido */
+.loading-overlay[style*="display: none"] {
+    pointer-events: none !important;
+}
+
+/* Garante visibilidade do conteúdo dos cards */
+.card-kpi-value,
+.card-kpi-variation,
+.card-kpi-period {
+    position: relative;
+    z-index: 2;
+}
+
+/* Fix para títulos das seções */
+h2 {
+    margin-bottom: 1rem;
+}
+
+/* Garante que os ícones nos cards sejam visíveis */
+.card-kpi-icon,
+.kpi-dash-icon {
+    position: relative;
+    z-index: 2;
+}

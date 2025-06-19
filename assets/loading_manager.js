@@ -44,6 +44,7 @@ class LoadingManager {
 
         this.activeLoadings.add(loadingId);
         overlay.style.display = 'flex';
+        overlay.style.pointerEvents = 'auto';
         
         // Fade in suave
         setTimeout(() => {
@@ -71,6 +72,7 @@ class LoadingManager {
 
         // Fade out suave
         overlay.style.opacity = '0';
+        overlay.style.pointerEvents = 'none';
         
         setTimeout(() => {
             overlay.style.display = 'none';
