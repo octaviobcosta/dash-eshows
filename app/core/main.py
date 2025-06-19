@@ -53,6 +53,17 @@ from app.updates.update_modal_improved import (
     create_update_modal,
     init_update_modal_callbacks
 )
+from app.components.loading_state import (
+    create_loading_overlay,
+    create_skeleton_kpi_card,
+    create_dash_loading_component,
+    register_loading_callbacks
+)
+from app.components.loading_wrapper import (
+    create_loading_wrapper,
+    create_loading_callbacks,
+    add_loading_trigger_to_layout
+)
 from app.core.config_data import HIST_KPI_MAP, get_hist_kpi_map
 from app.data.modulobase import (
     carregar_base_eshows,
@@ -1765,6 +1776,7 @@ app.index_string = '''
         {%favicon%}
         {%css%}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+        <link rel="stylesheet" href="/assets/loading_styles.css">
     </head>
     <body>
         <div id="react-entry-point">
@@ -1774,6 +1786,9 @@ app.index_string = '''
             {%config%}
             {%scripts%}
             {%renderer%}
+            <script src="/assets/loading_manager.js"></script>
+            <script src="/assets/loading_callbacks.js"></script>
+            <script src="/assets/custom_loading.js"></script>
         </footer>
     </body>
 </html>
@@ -1792,11 +1807,21 @@ app.layout = html.Div([
     periodo_store_kpis,
     mes_store_kpis,
     
+    # Loading overlay principal
+    create_loading_overlay("main-loading"),
+    
     # Container principal que será preenchido dinamicamente
     html.Div(id="main-container"),
 
     # Container oculto que garante que todos os componentes estejam presentes no DOM
-    html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'})
+    html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'}),
+    
+    # Interval para rotação de frases no loading
+    dcc.Interval(id={'type': 'loading-interval', 'index': 'main'}, interval=3000),
+    
+    # Stores para trigger de loading
+    dcc.Store(id="loading-trigger"),
+    dcc.Store(id="loading-complete")
 ])
     
 #######################################
@@ -3624,6 +3649,8 @@ init_auth_callbacks(app)
 init_logout_callback(app)
 init_client_side_callbacks(app)
 init_update_modal_callbacks(app)
+register_loading_callbacks(app)
+create_loading_callbacks(app)
 
 # =========================================================
 # MAIN
