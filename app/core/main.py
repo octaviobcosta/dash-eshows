@@ -2104,10 +2104,12 @@ def atualizar_kpis(
     current_pathname,
     existing_indicators,
 ):
+    logger.info(f"atualizar_kpis CHAMADO! pathname={current_pathname}, ano={ano}, periodo={periodo}")
     # ————————————————————————————————————————————————————————————————
     # 0) Só roda no /dashboard
     # ————————————————————————————————————————————————————————————————
     if current_pathname != "/dashboard":
+        logger.info(f"atualizar_kpis ABORTADO - pathname não é /dashboard: {current_pathname}")
         raise dash.exceptions.PreventUpdate
 
     # ————————————————————————————————————————————————————————————————
