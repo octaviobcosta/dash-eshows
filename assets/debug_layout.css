@@ -1,0 +1,37 @@
+/* Debug CSS para identificar problema no layout */
+
+/* Torna as bordas visíveis */
+[id$="-col"] {
+    border: 2px solid red !important;
+    min-height: 150px !important;
+    background: rgba(255, 0, 0, 0.1) !important;
+}
+
+.card-kpi {
+    border: 2px solid blue !important;
+    background: rgba(0, 0, 255, 0.1) !important;
+}
+
+.card-body {
+    border: 2px solid green !important;
+    min-height: 120px !important;
+}
+
+/* Força visibilidade do conteúdo */
+.card-kpi-value {
+    color: black !important;
+    font-size: 2rem !important;
+    font-weight: bold !important;
+}
+
+/* Debug para rows */
+.row {
+    border: 1px dashed orange !important;
+    margin: 10px 0 !important;
+}
+
+/* Força display dos elementos */
+* {
+    opacity: 1 !important;
+    visibility: visible !important;
+}

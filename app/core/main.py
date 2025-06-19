@@ -439,6 +439,7 @@ def criar_card_kpi_shows(
     is_negative: bool = False,
     icon_path: str = "/assets/kpiicon.png",
 ):
+    logger.info(f"criar_card_kpi_shows chamado: titulo={titulo}, valor={valor}, tipo={format_type}")
     """
     Monta um cartão de KPI.
 
@@ -571,22 +572,7 @@ def criar_card_kpi_shows(
 # ----------------------------------------------------------------------
 # metricas_rh_quick  –  KPIs da seção Pessoas
 # ----------------------------------------------------------------------
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import numpy as np
-import pandas as pd
-
-from app.data.modulobase import (
-    carregar_pessoas,
-    carregar_base2,
-    carregar_base_eshows,
-)
-from app.kpis.variacoes  import get_churn_variables, get_rpc_variables
-from app.utils.utils      import (
-    get_period_start,
-    get_period_end,
-    calcular_periodo_anterior,
-)
+# Imports já feitos no início do arquivo, não precisa repetir
 
 # ----------------------------------------------------------------------
 def metricas_rh_quick(
@@ -1776,8 +1762,6 @@ app.index_string = '''
         {%favicon%}
         {%css%}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-        <link rel="stylesheet" href="/assets/loading_styles.css">
-        <link rel="stylesheet" href="/assets/kpi_card_fix.css">
     </head>
     <body>
         <div id="react-entry-point">
@@ -1787,9 +1771,6 @@ app.index_string = '''
             {%config%}
             {%scripts%}
             {%renderer%}
-            <script src="/assets/loading_manager.js"></script>
-            <script src="/assets/loading_callbacks.js"></script>
-            <script src="/assets/custom_loading.js"></script>
         </footer>
     </body>
 </html>
@@ -1808,21 +1789,11 @@ app.layout = html.Div([
     periodo_store_kpis,
     mes_store_kpis,
     
-    # Loading overlay principal
-    create_loading_overlay("main-loading"),
-    
     # Container principal que será preenchido dinamicamente
     html.Div(id="main-container"),
 
     # Container oculto que garante que todos os componentes estejam presentes no DOM
-    html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'}),
-    
-    # Interval para rotação de frases no loading
-    dcc.Interval(id={'type': 'loading-interval', 'index': 'main'}, interval=3000),
-    
-    # Stores para trigger de loading
-    dcc.Store(id="loading-trigger"),
-    dcc.Store(id="loading-complete")
+    html.Div([dashboard_layout, painel_kpis_layout, okrs_layout], style={'display': 'none'})
 ])
     
 #######################################
@@ -2610,6 +2581,7 @@ def atualizar_kpis(
     # -----------------------
     # Criação dos cards
     # -----------------------
+    logger.info(f"Criando card GMV: valor={gmv}, var={var_gmv}, label={label_comp}")
     card_gmv        = criar_card_kpi_shows("GMV", gmv, var_gmv, label_comp, format_type='monetario')
     card_numshows   = criar_card_kpi_shows("Número de Shows", num_shows, var_num, label_comp, format_type='numero')
     card_ticket     = criar_card_kpi_shows("Ticket Médio", ticket, var_ticket, label_comp, format_type='monetario')
@@ -3650,8 +3622,6 @@ init_auth_callbacks(app)
 init_logout_callback(app)
 init_client_side_callbacks(app)
 init_update_modal_callbacks(app)
-register_loading_callbacks(app)
-create_loading_callbacks(app)
 
 # =========================================================
 # MAIN
