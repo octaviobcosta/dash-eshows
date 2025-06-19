@@ -2094,7 +2094,7 @@ def atualizar_tooltip_contas_chave(
         Input("url","pathname")        # para checar a rota atual
     ],
     [State('all-indicators-store','data')],  # Lê o store já existente
-    prevent_initial_call=True
+    prevent_initial_call=False
 )
 def atualizar_kpis(
     ano, periodo, mes,
